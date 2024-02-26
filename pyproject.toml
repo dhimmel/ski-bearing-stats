@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "ski area aspects"
 authors = ["Daniel Himmelstein"]
 readme = "README.md"
+repository = "https://github.com/dhimmel/ski-bearing-stats"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -13,7 +14,45 @@ jupyter = "^1.0.0"
 polars = "^0.20.10"
 osmnx = "^1.9.1"
 
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.0.4"
+pytest = "^7.2.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+target-version = "py310"
+ignore = [
+    "E501",  # line-too-long (black should handle)
+]
+line-length = 88
+select = [
+    "B",  # flake8-bugbear
+    "C",  # flake8-comprehensions
+    "C90",  # mccabe
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "I",  # isort
+    "UP",  # pyupgrade
+    "W",  # pycode warnings
+]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+pretty = true
+show_error_context = true
+
+# https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file
+[[tool.mypy.overrides]]
+module = [
+    "fire.*",
+    "fsspec.*",
+    "networkx.*",
+    "pandas.*",
+    "rdflib.*",
+    "requests.*",
+]
+ignore_missing_imports = true

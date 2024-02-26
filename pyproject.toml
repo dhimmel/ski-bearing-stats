@@ -7,7 +7,7 @@ readme = "README.md"
 repository = "https://github.com/dhimmel/ski-bearing-stats"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 geojson = "^3.1.0"
 plotnine = "^0.13.0"
 jupyter = "^1.0.0"
@@ -23,7 +23,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py312"
 ignore = [
     "E501",  # line-too-long (black should handle)
 ]
@@ -40,7 +40,7 @@ select = [
 ]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
 strict = true
 pretty = true
 show_error_context = true

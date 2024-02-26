@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "openskimap-aspects"
+version = "0.1.0"
+description = "ski area aspects"
+authors = ["Daniel Himmelstein"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+geojson = "^3.1.0"
+plotnine = "^0.13.0"
+jupyter = "^1.0.0"
+polars = "^0.20.10"
+osmnx = "^1.9.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

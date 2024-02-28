@@ -4,8 +4,11 @@ import lzma
 from pathlib import Path
 from typing import Any, Literal
 
+import networkx as nx
 import pandas as pd
 import requests
+from osmnx.bearing import add_edge_bearings
+from osmnx.distance import add_edge_lengths
 
 data_directory = Path(__file__).parent.parent.joinpath("data")
 
@@ -62,3 +65,30 @@ def get_ski_area_to_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
                 continue
             ski_area_to_runs.setdefault(ski_area_name, []).append(run)
     return ski_area_to_runs
+
+
+def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
+    """
+    Convert runs to an newtorkx MultiDiGraph compatible with OSMnx.
+    NOTE: Bearing distributions lack support for directed graphs
+    https://github.com/gboeing/osmnx/issues/1137
+    """
+    graph = nx.MultiDiGraph(crs="EPSG:4326")
+    for run in runs:
+        assert run["geometry"]["type"] == "LineString"
+        # NOTE: longitude comes before latitude in GeoJSON and osmnx, which is different than GPS coordinates
+        for lon, lat, elevation in run["geometry"]["coordinates"]:
+            graph.add_node((lon, lat), x=lon, y=lat, elevation=elevation)
+    for run in runs:
+        coordinates = run["geometry"]["coordinates"].copy()
+        lon_0, lat_0, elevation_0 = coordinates.pop(0)
+        for lon_1, lat_1, elevation_1 in coordinates:
+            graph.add_edge(
+                (lon_0, lat_0),
+                (lon_1, lat_1),
+                elevation_change=elevation_1 - elevation_0,
+            )
+            lon_0, lat_0, elevation_0 = lon_1, lat_1, elevation_1
+    graph = add_edge_bearings(graph)
+    graph = add_edge_lengths(graph)
+    return graph

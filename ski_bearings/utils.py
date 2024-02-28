@@ -81,12 +81,15 @@ def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
             graph.add_node((lon, lat), x=lon, y=lat, elevation=elevation)
     for run in runs:
         coordinates = run["geometry"]["coordinates"].copy()
+        if coordinates[0][2] < coordinates[-1][2]:
+            # Ensure the run is going downhill, such that starting elevation > ending elevation
+            coordinates.reverse()
         lon_0, lat_0, elevation_0 = coordinates.pop(0)
         for lon_1, lat_1, elevation_1 in coordinates:
             graph.add_edge(
                 (lon_0, lat_0),
                 (lon_1, lat_1),
-                elevation_change=elevation_1 - elevation_0,
+                vertical=elevation_0 - elevation_1,
             )
             lon_0, lat_0, elevation_0 = lon_1, lat_1, elevation_1
     graph = add_edge_bearings(graph)

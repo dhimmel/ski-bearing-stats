@@ -122,7 +122,7 @@ def subplot_orientations(groupings: dict[str, nx.MultiDiGraph]) -> plt.Figure:
         with warnings.catch_warnings():
             warnings.filterwarnings(
                 action="ignore",
-                message="edge bearings will be directional",
+                # message="edge bearings will be directional",
                 category=UserWarning,
             )
             fig, ax = osmnx.plot_orientation(

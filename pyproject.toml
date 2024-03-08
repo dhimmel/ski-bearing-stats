@@ -12,7 +12,8 @@ geojson = "^3.1.0"
 plotnine = "^0.13.0"
 jupyter = "^1.0.0"
 polars = "^0.20.10"
-osmnx = "^1.9.1"
+# osmnx = "^2.0.0"
+osmnx = { git = "https://github.com/gboeing/osmnx.git", branch = "v2" }
 geopandas = "^0.14.3"
 
 [tool.poetry.group.dev.dependencies]

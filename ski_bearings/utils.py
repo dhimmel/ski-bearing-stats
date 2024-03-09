@@ -1,8 +1,11 @@
+import itertools
 import json
 import logging
 import lzma
 import math
+import statistics
 import warnings
+from enum import StrEnum
 from pathlib import Path
 from typing import Any, Literal
 
@@ -56,19 +59,70 @@ def load_ski_areas() -> pd.DataFrame:
     with lzma.open(ski_areas_path) as read_file:
         data = json.load(read_file)
     assert data["type"] == "FeatureCollection"
-    return pd.json_normalize([x["properties"] for x in data["features"]])
+    return pd.json_normalize([x["properties"] for x in data["features"]], sep="__")
+
+
+class SkiRunDifficulty(StrEnum):
+    novice = "novice"
+    easy = "easy"
+    intermediate = "intermediate"
+    advanced = "advanced"
+    expert = "expert"
+    extreme = "extreme"
+    freeride = "freeride"
+    other = "other"
+
+
+def load_downhill_ski_areas() -> pd.DataFrame:
+    ski_areas = load_ski_areas()
+    return (
+        ski_areas.query("type == 'skiArea'")
+        .explode("activities")
+        .query("activities == 'downhill'")[
+            [
+                "id",
+                "name",
+                "generated",
+                "runConvention",
+                "status",
+                "location__iso3166_1Alpha2",
+                "location__iso3166_2",
+                "location__localized__en__country",
+                "location__localized__en__region",
+                "location__localized__en__locality",
+                "websites",
+                "sources",
+                "statistics__minElevation",
+                "statistics__maxElevation",
+                "statistics__runs__minElevation",
+                "statistics__runs__maxElevation",
+                *itertools.chain.from_iterable(
+                    [
+                        f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__count",
+                        f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__lengthInKm",
+                        f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__combinedElevationChange",
+                    ]
+                    for difficulty in SkiRunDifficulty
+                ),
+                "statistics__lifts__minElevation",
+                "statistics__lifts__maxElevation",
+            ]
+        ]
+    )
 
 
 def get_ski_area_to_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
-    # using name is bad, duplicates like Black Mountain
+    # ski area names can be duplicated, like 'Black Mountain', so use the id instead.
     ski_area_to_runs: dict[str, Any] = {}
     for run in runs:
+        if "downhill" not in run["properties"]["uses"]:
+            continue
         if not (ski_areas := run["properties"]["skiAreas"]):
             continue
         for ski_area in ski_areas:
-            if not (ski_area_name := ski_area["properties"]["name"]):
+            if not (ski_area_id := ski_area["properties"]["id"]):
                 continue
-            ski_area_to_runs.setdefault(ski_area_name, []).append(run)
+            ski_area_to_runs.setdefault(ski_area_id, []).append(run)
     return ski_area_to_runs
 
 
@@ -100,6 +154,44 @@ def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
             lon_0, lat_0, elevation_0 = lon_1, lat_1, elevation_1
     graph = add_edge_bearings(graph)
     graph = add_edge_lengths(graph)
+    return graph
+
+
+def analyze_ski_area(
+    runs: list[dict[str, Any]], ski_area_metadata: dict[str, Any]
+) -> nx.MultiDiGraph:
+    ski_area_id = ski_area_metadata["id"]
+    ski_area_name = ski_area_metadata["name"]
+    graph = create_networkx(runs)
+    graph.graph.update(ski_area_metadata)
+    graph.graph["latitude"] = statistics.mean(lat for _, lat in graph.nodes(data="y"))
+    graph.graph["hemisphere"] = "north" if graph.graph["latitude"] > 0 else "south"
+    graph.graph["orientation_entropy"] = osmnx.orientation_entropy(
+        graph, weight="vertical"
+    )
+    bin_counts, bin_edges = osmnx.bearing._bearings_distribution(
+        graph,
+        num_bins=2,
+        min_length=0,
+        weight="vertical",
+    )
+    graph.graph["orientation_2_north"], graph.graph["orientation_2_south"] = bin_counts
+    bin_counts, bin_edges = osmnx.bearing._bearings_distribution(
+        graph, num_bins=4, min_length=0, weight="vertical"
+    )
+    (
+        graph.graph["orientation_4_north"],
+        graph.graph["orientation_4_east"],
+        graph.graph["orientation_4_south"],
+        graph.graph["orientation_4_west"],
+    ) = bin_counts
+    fig, ax = osmnx.plot_orientation(
+        graph,
+        title=ski_area_name or ski_area_id,
+        area=True,
+        weight="vertical",
+        color="#D4A0A7",
+    )
     return graph
 
 

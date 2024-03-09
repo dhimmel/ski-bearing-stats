@@ -164,6 +164,7 @@ def analyze_ski_area(
     ski_area_name = ski_area_metadata["name"]
     graph = create_networkx(runs)
     graph.graph.update(ski_area_metadata)
+    graph.graph["run_count"] = len(runs)
     graph.graph["latitude"] = statistics.mean(lat for _, lat in graph.nodes(data="y"))
     graph.graph["hemisphere"] = "north" if graph.graph["latitude"] > 0 else "south"
     graph.graph["orientation_entropy"] = osmnx.orientation_entropy(

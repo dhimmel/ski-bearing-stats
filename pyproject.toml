@@ -15,6 +15,7 @@ polars = "^0.20.10"
 # osmnx = "^2.0.0"
 osmnx = { git = "https://github.com/gboeing/osmnx.git", branch = "v2" }
 geopandas = "^0.14.3"
+pyarrow = "^15.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.0.4"

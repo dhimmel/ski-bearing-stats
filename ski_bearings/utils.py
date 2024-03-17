@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import osmnx
 import pandas as pd
+import polars as pl
 import requests
 from osmnx.bearing import add_edge_bearings
 from osmnx.distance import add_edge_lengths
@@ -177,6 +178,7 @@ def analyze_ski_area(
         weight="vertical",
     )
     graph.graph["orientation_2_north"], graph.graph["orientation_2_south"] = bin_counts
+    # 4 cardinal directions
     bin_counts, bin_edges = osmnx.bearing._bearings_distribution(
         graph, num_bins=4, min_length=0, weight="vertical"
     )
@@ -194,6 +196,40 @@ def analyze_ski_area(
         color="#D4A0A7",
     )
     return graph
+
+
+def get_bearing_distributions_df(graph: nx.MultiDiGraph) -> pl.DataFrame:
+    """
+    Get the bearing distribution of a graph as a DataFrame.
+    """
+    bins = 2, 4, 8, 36
+    return pl.concat(
+        [get_bearing_distribution_df(graph, num_bins=num_bins) for num_bins in bins],
+        how="vertical",
+    )
+
+
+def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.DataFrame:
+    """
+    Get the bearing distribution of a graph as a DataFrame.
+    """
+    bin_counts, bin_centers = osmnx.bearing._bearings_distribution(
+        graph,
+        num_bins=num_bins,
+        min_length=0,
+        weight="vertical",
+    )
+    # polars make dataframe from bin_counts, and bin_centers
+    return (
+        pl.DataFrame(
+            {
+                "bin_center_degrees": bin_centers[:-1],
+                "bin_count": bin_counts,
+            }
+        )
+        .with_columns(pl.lit(num_bins).alias("num_bins"))
+        .with_row_index(name="bin_index", offset=1)
+    )
 
 
 def subplot_orientations(groupings: dict[str, nx.MultiDiGraph]) -> plt.Figure:

@@ -223,7 +223,7 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
     return (
         pl.DataFrame(
             {
-                "bin_center_degrees": bin_centers[:-1],
+                "bin_centers": bin_centers,
                 "bin_count": bin_counts,
             }
         )

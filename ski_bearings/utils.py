@@ -21,6 +21,43 @@ from osmnx.distance import add_edge_lengths
 data_directory = Path(__file__).parent.parent.joinpath("data")
 
 
+bearing_labels = {
+    0.0: "N",
+    11.25: "NbE",
+    22.5: "NNE",
+    33.75: "NEbN",
+    45.0: "NE",
+    56.25: "NEbE",
+    67.5: "ENE",
+    78.75: "EbN",
+    90.0: "E",
+    101.25: "EbS",
+    112.5: "ESE",
+    123.75: "SEbE",
+    135.0: "SE",
+    146.25: "SEbS",
+    157.5: "SSE",
+    168.75: "SbE",
+    180.0: "S",
+    191.25: "SbW",
+    202.5: "SSW",
+    213.75: "SWbS",
+    225.0: "SW",
+    236.25: "SWbW",
+    247.5: "WSW",
+    258.75: "WbS",
+    270.0: "W",
+    281.25: "WbN",
+    292.5: "WNW",
+    303.75: "NWbW",
+    315.0: "NW",
+    326.25: "NWbN",
+    337.5: "NNW",
+    348.75: "NbW",
+}
+"""Bearing labels for 32-wind compass rose."""
+
+
 def get_openskimap_path(name: Literal["runs", "ski_areas", "lifts"]) -> Path:
     return data_directory.joinpath(f"{name}.geojson.xz")
 
@@ -150,7 +187,7 @@ def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
             graph.add_edge(
                 (lon_0, lat_0),
                 (lon_1, lat_1),
-                vertical=elevation_0 - elevation_1,
+                vertical=max(0.0, elevation_0 - elevation_1),
             )
             lon_0, lat_0, elevation_0 = lon_1, lat_1, elevation_1
     graph = add_edge_bearings(graph)
@@ -190,6 +227,7 @@ def analyze_ski_area(
     ) = bin_counts
     fig, ax = osmnx.plot_orientation(
         graph,
+        num_bins=32,
         title=ski_area_name or ski_area_id,
         area=True,
         weight="vertical",
@@ -202,7 +240,7 @@ def get_bearing_distributions_df(graph: nx.MultiDiGraph) -> pl.DataFrame:
     """
     Get the bearing distribution of a graph as a DataFrame.
     """
-    bins = 2, 4, 8, 36
+    bins = 2, 4, 8, 32
     return pl.concat(
         [get_bearing_distribution_df(graph, num_bins=num_bins) for num_bins in bins],
         how="vertical",
@@ -223,11 +261,16 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
     return (
         pl.DataFrame(
             {
-                "bin_centers": bin_centers,
+                "bin_center": bin_centers,
                 "bin_count": bin_counts,
             }
         )
         .with_columns(pl.lit(num_bins).alias("num_bins"))
+        .with_columns(
+            pl.col("bin_center")
+            .replace(bearing_labels, default=None)
+            .alias("bin_label")
+        )
         .with_row_index(name="bin_index", offset=1)
     )
 
@@ -256,6 +299,7 @@ def subplot_orientations(groupings: dict[str, nx.MultiDiGraph]) -> plt.Figure:
             )
             fig, ax = osmnx.plot_orientation(
                 graph,
+                num_bins=32,
                 ax=ax,
                 title=name,
                 area=True,

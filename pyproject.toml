@@ -6,6 +6,9 @@ authors = ["Daniel Himmelstein"]
 readme = "README.md"
 repository = "https://github.com/dhimmel/ski-bearing-stats"
 
+[tool.poetry.scripts]
+ski_bearings = "ski_bearings.commands:Commands.command"
+
 [tool.poetry.dependencies]
 python = "^3.12"
 geojson = "^3.1.0"

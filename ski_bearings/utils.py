@@ -167,8 +167,6 @@ def get_ski_area_to_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
 def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
     """
     Convert runs to an newtorkx MultiDiGraph compatible with OSMnx.
-    NOTE: Bearing distributions lack support for directed graphs
-    https://github.com/gboeing/osmnx/issues/1137
     """
     graph = nx.MultiDiGraph(crs="EPSG:4326")  # https://epsg.io/4326
     # filter out unsupported geometries like Polygons
@@ -206,25 +204,8 @@ def analyze_ski_area(
     graph.graph["latitude"] = statistics.mean(lat for _, lat in graph.nodes(data="y"))
     graph.graph["hemisphere"] = "north" if graph.graph["latitude"] > 0 else "south"
     graph.graph["orientation_entropy"] = osmnx.orientation_entropy(
-        graph, weight="vertical"
+        graph, num_bins=32, weight="vertical"
     )
-    bin_counts, bin_edges = osmnx.bearing._bearings_distribution(
-        graph,
-        num_bins=2,
-        min_length=0,
-        weight="vertical",
-    )
-    graph.graph["orientation_2_north"], graph.graph["orientation_2_south"] = bin_counts
-    # 4 cardinal directions
-    bin_counts, bin_edges = osmnx.bearing._bearings_distribution(
-        graph, num_bins=4, min_length=0, weight="vertical"
-    )
-    (
-        graph.graph["orientation_4_north"],
-        graph.graph["orientation_4_east"],
-        graph.graph["orientation_4_south"],
-        graph.graph["orientation_4_west"],
-    ) = bin_counts
     fig, ax = osmnx.plot_orientation(
         graph,
         num_bins=32,
@@ -240,7 +221,7 @@ def get_bearing_distributions_df(graph: nx.MultiDiGraph) -> pl.DataFrame:
     """
     Get the bearing distribution of a graph as a DataFrame.
     """
-    bins = 2, 4, 8, 32
+    bins = [2, 4, 8, 32]
     return pl.concat(
         [get_bearing_distribution_df(graph, num_bins=num_bins) for num_bins in bins],
         how="vertical",

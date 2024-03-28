@@ -20,3 +20,5 @@ DOI: [10.1016/j.compenvurbsys.2017.05.004](https://doi.org/10.1016/j.compenvurbs
 Hugues François, Raphaëlle Samacoïts, David Neil Bird, Judith Köberl, Franz Prettenthaler, Samuel Morin  
 *Nature Climate Change* (2023-08-28) <https://doi.org/gsnhbv>  
 DOI: [10.1038/s41558-023-01759-5](https://doi.org/10.1038/s41558-023-01759-5)
+
+5. https://github.com/gboeing/osmnx/issues/1137

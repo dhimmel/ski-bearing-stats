@@ -2,7 +2,6 @@ import itertools
 import json
 import logging
 import lzma
-import math
 import statistics
 import warnings
 from enum import StrEnum
@@ -10,7 +9,6 @@ from functools import cache
 from pathlib import Path
 from typing import Any, Literal
 
-import matplotlib.pyplot as plt
 import networkx as nx
 import osmnx
 import pandas as pd
@@ -309,55 +307,3 @@ def analyze_all_ski_areas() -> None:
     ski_area_metrics_df.write_parquet(
         data_directory.joinpath("ski_area_metrics.parquet")
     )
-
-
-def subplot_orientations(groupings: dict[str, nx.MultiDiGraph]) -> plt.Figure:
-    """
-    Plot orientations from multiple graphs in a grid.
-    https://github.com/gboeing/osmnx-examples/blob/bb870c225906db5a7b02c4c87a28095cb9dceb30/notebooks/17-street-network-orientations.ipynb
-    """
-    # create figure and axes
-    n_groupings = len(groupings)
-    n_cols = math.ceil(n_groupings**0.5)
-    n_rows = math.ceil(n_groupings / n_cols)
-    figsize = (n_cols * 5, n_rows * 5)
-    fig, axes = plt.subplots(
-        n_rows, n_cols, figsize=figsize, subplot_kw={"projection": "polar"}
-    )
-
-    # plot each group's polar histogram
-    for ax, (name, graph) in zip(axes.flat, sorted(groupings.items()), strict=False):
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                action="ignore",
-                # message="edge bearings will be directional",
-                category=UserWarning,
-            )
-            fig, ax = osmnx.plot_orientation(
-                graph,
-                num_bins=32,
-                ax=ax,
-                title=name,
-                area=True,
-                weight="vertical",
-                color="#D4A0A7",
-            )
-            ax.title.set_size(18)
-            ax.yaxis.grid(False)
-    # hide axes for unused subplots
-    for ax in axes.flat[n_groupings:]:
-        ax.axis("off")
-    # add figure title and save image
-    # suptitle_font = {
-    #     "family": "DejaVu Sans",
-    #     "fontsize": 60,
-    #     "fontweight": "normal",
-    #     "y": 1,
-    # }
-    # fig.suptitle("City Street Network Orientation", **suptitle_font)
-    fig.tight_layout()
-    fig.subplots_adjust(hspace=0.35)
-    # fig.savefig("images/street-orientations.png", facecolor="w", dpi=100, bbox_inches="tight")
-    plt.close()
-    return fig
-    # plt.close()

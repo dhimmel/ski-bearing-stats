@@ -6,6 +6,7 @@ import math
 import statistics
 import warnings
 from enum import StrEnum
+from functools import cache
 from pathlib import Path
 from typing import Any, Literal
 
@@ -80,6 +81,7 @@ def download_openskimap_geojsons() -> None:
         download_openskimap_geojson(name)  # type: ignore[arg-type]
 
 
+@cache
 def load_runs() -> Any:
     runs_path = get_openskimap_path("runs")
     if not runs_path.exists():
@@ -87,9 +89,12 @@ def load_runs() -> Any:
     with lzma.open(runs_path) as read_file:
         data = json.load(read_file)
     assert data["type"] == "FeatureCollection"
-    return data["features"]
+    runs = data["features"]
+    logging.info(f"Loaded {len(runs):,} runs.")
+    return runs
 
 
+@cache
 def load_ski_areas() -> pd.DataFrame:
     ski_areas_path = get_openskimap_path("ski_areas")
     if not ski_areas_path.exists():
@@ -111,15 +116,17 @@ class SkiRunDifficulty(StrEnum):
     other = "other"
 
 
+@cache
 def load_downhill_ski_areas() -> pd.DataFrame:
     ski_areas = load_ski_areas()
     return (
-        ski_areas.query("type == 'skiArea'")
+        ski_areas.rename(columns={"id": "ski_area_id", "name": "ski_area_name"})
+        .query("type == 'skiArea'")
         .explode("activities")
         .query("activities == 'downhill'")[
             [
-                "id",
-                "name",
+                "ski_area_id",
+                "ski_area_name",
                 "generated",
                 "runConvention",
                 "status",
@@ -129,7 +136,7 @@ def load_downhill_ski_areas() -> pd.DataFrame:
                 "location__localized__en__region",
                 "location__localized__en__locality",
                 "websites",
-                "sources",
+                # "sources",  # inconsistently typed nested column 'id' as string or int
                 "statistics__minElevation",
                 "statistics__maxElevation",
                 "statistics__runs__minElevation",
@@ -169,8 +176,10 @@ def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
     Convert runs to an newtorkx MultiDiGraph compatible with OSMnx.
     """
     graph = nx.MultiDiGraph(crs="EPSG:4326")  # https://epsg.io/4326
+    graph.graph["run_count"] = len(runs)
     # filter out unsupported geometries like Polygons
     runs = [run for run in runs if run["geometry"]["type"] == "LineString"]
+    graph.graph["run_count_filtered"] = len(runs)
     for run in runs:
         # NOTE: longitude comes before latitude in GeoJSON and osmnx, which is different than GPS coordinates
         for lon, lat, elevation in run["geometry"]["coordinates"]:
@@ -188,32 +197,35 @@ def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
                 vertical=max(0.0, elevation_0 - elevation_1),
             )
             lon_0, lat_0, elevation_0 = lon_1, lat_1, elevation_1
-    graph = add_edge_bearings(graph)
-    graph = add_edge_lengths(graph)
+    if graph.number_of_edges() > 0:
+        graph = add_edge_bearings(graph)
+        graph = add_edge_lengths(graph)
     return graph
 
 
-def analyze_ski_area(
+def create_networkx_with_metadata(
     runs: list[dict[str, Any]], ski_area_metadata: dict[str, Any]
 ) -> nx.MultiDiGraph:
-    ski_area_id = ski_area_metadata["id"]
-    ski_area_name = ski_area_metadata["name"]
+    # ski_area_id = ski_area_metadata["ski_area_id"]
+    # ski_area_name = ski_area_metadata["ski_area_name"]
     graph = create_networkx(runs)
-    graph.graph.update(ski_area_metadata)
-    graph.graph["run_count"] = len(runs)
-    graph.graph["latitude"] = statistics.mean(lat for _, lat in graph.nodes(data="y"))
-    graph.graph["hemisphere"] = "north" if graph.graph["latitude"] > 0 else "south"
-    graph.graph["orientation_entropy"] = osmnx.orientation_entropy(
-        graph, num_bins=32, weight="vertical"
-    )
-    fig, ax = osmnx.plot_orientation(
-        graph,
-        num_bins=32,
-        title=ski_area_name or ski_area_id,
-        area=True,
-        weight="vertical",
-        color="#D4A0A7",
-    )
+    graph.graph = ski_area_metadata | graph.graph
+    if graph.number_of_nodes() > 0:
+        graph.graph["latitude"] = statistics.mean(
+            lat for _, lat in graph.nodes(data="y")
+        )
+        graph.graph["hemisphere"] = "north" if graph.graph["latitude"] > 0 else "south"
+    # graph.graph["orientation_entropy"] = osmnx.orientation_entropy(
+    #     graph, num_bins=32, weight="vertical"
+    # )
+    # fig, ax = osmnx.plot_orientation(
+    #     graph,
+    #     num_bins=32,
+    #     title=ski_area_name or ski_area_id,
+    #     area=True,
+    #     weight="vertical",
+    #     color="#D4A0A7",
+    # )
     return graph
 
 
@@ -232,12 +244,18 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
     """
     Get the bearing distribution of a graph as a DataFrame.
     """
-    bin_counts, bin_centers = osmnx.bearing._bearings_distribution(
-        graph,
-        num_bins=num_bins,
-        min_length=0,
-        weight="vertical",
-    )
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            action="ignore",
+            # message="edge bearings will be directional",
+            category=UserWarning,
+        )
+        bin_counts, bin_centers = osmnx.bearing._bearings_distribution(
+            graph,
+            num_bins=num_bins,
+            min_length=0,
+            weight="vertical",
+        )
     # polars make dataframe from bin_counts, and bin_centers
     return (
         pl.DataFrame(
@@ -246,6 +264,9 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
                 "bin_count": bin_counts,
             }
         )
+        .with_columns(
+            bin_proportion=pl.col("bin_count") / pl.sum("bin_count").over(pl.lit(True))
+        )
         .with_columns(pl.lit(num_bins).alias("num_bins"))
         .with_columns(
             pl.col("bin_center")
@@ -253,6 +274,40 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
             .alias("bin_label")
         )
         .with_row_index(name="bin_index", offset=1)
+    )
+
+
+def analyze_all_ski_areas() -> None:
+    ski_area_df = load_downhill_ski_areas()
+    ski_area_metadatas = {
+        x["ski_area_id"]: x for x in ski_area_df.to_dict(orient="records")
+    }
+    runs = load_runs()
+    ski_area_to_runs = get_ski_area_to_runs(runs)
+    bearing_dist_dfs = []
+    ski_area_metrics = []
+    for ski_area_id, ski_area_metadata in ski_area_metadatas.items():
+        logging.info(
+            f"Analyzing {ski_area_id} named {ski_area_metadata['ski_area_name']}"
+        )
+        ski_area_runs = ski_area_to_runs.get(ski_area_id, [])
+        ski_area_metadata = ski_area_metadatas[ski_area_id]
+        graph = create_networkx_with_metadata(
+            runs=ski_area_runs, ski_area_metadata=ski_area_metadata
+        )
+        ski_area_metrics.append(graph.graph)
+        bearing_dist_df = get_bearing_distributions_df(graph).select(
+            pl.lit(ski_area_id).alias("ski_area_id"),
+            pl.all(),
+        )
+        bearing_dist_dfs.append(bearing_dist_df)
+    bearing_dist_df = pl.concat(bearing_dist_dfs, how="vertical")
+    ski_area_metrics_df = pl.DataFrame(data=ski_area_metrics)
+    bearing_dist_df.write_parquet(
+        data_directory.joinpath("bearing_distributions.parquet")
+    )
+    ski_area_metrics_df.write_parquet(
+        data_directory.joinpath("ski_area_metrics.parquet")
     )
 
 

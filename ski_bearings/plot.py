@@ -1,12 +1,10 @@
 import math
-import warnings
 from typing import Any
 
 import matplotlib.pyplot as plt
-import networkx as nx
 import numpy as np
 import numpy.typing as npt
-import osmnx
+import polars as pl
 from matplotlib.figure import Figure
 from matplotlib.projections.polar import PolarAxes
 from osmnx.plot import _get_fig_ax
@@ -19,8 +17,8 @@ def plot_orientation(
     ax: PolarAxes | None = None,
     figsize: tuple[float, float] = (5, 5),
     area: bool = True,
-    color: str = "#003366",
-    edgecolor: str = "k",
+    color: str = "#D4A0A7",
+    edgecolor: str = "black",
     linewidth: float = 0.5,
     alpha: float = 0.7,
     title: str | None = None,
@@ -125,14 +123,18 @@ def plot_orientation(
     return fig, ax
 
 
-def subplot_orientations(groupings: dict[str, nx.MultiDiGraph]) -> plt.Figure:
+def subplot_orientations(
+    distribution_pl: pl.DataFrame, grouping_col: str, n_cols: int | None = None
+) -> plt.Figure:
     """
     Plot orientations from multiple graphs in a grid.
     https://github.com/gboeing/osmnx-examples/blob/bb870c225906db5a7b02c4c87a28095cb9dceb30/notebooks/17-street-network-orientations.ipynb
     """
     # create figure and axes
+    groupings = distribution_pl.partition_by(grouping_col, as_dict=True)
     n_groupings = len(groupings)
-    n_cols = math.ceil(n_groupings**0.5)
+    if n_cols is None:
+        n_cols = math.ceil(n_groupings**0.5)
     n_rows = math.ceil(n_groupings / n_cols)
     figsize = (n_cols * 5, n_rows * 5)
     fig, axes = plt.subplots(
@@ -140,24 +142,19 @@ def subplot_orientations(groupings: dict[str, nx.MultiDiGraph]) -> plt.Figure:
     )
 
     # plot each group's polar histogram
-    for ax, (name, graph) in zip(axes.flat, sorted(groupings.items()), strict=False):
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                action="ignore",
-                # message="edge bearings will be directional",
-                category=UserWarning,
-            )
-            fig, ax = osmnx.plot_orientation(
-                graph,
-                num_bins=32,
-                ax=ax,
-                title=name,
-                area=True,
-                weight="vertical",
-                color="#D4A0A7",
-            )
-            ax.title.set_size(18)
-            ax.yaxis.grid(False)
+    for ax, (name, group_dist_pl) in zip(
+        axes.flat, sorted(groupings.items()), strict=False
+    ):
+        fig, ax = plot_orientation(
+            bin_counts=group_dist_pl.get_column("bin_count").to_numpy(),
+            bin_centers=group_dist_pl.get_column("bin_center").to_numpy(),
+            ax=ax,
+            title=name,
+            area=True,
+            color="#D4A0A7",
+        )
+        ax.title.set_size(18)
+        ax.yaxis.grid(False)
     # hide axes for unused subplots
     for ax in axes.flat[n_groupings:]:
         ax.axis("off")

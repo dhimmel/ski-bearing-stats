@@ -3,7 +3,6 @@ import json
 import logging
 import lzma
 import statistics
-import warnings
 from enum import StrEnum
 from functools import cache
 from pathlib import Path
@@ -16,6 +15,9 @@ import polars as pl
 import requests
 from osmnx.bearing import add_edge_bearings
 from osmnx.distance import add_edge_lengths
+
+from ski_bearings.bearing import get_mean_bearing
+from ski_bearings.osmnx_utils import suppress_user_warning
 
 data_directory = Path(__file__).parent.parent.joinpath("data")
 
@@ -213,6 +215,15 @@ def create_networkx_with_metadata(
             lat for _, lat in graph.nodes(data="y")
         )
         graph.graph["hemisphere"] = "north" if graph.graph["latitude"] > 0 else "south"
+    if graph.number_of_edges() > 0:
+        with suppress_user_warning():
+            bearings, weights = osmnx.bearing._extract_edge_bearings(
+                graph, min_length=0, weight="vertical"
+            )
+        graph.graph["combined_vertical"] = sum(weights)
+        mean_bearing, mean_bearing_strength = get_mean_bearing(bearings, weights)
+        graph.graph["mean_bearing"] = mean_bearing
+        graph.graph["mean_bearing_strength"] = mean_bearing_strength
     # graph.graph["orientation_entropy"] = osmnx.orientation_entropy(
     #     graph, num_bins=32, weight="vertical"
     # )
@@ -242,12 +253,7 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
     """
     Get the bearing distribution of a graph as a DataFrame.
     """
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            action="ignore",
-            # message="edge bearings will be directional",
-            category=UserWarning,
-        )
+    with suppress_user_warning():
         bin_counts, bin_centers = osmnx.bearing._bearings_distribution(
             graph,
             num_bins=num_bins,

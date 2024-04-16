@@ -17,6 +17,7 @@ def plot_orientation(
     bin_centers: npt.NDArray[np.float64],
     ax: PolarAxes | None = None,
     figsize: tuple[float, float] = (5, 5),
+    max_bin_count: float | None = None,
     area: bool = True,
     color: str = "#D4A0A7",
     edgecolor: str = "black",
@@ -41,6 +42,9 @@ def plot_orientation(
         projection=polar).
     figsize
         If `ax` is None, create new figure with size `(width, height)`.
+    max_bin_count
+        If not None, set the y-axis upper limit to this value.
+        Useful for comparing multiple polar histograms on the same scale.
     area
         If True, set bar length so area is proportional to frequency.
         Otherwise, set bar length so height is proportional to frequency.
@@ -85,17 +89,19 @@ def plot_orientation(
 
     # radius: how long to make each bar. set bar length so either the bar area
     # (ie, via sqrt) or the bar height is proportional to the bin's frequency
-    bin_frequency = bin_counts / bin_counts.sum()
-    radius = np.sqrt(bin_frequency) if area else bin_frequency
+    radius = np.sqrt(bin_counts) if area else bin_counts
+    if max_bin_count is None:
+        ylim = radius.max()
+    else:
+        ylim = np.sqrt(max_bin_count) if area else max_bin_count
 
     # create PolarAxes (if not passed-in) then set N at top and go clockwise
     fig, ax = _get_fig_ax(ax=ax, figsize=figsize, bgcolor=None, polar=True)
     ax.set_theta_zero_location("N")
     ax.set_theta_direction("clockwise")
-    ax.set_ylim(top=radius.max())
+    ax.set_ylim(top=ylim)
 
     # configure the y-ticks and remove their labels
-    ax.set_yticks(np.linspace(0, radius.max(), 5))
     ax.set_yticklabels(labels="")
 
     # configure the x-ticks and their labels
@@ -125,11 +131,26 @@ def plot_orientation(
 
 
 def subplot_orientations(
-    distribution_pl: pl.DataFrame, grouping_col: str, n_cols: int | None = None
+    distribution_pl: pl.DataFrame,
+    grouping_col: str,
+    n_cols: int | None = None,
+    free_y: bool = True,
 ) -> plt.Figure:
     """
     Plot orientations from multiple graphs in a grid.
     https://github.com/gboeing/osmnx-examples/blob/bb870c225906db5a7b02c4c87a28095cb9dceb30/notebooks/17-street-network-orientations.ipynb
+
+    Parameters
+    ----------
+    distribution_pl
+        A Polars DataFrame with bearing distributions.
+    grouping_col
+        The column to partition the data by with a subplot/facet for each group.
+    n_cols
+        The number of columns in the grid of subplots.
+    free_y
+        If True, each subplot's y-axis will be scaled independently.
+        If False, all subplots will be scaled to the same maximum y-value.
     """
     # create figure and axes
     groupings = distribution_pl.partition_by(grouping_col, as_dict=True)
@@ -143,6 +164,7 @@ def subplot_orientations(
     )
 
     # plot each group's polar histogram
+    max_bin_count = None if free_y else distribution_pl.get_column("bin_count").max()
     for ax, (name, group_dist_pl) in zip(
         axes.flat, sorted(groupings.items()), strict=False
     ):
@@ -150,6 +172,7 @@ def subplot_orientations(
             bin_counts=group_dist_pl.get_column("bin_count").to_numpy(),
             bin_centers=group_dist_pl.get_column("bin_center").to_numpy(),
             ax=ax,
+            max_bin_count=max_bin_count,
             title=name,
             area=True,
             color="#D4A0A7",

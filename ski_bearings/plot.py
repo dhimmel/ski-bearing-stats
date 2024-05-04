@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 import polars as pl
+from lets_plot.plot.core import PlotSpec as LetsPlotSpec
 from matplotlib.figure import Figure
 from matplotlib.projections.polar import PolarAxes
 from osmnx.plot import _get_fig_ax
@@ -285,7 +286,7 @@ def subplot_orientations_lets_plot(
     grouping_col: str,
     n_cols: int | None = None,
     free_y: bool = True,
-) -> lp.plot.plot.core.PlotSpec:
+) -> LetsPlotSpec:
     """
     Plot orientations from multiple graphs in a grid
     using Let's Plot. This is exploratory with much broken.

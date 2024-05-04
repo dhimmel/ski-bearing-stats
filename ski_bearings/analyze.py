@@ -55,6 +55,24 @@ def load_ski_areas_pl() -> pl.DataFrame:
     return pl.read_parquet(ski_area_metrics_path)
 
 
+def aggregate_ski_areas_pl(
+    group_by: list[str],
+    ski_area_filters: list[pl.Expr] | None = None,
+) -> pl.DataFrame:
+    return (
+        load_ski_areas_pl()
+        .filter(*ski_area_filters)
+        .group_by(*group_by)
+        .agg(
+            pl.n_unique("ski_area_id").alias("ski_area_count"),
+            pl.n_unique("location__localized__en__country").alias("country_count"),
+            pl.sum("combined_vertical").alias("combined_vertical"),
+            pl.sum("run_count").alias("run_count"),
+            pl.sum("run_count_filtered").alias("run_count_filtered"),
+        )
+    )
+
+
 def aggregate_ski_area_bearing_dists_pl(
     group_by: list[str],
     ski_area_filters: list[pl.Expr] | None = None,

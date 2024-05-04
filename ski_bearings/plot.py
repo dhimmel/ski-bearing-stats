@@ -126,6 +126,22 @@ def plot_orientation(
         alpha=alpha,
     )
 
+    # ideas for margin text
+    # top-left: ski areas, country, trail, lift count
+    # top-right: total skiable vertical
+    # bottom-left: poleward affinity/tendency, polar affinity
+    # bottom-right: total trail length and average pitch or max elevation
+    ax.text(
+        x=np.radians(45),
+        y=ylim * 1.4,
+        s=f"{bin_counts.sum():,.0f}m\nskiable\nvert",
+        # transform=trans,
+        horizontalalignment="right",
+        verticalalignment="top",
+        multialignment="center",
+        color="#95A5A6",
+    )
+
     if title:
         ax.set_title(title, y=title_y, fontdict=title_font)
     fig.tight_layout()

@@ -9,7 +9,7 @@ import osmnx
 from osmnx.bearing import add_edge_bearings
 from osmnx.distance import add_edge_lengths
 
-from ski_bearings.bearing import get_mean_bearing
+from ski_bearings.bearing import get_bearing_summary_stats
 
 
 @contextlib.contextmanager
@@ -71,9 +71,9 @@ def create_networkx_with_metadata(
                 graph, min_length=0, weight="vertical"
             )
         graph.graph["combined_vertical"] = sum(weights)
-        mean_bearing, mean_bearing_strength = get_mean_bearing(bearings, weights)
-        graph.graph["mean_bearing"] = mean_bearing
-        graph.graph["mean_bearing_strength"] = mean_bearing_strength
+        stats = get_bearing_summary_stats(bearings, weights)
+        graph.graph["mean_bearing"] = stats.mean_bearing_deg
+        graph.graph["mean_bearing_strength"] = stats.mean_bearing_strength
     # graph.graph["orientation_entropy"] = osmnx.orientation_entropy(
     #     graph, num_bins=32, weight="vertical"
     # )

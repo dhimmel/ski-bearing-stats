@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import networkx as nx
 import numpy as np
 import numpy.typing as npt
@@ -86,9 +88,15 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
     )
 
 
-def get_mean_bearing(
+@dataclass
+class BearingSummaryStats:
+    mean_bearing_deg: float
+    mean_bearing_strength: float
+
+
+def get_bearing_summary_stats(
     bearings: npt.NDArray[np.float64], weights: npt.NDArray[np.float64]
-) -> tuple[float, float]:
+) -> BearingSummaryStats:
     """
     https://chat.openai.com/share/a2648aee-194b-4744-8a81-648d124d17f2
     """
@@ -108,4 +116,4 @@ def get_mean_bearing(
     mean_bearing_rad = np.arctan2(vector_sum[1], vector_sum[0])
     mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
 
-    return mean_bearing_deg, mean_bearing_strength
+    return BearingSummaryStats(mean_bearing_deg, mean_bearing_strength)

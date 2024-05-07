@@ -1,5 +1,6 @@
 import math
 import textwrap
+from enum import IntEnum
 from typing import Any
 
 import lets_plot as lp
@@ -10,7 +11,29 @@ import polars as pl
 from lets_plot.plot.core import PlotSpec as LetsPlotSpec
 from matplotlib.figure import Figure
 from matplotlib.projections.polar import PolarAxes
+from matplotlib.text import Text as MplText
 from osmnx.plot import _get_fig_ax
+
+
+class MarginTextLocation(IntEnum):
+    """Enum to map margin text locations to their degree x-values."""
+
+    top_left = 315
+    top_right = 45
+    bottom_left = 225
+    bottom_right = 135
+
+    @property
+    def radians(self) -> float:
+        return math.radians(self.value)
+
+    @property
+    def vertical_alignment(self) -> str:
+        return self.name.split("_")[0]
+
+    @property
+    def horizontal_alignment(self) -> str:
+        return self.name.split("_")[1]
 
 
 def plot_orientation(
@@ -29,6 +52,7 @@ def plot_orientation(
     title_y: float = 1.05,
     title_font: dict[str, Any] | None = None,
     xtick_font: dict[str, Any] | None = None,
+    margin_text: dict[MarginTextLocation, str | None] | None = None,
 ) -> tuple[Figure, PolarAxes]:
     """
     Plot a polar histogram of an edge bearing distribution.
@@ -131,21 +155,37 @@ def plot_orientation(
     # top-right: total skiable vertical
     # bottom-left: poleward affinity/tendency, polar affinity
     # bottom-right: total trail length and average pitch or max elevation
-    ax.text(
-        x=np.radians(45),
-        y=ylim * 1.4,
-        s=f"{bin_counts.sum():,.0f}m\nskiable\nvert",
-        # transform=trans,
-        horizontalalignment="right",
-        verticalalignment="top",
-        multialignment="center",
-        color="#95A5A6",
-    )
+    if margin_text is None:
+        margin_text = {
+            MarginTextLocation.top_right: f"{bin_counts.sum():,.0f}m\nskiable\nvert",
+        }
+    for location, text in margin_text.items():
+        if not text:
+            continue
+        _mpl_add_polar_margin_text(ax=ax, ylim=ylim, location=location, text=text)
 
     if title:
         ax.set_title(title, y=title_y, fontdict=title_font)
     fig.tight_layout()
     return fig, ax
+
+
+def _mpl_add_polar_margin_text(
+    ax: PolarAxes,
+    ylim: float,
+    location: MarginTextLocation,
+    text: str,
+    color: str = "#95A5A6",
+) -> MplText:
+    return ax.text(
+        x=location.radians,
+        y=ylim * 1.4,
+        s=text,
+        verticalalignment=location.vertical_alignment,
+        horizontalalignment=location.horizontal_alignment,
+        multialignment="center",
+        color=color,
+    )
 
 
 def subplot_orientations(

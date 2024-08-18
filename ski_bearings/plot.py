@@ -223,9 +223,10 @@ def subplot_orientations(
 
     # plot each group's polar histogram
     max_bin_count = None if free_y else distribution_pl.get_column("bin_count").max()
-    for ax, (name, group_dist_pl) in zip(
+    for ax, (names, group_dist_pl) in zip(
         axes.flat, sorted(groupings.items()), strict=False
     ):
+        (name,) = names
         fig, ax = plot_orientation(
             bin_counts=group_dist_pl.get_column("bin_count").to_numpy(),
             bin_centers=group_dist_pl.get_column("bin_center").to_numpy(),

@@ -12,11 +12,13 @@ class Commands:
     @staticmethod
     @cli.command(name="download")  # type: ignore [misc]
     def download() -> None:
+        """Download latest OpenSkiMap source data."""
         download_openskimap_geojsons()
 
     @staticmethod
     @cli.command(name="analyze")  # type: ignore [misc]
     def analyze() -> None:
+        """Extract ski area metadata and metrics."""
         analyze_all_ski_areas()
 
     @staticmethod

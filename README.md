@@ -2,6 +2,16 @@
 
 WIP Ski Roses
 
+## Development
+
+```shell
+# download latest OpenSkiMap data
+poetry run ski_bearings download
+
+# extract ski area metadata and metrics
+poetry run ski_bearings analyze
+```
+
 ## References
 
 1. **Urban spatial order: street network orientation, configuration, and entropy**  

@@ -46,10 +46,13 @@ def analyze_all_ski_areas() -> None:
             pl.all(),
         )
         bearing_dist_dfs.append(bearing_dist_df)
-    bearing_dist_df = pl.concat(bearing_dist_dfs, how="vertical_relaxed")
+    logging.info("Creating dataframes for ski area metrics and bearing distributions.")
     ski_area_metrics_df = pl.DataFrame(data=ski_area_metrics)
-    bearing_dist_df.write_parquet(bearing_distribution_path)
+    bearing_dist_df = pl.concat(bearing_dist_dfs, how="vertical_relaxed")
+    logging.info(f"Writing {ski_area_metrics_path}")
     ski_area_metrics_df.write_parquet(ski_area_metrics_path)
+    logging.info(f"Writing {bearing_distribution_path}")
+    bearing_dist_df.write_parquet(bearing_distribution_path)
 
 
 def load_bearing_distribution_pl() -> pl.DataFrame:

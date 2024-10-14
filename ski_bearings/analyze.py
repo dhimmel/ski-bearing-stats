@@ -1,8 +1,10 @@
 import logging
 
 import polars as pl
+from patito.exceptions import DataFrameValidationError
 
 from ski_bearings.bearing import get_bearing_distributions_df
+from ski_bearings.models import SkiAreaModel
 from ski_bearings.openskimap_utils import (
     get_ski_area_to_runs,
     load_downhill_ski_areas,
@@ -52,9 +54,15 @@ def analyze_all_ski_areas() -> None:
         .group_by("ski_area_id")
         .agg(pl.struct(pl.exclude("ski_area_id")).alias("bearings"))
     )
-    ski_area_metrics_df = pl.DataFrame(data=ski_area_metrics).join(
-        bearing_dist_df, on="ski_area_id", how="left"
+    ski_area_metrics_df = (
+        pl.DataFrame(data=ski_area_metrics)
+        .with_columns(websites=pl.col("websites").list.drop_nulls())
+        .join(bearing_dist_df, on="ski_area_id", how="left")
     )
+    try:
+        SkiAreaModel.validate(ski_area_metrics_df, allow_superfluous_columns=True)
+    except DataFrameValidationError as exc:
+        logging.error(f"SkiAreaModel.validate failed with {exc}")
     logging.info(f"Writing {ski_area_metrics_path}")
     ski_area_metrics_df.write_parquet(ski_area_metrics_path)
 

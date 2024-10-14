@@ -5,7 +5,7 @@ import typer
 from ski_bearings.analyze import analyze_all_ski_areas
 from ski_bearings.openskimap_utils import download_openskimap_geojsons
 
-cli = typer.Typer()
+cli = typer.Typer(pretty_exceptions_show_locals=False)
 
 
 class Commands:

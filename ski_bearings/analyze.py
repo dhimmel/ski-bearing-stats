@@ -18,6 +18,11 @@ ski_area_metrics_path = data_directory.joinpath("ski_area_metrics.parquet")
 
 
 def analyze_all_ski_areas() -> None:
+    """
+    Analyze ski areas to create and save two tabular datasets:
+    1. ski area metrics, keyed on ski_area_id
+    2. ski area bearing distributions, keyed on ski_area_id, num_bins, bin_center
+    """
     ski_area_df = load_downhill_ski_areas()
     ski_area_metadatas = {
         x["ski_area_id"]: x for x in ski_area_df.to_dict(orient="records")
@@ -41,7 +46,7 @@ def analyze_all_ski_areas() -> None:
             pl.all(),
         )
         bearing_dist_dfs.append(bearing_dist_df)
-    bearing_dist_df = pl.concat(bearing_dist_dfs, how="vertical")
+    bearing_dist_df = pl.concat(bearing_dist_dfs, how="vertical_relaxed")
     ski_area_metrics_df = pl.DataFrame(data=ski_area_metrics)
     bearing_dist_df.write_parquet(bearing_distribution_path)
     ski_area_metrics_df.write_parquet(ski_area_metrics_path)

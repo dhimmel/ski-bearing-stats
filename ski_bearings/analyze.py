@@ -13,15 +13,15 @@ from ski_bearings.osmnx_utils import (
 )
 from ski_bearings.utils import data_directory
 
-bearing_distribution_path = data_directory.joinpath("bearing_distributions.parquet")
 ski_area_metrics_path = data_directory.joinpath("ski_area_metrics.parquet")
 
 
 def analyze_all_ski_areas() -> None:
     """
-    Analyze ski areas to create and save two tabular datasets:
-    1. ski area metrics, keyed on ski_area_id
-    2. ski area bearing distributions, keyed on ski_area_id, num_bins, bin_center
+    Analyze ski areas to create a table of ski areas and their metrics
+    including bearing distributions.
+    Keyed on ski_area_id.
+    Write data as parquet.
     """
     ski_area_df = load_downhill_ski_areas()
     ski_area_metadatas = {
@@ -46,21 +46,34 @@ def analyze_all_ski_areas() -> None:
             pl.all(),
         )
         bearing_dist_dfs.append(bearing_dist_df)
-    logging.info("Creating dataframes for ski area metrics and bearing distributions.")
-    ski_area_metrics_df = pl.DataFrame(data=ski_area_metrics)
-    bearing_dist_df = pl.concat(bearing_dist_dfs, how="vertical_relaxed")
+    logging.info("Creating ski area metrics dataframe with bearing distributions.")
+    bearing_dist_df = (
+        pl.concat(bearing_dist_dfs, how="vertical_relaxed")
+        .group_by("ski_area_id")
+        .agg(pl.struct(pl.exclude("ski_area_id")).alias("bearings"))
+    )
+    ski_area_metrics_df = pl.DataFrame(data=ski_area_metrics).join(
+        bearing_dist_df, on="ski_area_id", how="left"
+    )
     logging.info(f"Writing {ski_area_metrics_path}")
     ski_area_metrics_df.write_parquet(ski_area_metrics_path)
-    logging.info(f"Writing {bearing_distribution_path}")
-    bearing_dist_df.write_parquet(bearing_distribution_path)
-
-
-def load_bearing_distribution_pl() -> pl.DataFrame:
-    return pl.read_parquet(bearing_distribution_path)
 
 
 def load_ski_areas_pl() -> pl.DataFrame:
     return pl.read_parquet(ski_area_metrics_path)
+
+
+def load_bearing_distribution_pl() -> pl.DataFrame:
+    """
+    Table of ski area bearing distributions.
+    Keyed on ski_area_id, num_bins, bin_center.
+    """
+    return (
+        load_ski_areas_pl()
+        .select("ski_area_id", "bearings")
+        .explode("bearings")
+        .unnest("bearings")
+    )
 
 
 def aggregate_ski_areas_pl(

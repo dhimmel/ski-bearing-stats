@@ -31,6 +31,14 @@ class SkiAreaModel(Model):  # type: ignore [misc]
     status: Literal["operating", "abandoned", "proposed", "disused"] | None = Field(
         description="Operating status of the ski area."
     )
+    location__iso3166_1Alpha2: str | None = Field(
+        description="ISO 3166-1 alpha-2 two-letter country code.",
+        examples=["US", "FR"],
+    )
+    location__iso3166_2: str | None = Field(
+        description="ISO 3166-2 code for principal subdivision (e.g., province or state) of the country.",
+        examples=["US-NH", "JP-01", "FR-ARA"],
+    )
     location__localized__en__country: str | None = Field(
         description="Country where the ski area is located.",
         examples=["United States"],
@@ -49,12 +57,16 @@ class SkiAreaModel(Model):  # type: ignore [misc]
     )
     run_count: int = Field(
         description="Total number of runs in the ski area.",
+        ge=0,
     )
     run_count_filtered: int = Field(
         description="Number of runs in the ski area with supported geometries.",
+        ge=0,
     )
     latitude: float | None = Field(
-        description="Latitude of the ski area.",
+        description="Latitude of the ski area in decimal degrees.",
+        ge=-90,
+        le=90,
     )
     hemisphere: Literal["north", "south"] | None = Field(
         description="Hemisphere of the ski area.",
@@ -64,9 +76,13 @@ class SkiAreaModel(Model):  # type: ignore [misc]
     )
     mean_bearing: float | None = Field(
         description="Mean bearing of the ski area in degrees.",
+        ge=0,
+        lt=360,
     )
     mean_bearing_strength: float | None = Field(
         description="Mean bearing strength of the ski area.",
+        ge=0,
+        le=1,
     )
     # bearings: list[SkiAreaBearingDistributionModel] | None = Field(
     #     description="Bearing distribution of the ski area.",

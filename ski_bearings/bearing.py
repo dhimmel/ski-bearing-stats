@@ -111,9 +111,15 @@ def get_bearing_summary_stats(
 
     # Calculate the strength/magnitude of the mean bearing
     mean_bearing_strength = np.linalg.norm(vector_sum) / np.sum(weights)
+    if np.isnan(mean_bearing_strength):
+        # some ski areas have no elevation variation, example 7cc74a14-fdc2-4b15-aaf9-8998433ffd86
+        mean_bearing_strength = 0.0
 
     # Convert the sum vector back to a bearing
     mean_bearing_rad = np.arctan2(vector_sum[1], vector_sum[0])
     mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
 
-    return BearingSummaryStats(mean_bearing_deg, mean_bearing_strength)
+    return BearingSummaryStats(
+        mean_bearing_deg=round(mean_bearing_deg, 7),
+        mean_bearing_strength=round(mean_bearing_strength, 7),
+    )

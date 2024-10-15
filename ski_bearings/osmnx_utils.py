@@ -21,6 +21,24 @@ def suppress_user_warning(
         yield
 
 
+def _clean_coordinates(
+    coordinates: list[tuple[float, float, float]],
+) -> list[tuple[float, float, float]]:
+    """
+    Sanitize coordinates to remove floating point errors and ensure downhill runs.
+    NOTE: longitude comes before latitude in GeoJSON and osmnx, which is different than GPS coordinates.
+    """
+    # Round coordinates to undo floating point errors.
+    # https://github.com/russellporter/openskimap.org/issues/137
+    coordinates = [
+        (round(lon, 7), round(lat, 7), round(ele, 2)) for lon, lat, ele in coordinates
+    ]
+    if coordinates[0][2] < coordinates[-1][2]:
+        # Ensure the run is going downhill, such that starting elevation > ending elevation
+        coordinates.reverse()
+    return coordinates
+
+
 def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
     """
     Convert runs to an newtorkx MultiDiGraph compatible with OSMnx.
@@ -31,14 +49,13 @@ def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
     runs = [run for run in runs if run["geometry"]["type"] == "LineString"]
     graph.graph["run_count_filtered"] = len(runs)
     for run in runs:
-        # NOTE: longitude comes before latitude in GeoJSON and osmnx, which is different than GPS coordinates
-        for lon, lat, elevation in run["geometry"]["coordinates"]:
+        run["geometry"]["coordinates_clean"] = _clean_coordinates(
+            run["geometry"]["coordinates"]
+        )
+        for lon, lat, elevation in run["geometry"]["coordinates_clean"]:
             graph.add_node((lon, lat), x=lon, y=lat, elevation=elevation)
     for run in runs:
-        coordinates = run["geometry"]["coordinates"].copy()
-        if coordinates[0][2] < coordinates[-1][2]:
-            # Ensure the run is going downhill, such that starting elevation > ending elevation
-            coordinates.reverse()
+        coordinates = run["geometry"]["coordinates_clean"].copy()
         lon_0, lat_0, elevation_0 = coordinates.pop(0)
         for lon_1, lat_1, elevation_1 in coordinates:
             graph.add_edge(

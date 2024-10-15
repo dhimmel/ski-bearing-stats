@@ -68,6 +68,11 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         ge=-90,
         le=90,
     )
+    longitude: float | None = Field(
+        description="Longitude of the ski area in decimal degrees.",
+        ge=-180,
+        le=180,
+    )
     hemisphere: Literal["north", "south"] | None = Field(
         description="Hemisphere of the ski area.",
     )

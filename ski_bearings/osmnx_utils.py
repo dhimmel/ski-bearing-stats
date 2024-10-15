@@ -64,6 +64,9 @@ def create_networkx_with_metadata(
         graph.graph["latitude"] = statistics.mean(
             lat for _, lat in graph.nodes(data="y")
         )
+        graph.graph["longitude"] = statistics.mean(
+            lon for _, lon in graph.nodes(data="x")
+        )
         graph.graph["hemisphere"] = "north" if graph.graph["latitude"] > 0 else "south"
     if graph.number_of_edges() > 0:
         with suppress_user_warning():

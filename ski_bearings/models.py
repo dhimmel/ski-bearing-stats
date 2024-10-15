@@ -14,6 +14,10 @@ class SkiAreaBearingDistributionModel(Model):  # type: ignore [misc]
     bin_center: float = Field(description="Center of the bearing bin in degrees.")
     bin_count: int = Field(description="Count of bearings in the bin.")
     bin_proportion: float = Field(description="Proportion of bearings in the bin.")
+    bin_label: str | None = Field(
+        description="Human readable short label of the bearing bin.",
+        examples=["N", "NE", "NEbE", "ENE"],
+    )
 
 
 class SkiAreaModel(Model):  # type: ignore [misc]
@@ -90,6 +94,7 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         ge=0,
         le=1,
     )
-    # bearings: list[SkiAreaBearingDistributionModel] | None = Field(
+    # https://github.com/JakobGM/patito/issues/104
+    # bearings: list[SkiAreaBearingDistributionModel] = Field(
     #     description="Bearing distribution of the ski area.",
     # )

@@ -51,7 +51,8 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         description="Locality where the ski area is located.",
         examples=["Jackson"],
     )
-    websites: list[str] | None = Field(
+    # Validation fails on an empty list https://github.com/JakobGM/patito/issues/103
+    websites: list[str | None] = Field(
         description="List of URLs for the ski area.",
         examples=["https://www.blackmt.com/"],
     )

@@ -88,17 +88,28 @@ def aggregate_ski_areas_pl(
     group_by: list[str],
     ski_area_filters: list[pl.Expr] | None = None,
 ) -> pl.DataFrame:
+    bearings_pl = (
+        aggregate_ski_area_bearing_dists_pl(
+            group_by=group_by, ski_area_filters=ski_area_filters
+        )
+        .group_by(*group_by)
+        .agg(bearings=pl.struct(pl.exclude(group_by)))
+    )
     return (
         load_ski_areas_pl()
         .filter(*ski_area_filters)
         .group_by(*group_by)
         .agg(
-            pl.n_unique("ski_area_id").alias("ski_area_count"),
-            pl.n_unique("location__localized__en__country").alias("country_count"),
-            pl.sum("combined_vertical").alias("combined_vertical"),
-            pl.sum("run_count").alias("run_count"),
-            pl.sum("run_count_filtered").alias("run_count_filtered"),
+            ski_areas_count=pl.n_unique("ski_area_id"),
+            country_count=pl.n_unique("location__localized__en__country"),
+            combined_vertical=pl.sum("combined_vertical"),
+            run_count=pl.sum("run_count"),
+            run_count_filtered=pl.sum("run_count_filtered"),
+            latitude=pl.mean("latitude"),
+            longitude=pl.mean("longitude"),
         )
+        .join(bearings_pl, on=group_by)
+        .sort(*group_by)
     )
 
 
@@ -109,17 +120,17 @@ def aggregate_ski_area_bearing_dists_pl(
     return (
         load_ski_areas_pl()
         .filter(*ski_area_filters)
-        .join(load_bearing_distribution_pl(), on="ski_area_id", how="inner")
-        .group_by(*group_by, "num_bins", "bin_center")
+        .explode("bearings")
+        .unnest("bearings")
+        .group_by(*group_by, "num_bins", "bin_index")
         .agg(
-            pl.first("bin_label").alias("bin_label"),
-            pl.sum("bin_count").alias("bin_count"),
+            bin_center=pl.first("bin_center"),
+            bin_count=pl.sum("bin_count"),
+            bin_label=pl.first("bin_label"),
         )
         .with_columns(
-            bin_count_total=pl.sum("bin_count").over(*group_by, "num_bins"),
-        )
-        .with_columns(
-            bin_proportion=pl.col("bin_count") / pl.col("bin_count_total"),
+            bin_proportion=pl.col("bin_count")
+            / pl.sum("bin_count").over(*group_by, "num_bins"),
         )
         .sort(*group_by, "num_bins", "bin_center")
     )

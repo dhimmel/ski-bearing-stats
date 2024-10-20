@@ -52,7 +52,7 @@ def plot_orientation(
     title_y: float = 1.05,
     title_font: dict[str, Any] | None = None,
     xtick_font: dict[str, Any] | None = None,
-    margin_text: dict[MarginTextLocation, str | None] | None = None,
+    margin_text: dict[MarginTextLocation, str] | None = None,
 ) -> tuple[Figure, PolarAxes]:
     """
     Plot a polar histogram of an edge bearing distribution.
@@ -150,11 +150,6 @@ def plot_orientation(
         alpha=alpha,
     )
 
-    # ideas for margin text
-    # top-left: ski areas, country, trail, lift count
-    # top-right: total skiable vertical
-    # bottom-left: poleward affinity/tendency, polar affinity
-    # bottom-right: total trail length and average pitch or max elevation
     if margin_text is None:
         margin_text = {
             MarginTextLocation.top_right: f"{bin_counts.sum():,.0f}m\nskiable\nvert",
@@ -183,7 +178,7 @@ def _mpl_add_polar_margin_text(
         s=text,
         verticalalignment=location.vertical_alignment,
         horizontalalignment=location.horizontal_alignment,
-        multialignment="center",
+        multialignment=location.horizontal_alignment,
         color=color,
     )
 
@@ -234,9 +229,18 @@ def subplot_orientations(
     # plot each group's polar histogram
     max_bin_count = None if free_y else dists_pl.get_column("bin_count").max()
     for ax, name in zip(axes.flat, names, strict=False):
-        _group_info = groups_pl.row(
+        group_info = groups_pl.row(
             by_predicate=pl.col(grouping_col) == name, named=True
         )
+        # ideas for margin text
+        # top-left: ski areas, country, trail, lift count
+        # top-right: total skiable vertical
+        # bottom-left: poleward affinity/tendency, polar affinity
+        # bottom-right: total trail length and average pitch or max elevation
+        margin_text = {
+            MarginTextLocation.top_left: f"{group_info["ski_areas_count"]:,} ski areas,\n{group_info["run_count_filtered"]:,} runs",
+            MarginTextLocation.top_right: f"{group_info["combined_vertical"]:,.0f}m\nskiable\nvert",
+        }
         group_dist_pl = dists_pl.filter(pl.col(grouping_col) == name)
         fig, ax = plot_orientation(
             bin_counts=group_dist_pl.get_column("bin_count").to_numpy(),
@@ -246,6 +250,7 @@ def subplot_orientations(
             title=name,
             area=True,
             color="#D4A0A7",
+            margin_text=margin_text,
         )
         ax.title.set_size(18)
         ax.yaxis.grid(False)

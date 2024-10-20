@@ -189,10 +189,11 @@ def _mpl_add_polar_margin_text(
 
 
 def subplot_orientations(
-    distribution_pl: pl.DataFrame,
+    groups_pl: pl.DataFrame,
     grouping_col: str,
     n_cols: int | None = None,
     free_y: bool = True,
+    num_bins: int = 32,
 ) -> plt.Figure:
     """
     Plot orientations from multiple graphs in a grid.
@@ -200,33 +201,43 @@ def subplot_orientations(
 
     Parameters
     ----------
-    distribution_pl
-        A Polars DataFrame with bearing distributions.
+    groups_pl
+        A Polars DataFrame with one group per row and a bearings columns with the bearing distributions.
     grouping_col
-        The column to partition the data by with a subplot/facet for each group.
+        The column for naming each subplot/facet.
     n_cols
         The number of columns in the grid of subplots.
     free_y
         If True, each subplot's y-axis will be scaled independently.
         If False, all subplots will be scaled to the same maximum y-value.
+    num_bins
+        The number of bins in each polar histogram.
+        This value must exist in the input groups_pl bearings.num_bins column.
     """
+    assert not groups_pl.select(grouping_col).is_duplicated().any()
+    names = groups_pl.get_column(grouping_col).sort().to_list()
     # create figure and axes
-    groupings = distribution_pl.partition_by(grouping_col, as_dict=True)
-    n_groupings = len(groupings)
+    n_subplots = len(names)
     if n_cols is None:
-        n_cols = math.ceil(n_groupings**0.5)
-    n_rows = math.ceil(n_groupings / n_cols)
+        n_cols = math.ceil(n_subplots**0.5)
+    n_rows = math.ceil(n_subplots / n_cols)
     figsize = (n_cols * 5, n_rows * 5)
     fig, axes = plt.subplots(
         n_rows, n_cols, figsize=figsize, subplot_kw={"projection": "polar"}
     )
-
+    dists_pl = (
+        groups_pl.select(grouping_col, "bearings")
+        .explode("bearings")
+        .unnest("bearings")
+        .filter(pl.col("num_bins") == num_bins)
+    )
     # plot each group's polar histogram
-    max_bin_count = None if free_y else distribution_pl.get_column("bin_count").max()
-    for ax, (names, group_dist_pl) in zip(
-        axes.flat, sorted(groupings.items()), strict=False
-    ):
-        (name,) = names
+    max_bin_count = None if free_y else dists_pl.get_column("bin_count").max()
+    for ax, name in zip(axes.flat, names, strict=False):
+        _group_info = groups_pl.row(
+            by_predicate=pl.col(grouping_col) == name, named=True
+        )
+        group_dist_pl = dists_pl.filter(pl.col(grouping_col) == name)
         fig, ax = plot_orientation(
             bin_counts=group_dist_pl.get_column("bin_count").to_numpy(),
             bin_centers=group_dist_pl.get_column("bin_center").to_numpy(),
@@ -239,7 +250,7 @@ def subplot_orientations(
         ax.title.set_size(18)
         ax.yaxis.grid(False)
     # hide axes for unused subplots
-    for ax in axes.flat[n_groupings:]:
+    for ax in axes.flat[n_subplots:]:
         ax.axis("off")
     # add figure title and save image
     # suptitle_font = {
@@ -254,7 +265,6 @@ def subplot_orientations(
     # fig.savefig("images/street-orientations.png", facecolor="w", dpi=100, bbox_inches="tight")
     plt.close()
     return fig
-    # plt.close()
 
 
 def plot_mean_bearing(

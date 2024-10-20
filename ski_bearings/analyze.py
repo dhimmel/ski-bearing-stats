@@ -137,7 +137,7 @@ def aggregate_ski_area_bearing_dists_pl(
 
 
 def bearing_dists_by_us_state() -> pl.DataFrame:
-    return aggregate_ski_area_bearing_dists_pl(
+    return aggregate_ski_areas_pl(
         group_by=["location__localized__en__region"],
         ski_area_filters=[
             pl.col("location__localized__en__country") == "United States",
@@ -149,7 +149,7 @@ def bearing_dists_by_us_state() -> pl.DataFrame:
 
 
 def bearing_dists_by_hemisphere() -> pl.DataFrame:
-    return aggregate_ski_area_bearing_dists_pl(
+    return aggregate_ski_areas_pl(
         group_by=["hemisphere"],
         ski_area_filters=[
             pl.col("hemisphere").is_not_null(),
@@ -160,7 +160,7 @@ def bearing_dists_by_hemisphere() -> pl.DataFrame:
 
 
 def bearing_dists_by_country() -> pl.DataFrame:
-    return aggregate_ski_area_bearing_dists_pl(
+    return aggregate_ski_areas_pl(
         group_by=["location__localized__en__country"],
         ski_area_filters=[
             pl.col("location__localized__en__country").is_not_null(),

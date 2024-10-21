@@ -254,6 +254,14 @@ def subplot_orientations(
         )
         ax.title.set_size(18)
         ax.yaxis.grid(False)
+        if free_y and "mean_bearing" in group_info:
+            ax.scatter(
+                x=group_info["mean_bearing"],
+                y=group_info["mean_bearing_strength"] * max_bin_count,
+                color="blue",
+                label="Mean Bearing",
+            )
+
     # hide axes for unused subplots
     for ax in axes.flat[n_subplots:]:
         ax.axis("off")

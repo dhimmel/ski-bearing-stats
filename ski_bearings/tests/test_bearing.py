@@ -71,6 +71,13 @@ class BearingSummaryStatsPytestParam:
             expected_bearing=270.0,
             expected_strength=0.8,
         ),
+        BearingSummaryStatsPytestParam(
+            bearings=[90.0],
+            strengths=[0.0],
+            weights=None,
+            expected_bearing=0.0,
+            expected_strength=0.0,
+        ),
     ],
 )
 def test_get_bearing_summary_stats(param: BearingSummaryStatsPytestParam) -> None:

@@ -126,8 +126,9 @@ def get_bearing_summary_stats(
     - The function handles edge cases where the sum of weights is zero,
       returning a mean bearing strength of 0.0 in such scenarios.
 
-    https://chatgpt.com/share/6718521f-6768-8011-aed4-db345efb68b7
-    https://chat.openai.com/share/a2648aee-194b-4744-8a81-648d124d17f2
+    Development chats:
+    - https://chatgpt.com/share/6718521f-6768-8011-aed4-db345efb68b7
+    - https://chatgpt.com/share/a2648aee-194b-4744-8a81-648d124d17f2
     """
     if isinstance(bearings, list):
         bearings = np.array(bearings)
@@ -157,12 +158,11 @@ def get_bearing_summary_stats(
     # Calculate the mean resultant length (mean bearing strength)
     vector_magnitude = np.hypot(total_x, total_y)
     sum_of_weights = np.sum(weights)
-    mean_bearing_strength = vector_magnitude / (sum_of_weights * np.mean(strengths))
-
-    # Handle the case where the sum of weights is zero
-    if np.isnan(mean_bearing_strength) or sum_of_weights == 0:
-        # some ski areas have no elevation variation, example 7cc74a14-fdc2-4b15-aaf9-8998433ffd86
-        mean_bearing_strength = 0.0
+    strength_denominator = sum_of_weights * np.mean(strengths)
+    # some ski areas have no elevation variation, example 7cc74a14-fdc2-4b15-aaf9-8998433ffd86
+    mean_bearing_strength = (
+        0.0 if strength_denominator == 0 else vector_magnitude / strength_denominator
+    )
 
     # Convert the sum vector back to a bearing
     mean_bearing_rad = np.arctan2(total_y, total_x)

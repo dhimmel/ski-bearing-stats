@@ -91,32 +91,81 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
 @dataclass
 class BearingSummaryStats:
     mean_bearing_deg: float
+    """The mean bearing in degrees, calculated from the weighted and strength-scaled vectors."""
     mean_bearing_strength: float
+    """The mean bearing strength (normalized magnitude, mean resultant length), representing the concentration, consistency, or dispersion of the bearings."""
 
 
 def get_bearing_summary_stats(
-    bearings: npt.NDArray[np.float64], weights: npt.NDArray[np.float64]
+    bearings: list[float] | npt.NDArray[np.float64],
+    strengths: list[float] | npt.NDArray[np.float64] | None = None,
+    weights: list[float] | npt.NDArray[np.float64] | None = None,
 ) -> BearingSummaryStats:
     """
+    Compute the mean bearing (i.e. average direction, mean angle)
+    and mean bearing strength (i.e. resultant vector length, concentration, magnitude) from a set of bearings,
+    with optional strengths and weights.
+
+    bearings:
+        An array or list of bearing angles in degrees. These represent directions, headings, or orientations.
+    strengths:
+        An array or list of strengths (magnitudes, amplitudes, reliabilities) corresponding to each bearing.
+        If None, all strengths are assumed to be 1.
+        These represent the inherent magnitude, confidence, or reliability of each bearing.
+    weights:
+        An array or list of weights (importance factors, influence coefficients, scaling factors) applied to each bearing.
+        If None, all weights are assumed to be 1.
+        These represent external weighting factors, priorities, or significance levels assigned to each bearing.
+
+    Notes:
+    - The function computes the mean direction by converting bearings to unit vectors (directional cosines and sines),
+      scaling them by their strengths (magnitudes), and applying weights during summation.
+    - The mean bearing strength is calculated as the magnitude (length, norm) of the resultant vector
+      divided by the sum of weighted strengths, providing a normalized measure (ranging from 0 to 1)
+      of how tightly the bearings are clustered around the mean direction.
+    - The function handles edge cases where the sum of weights is zero,
+      returning a mean bearing strength of 0.0 in such scenarios.
+
+    https://chatgpt.com/share/6718521f-6768-8011-aed4-db345efb68b7
     https://chat.openai.com/share/a2648aee-194b-4744-8a81-648d124d17f2
     """
-    # Convert bearings to radians
+    if isinstance(bearings, list):
+        bearings = np.array(bearings)
+    if isinstance(strengths, list):
+        strengths = np.array(strengths)
+    if isinstance(weights, list):
+        weights = np.array(weights)
+    if weights is None:
+        weights = np.ones_like(bearings, dtype=np.float64)
+    if strengths is None:
+        strengths = np.ones_like(bearings, dtype=np.float64)
+    assert bearings.shape == strengths.shape == weights.shape  # type: ignore [union-attr]
+
+    # Scale vectors by strengths
     bearings_rad = np.deg2rad(bearings)
+    x_components = strengths * np.cos(bearings_rad)
+    y_components = strengths * np.sin(bearings_rad)
 
-    # Convert bearings to vectors and apply weights
-    vectors = np.array([np.cos(bearings_rad), np.sin(bearings_rad)]) * weights
+    # Apply weights during summation
+    weighted_x = weights * x_components
+    weighted_y = weights * y_components
 
-    # Sum the vectors
-    vector_sum = np.sum(vectors, axis=1)
+    # Sum the weighted vectors
+    total_x = np.sum(weighted_x)
+    total_y = np.sum(weighted_y)
 
-    # Calculate the strength/magnitude of the mean bearing
-    mean_bearing_strength = np.linalg.norm(vector_sum) / np.sum(weights)
-    if np.isnan(mean_bearing_strength):
+    # Calculate the mean resultant length (mean bearing strength)
+    vector_magnitude = np.hypot(total_x, total_y)
+    sum_of_weights = np.sum(weights)
+    mean_bearing_strength = vector_magnitude / (sum_of_weights * np.mean(strengths))
+
+    # Handle the case where the sum of weights is zero
+    if np.isnan(mean_bearing_strength) or sum_of_weights == 0:
         # some ski areas have no elevation variation, example 7cc74a14-fdc2-4b15-aaf9-8998433ffd86
         mean_bearing_strength = 0.0
 
     # Convert the sum vector back to a bearing
-    mean_bearing_rad = np.arctan2(vector_sum[1], vector_sum[0])
+    mean_bearing_rad = np.arctan2(total_y, total_x)
     mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
 
     return BearingSummaryStats(

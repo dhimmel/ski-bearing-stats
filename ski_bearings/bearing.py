@@ -90,7 +90,7 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
 
 @dataclass
 class BearingSummaryStats:
-    mean_bearing_deg: float
+    mean_bearing: float
     """The mean bearing in degrees, calculated from the weighted and strength-scaled vectors."""
     mean_bearing_strength: float
     """The mean bearing strength (normalized magnitude, mean resultant length), representing the concentration, consistency, or dispersion of the bearings."""
@@ -169,6 +169,6 @@ def get_bearing_summary_stats(
     mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
 
     return BearingSummaryStats(
-        mean_bearing_deg=round(mean_bearing_deg, 7),
+        mean_bearing=round(mean_bearing_deg, 7),
         mean_bearing_strength=round(mean_bearing_strength, 7),
     )

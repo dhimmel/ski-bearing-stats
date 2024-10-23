@@ -86,5 +86,5 @@ def test_get_bearing_summary_stats(param: BearingSummaryStatsPytestParam) -> Non
         strengths=param.strengths,
         weights=param.weights,
     )
-    assert stats.mean_bearing_deg == pytest.approx(param.expected_bearing)
+    assert stats.mean_bearing == pytest.approx(param.expected_bearing)
     assert stats.mean_bearing_strength == pytest.approx(param.expected_strength)

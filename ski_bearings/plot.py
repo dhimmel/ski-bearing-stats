@@ -237,10 +237,15 @@ def subplot_orientations(
         # top-right: total skiable vertical
         # bottom-left: poleward affinity/tendency, polar affinity
         # bottom-right: total trail length and average pitch or max elevation
-        margin_text = {
-            MarginTextLocation.top_left: f"{group_info["ski_areas_count"]:,} ski areas,\n{group_info["run_count_filtered"]:,} runs",
-            MarginTextLocation.top_right: f"{group_info["combined_vertical"]:,.0f}m\nskiable\nvert",
-        }
+        margin_text = {}
+        if {"ski_areas_count", "run_count_filtered"}.issubset(group_info):
+            margin_text[MarginTextLocation.top_left] = (
+                f"{group_info["ski_areas_count"]:,} ski areas,\n{group_info["run_count_filtered"]:,} runs"
+            )
+        if "combined_vertical" in group_info:
+            margin_text[MarginTextLocation.top_right] = (
+                f"{group_info["combined_vertical"]:,.0f}m\nskiable\nvert"
+            )
         group_dist_pl = dists_pl.filter(pl.col(grouping_col) == name)
         fig, ax = plot_orientation(
             bin_counts=group_dist_pl.get_column("bin_count").to_numpy(),
@@ -250,16 +255,17 @@ def subplot_orientations(
             title=name,
             area=True,
             color="#D4A0A7",
-            margin_text=margin_text,
+            margin_text=margin_text or None,
         )
         ax.title.set_size(18)
         ax.yaxis.grid(False)
         if free_y and "mean_bearing" in group_info:
             ax.scatter(
-                x=group_info["mean_bearing"],
-                y=group_info["mean_bearing_strength"] * max_bin_count,
+                x=np.radians(group_info["mean_bearing"]),
+                y=group_info["mean_bearing_strength"] * ax.get_ylim()[1],
                 color="blue",
                 label="Mean Bearing",
+                zorder=2,
             )
 
     # hide axes for unused subplots

@@ -3,7 +3,11 @@ import logging
 import polars as pl
 from patito.exceptions import DataFrameValidationError
 
-from ski_bearings.bearing import get_bearing_distributions_df
+from ski_bearings.bearing import (
+    BearingSummaryStats,
+    get_bearing_distributions_df,
+    get_bearing_summary_stats,
+)
 from ski_bearings.models import SkiAreaModel
 from ski_bearings.openskimap_utils import (
     get_ski_area_to_runs,
@@ -84,6 +88,20 @@ def load_bearing_distribution_pl() -> pl.DataFrame:
     )
 
 
+def _get_bearing_summary_stats_pl(struct_series: pl.Series) -> BearingSummaryStats:
+    df = (
+        struct_series.alias("input_struct")
+        .to_frame()
+        .unnest("input_struct")
+        .drop_nulls()
+    )
+    return get_bearing_summary_stats(
+        bearings=df.get_column("mean_bearing").to_numpy(),
+        strengths=df.get_column("mean_bearing_strength").to_numpy(),
+        weights=df.get_column("combined_vertical").to_numpy(),
+    )
+
+
 def aggregate_ski_areas_pl(
     group_by: list[str],
     ski_area_filters: list[pl.Expr] | None = None,
@@ -107,7 +125,11 @@ def aggregate_ski_areas_pl(
             run_count_filtered=pl.sum("run_count_filtered"),
             latitude=pl.mean("latitude"),
             longitude=pl.mean("longitude"),
+            _mean_bearing_stats=pl.struct(
+                "mean_bearing", "mean_bearing_strength", "combined_vertical"
+            ).map_batches(_get_bearing_summary_stats_pl, returns_scalar=True),
         )
+        .unnest("_mean_bearing_stats")
         .join(bearings_pl, on=group_by)
         .sort(*group_by)
     )

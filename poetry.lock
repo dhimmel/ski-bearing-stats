@@ -3543,6 +3543,21 @@ develop = ["colorama", "cython (>=3.0.10)", "cython (>=3.0.10,<4)", "flake8", "i
 docs = ["ipykernel", "jupyter-client", "matplotlib", "nbconvert", "nbformat", "numpydoc", "pandas-datareader", "sphinx"]
 
 [[package]]
+name = "svgpath2mpl"
+version = "1.0.0"
+description = "SVG path parser for matplotlib"
+optional = false
+python-versions = "*"
+files = [
+    {file = "svgpath2mpl-1.0.0-py2.py3-none-any.whl", hash = "sha256:e6119b7b4338dbe193919541f6d7a9df2ceb41bf1cdcb138c7d62e79efe2651d"},
+    {file = "svgpath2mpl-1.0.0.tar.gz", hash = "sha256:73d0eb7cc106f05a1733cdc59ecd606423e04f9274923387d53b068e65a2f805"},
+]
+
+[package.dependencies]
+matplotlib = "*"
+numpy = "*"
+
+[[package]]
 name = "tenacity"
 version = "9.0.0"
 description = "Retry code until it succeeds"
@@ -3799,4 +3814,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "3710c68a4097fdf9002a940dacc76ac3882f18e72a868ba109fb10f76a772255"
+content-hash = "6c5ea7f6e44f2ab2840a8028af443c0a88b6324fa75a248a1272ab2055b4422d"

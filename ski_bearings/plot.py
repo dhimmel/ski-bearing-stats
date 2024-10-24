@@ -14,6 +14,9 @@ from matplotlib.projections.polar import PolarAxes
 from matplotlib.text import Text as MplText
 from osmnx.plot import _get_fig_ax
 
+SUBPLOT_FIGSIZE = 4.0
+"""Size in inches for each subplot in a grid."""
+
 
 class MarginTextLocation(IntEnum):
     """Enum to map margin text locations to their degree x-values."""
@@ -97,7 +100,7 @@ def plot_orientation(
     """
     num_bins = len(bin_centers)
     if title_font is None:
-        title_font = {"family": "DejaVu Sans", "size": 24, "weight": "bold"}
+        title_font = {"family": "DejaVu Sans", "size": 18, "weight": "bold"}
     if xtick_font is None:
         xtick_font = {
             "family": "DejaVu Sans",
@@ -174,7 +177,7 @@ def _mpl_add_polar_margin_text(
 ) -> MplText:
     return ax.text(
         x=location.radians,
-        y=ylim * 1.4,
+        y=ylim * 1.58,
         s=text,
         verticalalignment=location.vertical_alignment,
         horizontalalignment=location.horizontal_alignment,
@@ -189,6 +192,7 @@ def subplot_orientations(
     n_cols: int | None = None,
     free_y: bool = True,
     num_bins: int = 32,
+    suptitle: str | None = None,
 ) -> plt.Figure:
     """
     Plot orientations from multiple graphs in a grid.
@@ -208,6 +212,8 @@ def subplot_orientations(
     num_bins
         The number of bins in each polar histogram.
         This value must exist in the input groups_pl bearings.num_bins column.
+    suptitle
+        The figure's super title.
     """
     assert not groups_pl.select(grouping_col).is_duplicated().any()
     names = groups_pl.get_column(grouping_col).sort().to_list()
@@ -216,7 +222,7 @@ def subplot_orientations(
     if n_cols is None:
         n_cols = math.ceil(n_subplots**0.5)
     n_rows = math.ceil(n_subplots / n_cols)
-    figsize = (n_cols * 5, n_rows * 5)
+    figsize = (n_cols * SUBPLOT_FIGSIZE, n_rows * SUBPLOT_FIGSIZE)
     fig, axes = plt.subplots(
         n_rows, n_cols, figsize=figsize, subplot_kw={"projection": "polar"}
     )
@@ -271,16 +277,11 @@ def subplot_orientations(
     # hide axes for unused subplots
     for ax in axes.flat[n_subplots:]:
         ax.axis("off")
-    # add figure title and save image
-    # suptitle_font = {
-    #     "family": "DejaVu Sans",
-    #     "fontsize": 60,
-    #     "fontweight": "normal",
-    #     "y": 1,
-    # }
-    # fig.suptitle("City Street Network Orientation", **suptitle_font)
+    if suptitle:
+        # FIXME: spacing is inconsistent based on number of subplot rows
+        fig.suptitle(t=suptitle, y=0.99, fontsize=13, verticalalignment="bottom")
     fig.tight_layout()
-    fig.subplots_adjust(hspace=0.35)
+    fig.subplots_adjust(hspace=0.24)
     # fig.savefig("images/street-orientations.png", facecolor="w", dpi=100, bbox_inches="tight")
     plt.close()
     return fig
@@ -290,7 +291,7 @@ def plot_mean_bearing(
     ski_areas_pl: pl.DataFrame,
     *,
     ax: PolarAxes | None = None,
-    figsize: tuple[float, float] = (5, 5),
+    figsize: tuple[float, float] = (4.5, 4.5),
     color: str = "#D4A0A7",
     edgecolor: str = "black",
     linewidth: float = 0.5,

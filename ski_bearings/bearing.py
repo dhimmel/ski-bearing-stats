@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Literal
 
 import networkx as nx
 import numpy as np
@@ -94,12 +95,15 @@ class BearingSummaryStats:
     """The mean bearing in degrees, calculated from the weighted and strength-scaled vectors."""
     mean_bearing_strength: float
     """The mean bearing strength (normalized magnitude, mean resultant length), representing the concentration, consistency, or dispersion of the bearings."""
+    poleward_affinity: float
+    """The poleward affinity, representing the tendency of bearings to cluster towards the poles (1.0) or equator (-1.0)."""
 
 
 def get_bearing_summary_stats(
     bearings: list[float] | npt.NDArray[np.float64],
     strengths: list[float] | npt.NDArray[np.float64] | None = None,
     weights: list[float] | npt.NDArray[np.float64] | None = None,
+    hemisphere: Literal["north", "south"] | None = None,
 ) -> BearingSummaryStats:
     """
     Compute the mean bearing (i.e. average direction, mean angle)
@@ -116,6 +120,9 @@ def get_bearing_summary_stats(
         An array or list of weights (importance factors, influence coefficients, scaling factors) applied to each bearing.
         If None, all weights are assumed to be 1.
         These represent external weighting factors, priorities, or significance levels assigned to each bearing.
+    hemisphere:
+        The hemisphere in which the bearings are located used to calculate poleward affinity.
+        If None, poleward affinity is not calculated.
 
     Notes:
     - The function computes the mean direction by converting bearings to unit vectors (directional cosines and sines),
@@ -168,7 +175,17 @@ def get_bearing_summary_stats(
     mean_bearing_rad = np.arctan2(total_y, total_x)
     mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
 
+    if hemisphere == "north":
+        # Northern Hemisphere: poleward is 0 degrees
+        poleward_affinity = mean_bearing_strength * np.cos(mean_bearing_rad)
+    elif hemisphere == "south":
+        # Southern Hemisphere: poleward is 180 degrees
+        poleward_affinity = mean_bearing_strength * np.cos(mean_bearing_rad - np.pi)
+    else:
+        poleward_affinity = None
+
     return BearingSummaryStats(
         mean_bearing=round(mean_bearing_deg, 7),
         mean_bearing_strength=round(mean_bearing_strength, 7),
+        poleward_affinity=round(poleward_affinity, 7),
     )

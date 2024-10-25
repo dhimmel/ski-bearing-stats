@@ -92,10 +92,14 @@ def create_networkx_with_metadata(
             )
         graph.graph["combined_vertical"] = sum(weights)
         stats = get_bearing_summary_stats(
-            bearings=bearings, strengths=None, weights=weights
+            bearings=bearings,
+            strengths=None,
+            weights=weights,
+            hemisphere=graph.graph["hemisphere"],
         )
         graph.graph["mean_bearing"] = stats.mean_bearing
         graph.graph["mean_bearing_strength"] = stats.mean_bearing_strength
+        graph.graph["poleward_affinity"] = stats.poleward_affinity
     # graph.graph["orientation_entropy"] = osmnx.orientation_entropy(
     #     graph, num_bins=32, weight="vertical"
     # )

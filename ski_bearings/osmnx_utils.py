@@ -1,4 +1,5 @@
 import contextlib
+import dataclasses
 import statistics
 import warnings
 from collections.abc import Generator
@@ -97,10 +98,5 @@ def create_networkx_with_metadata(
             weights=weights,
             hemisphere=graph.graph["hemisphere"],
         )
-        graph.graph["mean_bearing"] = stats.mean_bearing
-        graph.graph["mean_bearing_strength"] = stats.mean_bearing_strength
-        graph.graph["poleward_affinity"] = stats.poleward_affinity
-    # graph.graph["orientation_entropy"] = osmnx.orientation_entropy(
-    #     graph, num_bins=32, weight="vertical"
-    # )
+        graph.graph.update(dataclasses.asdict(stats))
     return graph

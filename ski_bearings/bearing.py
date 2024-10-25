@@ -95,8 +95,10 @@ class BearingSummaryStats:
     """The mean bearing in degrees, calculated from the weighted and strength-scaled vectors."""
     mean_bearing_strength: float
     """The mean bearing strength (normalized magnitude, mean resultant length), representing the concentration, consistency, or dispersion of the bearings."""
-    poleward_affinity: float
-    """The poleward affinity, representing the tendency of bearings to cluster towards the poles (1.0) or equator (-1.0)."""
+    poleward_affinity: float | None
+    """The poleward affinity, representing the tendency of bearings to cluster towards the neatest pole (1.0) or equator (-1.0)."""
+    eastward_affinity: float
+    """The eastern affinity, representing the tendency of bearings to cluster towards the east (1.0) or west (-1.0)."""
 
 
 def get_bearing_summary_stats(
@@ -183,9 +185,11 @@ def get_bearing_summary_stats(
         poleward_affinity = mean_bearing_strength * np.cos(mean_bearing_rad - np.pi)
     else:
         poleward_affinity = None
+    eastward_affinity = mean_bearing_strength * np.sin(mean_bearing_rad)
 
     return BearingSummaryStats(
         mean_bearing=round(mean_bearing_deg, 7),
         mean_bearing_strength=round(mean_bearing_strength, 7),
         poleward_affinity=round(poleward_affinity, 7),
+        eastward_affinity=round(eastward_affinity, 7),
     )

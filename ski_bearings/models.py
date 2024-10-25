@@ -101,6 +101,13 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         ge=-1,
         le=1,
     )
+    eastward_affinity: float | None = Field(
+        description="Eastern affinity of the ski area. "
+        "Positive values indicate bearings cluster towards the east. "
+        "Negative values indicate bearings cluster towards the west.",
+        ge=-1,
+        le=1,
+    )
     # https://github.com/JakobGM/patito/issues/104
     # bearings: list[SkiAreaBearingDistributionModel] = Field(
     #     description="Bearing distribution of the ski area.",

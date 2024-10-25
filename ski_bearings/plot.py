@@ -254,6 +254,10 @@ def subplot_orientations(
             margin_text[MarginTextLocation.top_right] = (
                 f"{group_info["combined_vertical"]:,.0f}m\nskiable\nvert"
             )
+        if {"poleward_affinity", "eastward_affinity"}.issubset(group_info):
+            margin_text[MarginTextLocation.bottom_left] = (
+                f"affinity:\n{group_info['poleward_affinity']:.0%} poleward\n{group_info['eastward_affinity']:.0%} eastward"
+            )
         group_dist_pl = dists_pl.filter(pl.col(grouping_col) == name)
         fig, ax = plot_orientation(
             bin_counts=group_dist_pl.get_column("bin_count").to_numpy(),

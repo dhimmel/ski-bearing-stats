@@ -106,6 +106,17 @@ class BearingSummaryStatsPytestParam:
             expected_poleward_affinity=0.0,
             excepted_eastward_affinity=0.0,
         ),
+        # weights and strengths
+        BearingSummaryStatsPytestParam(
+            bearings=[0.0, 90.0],
+            strengths=[0.2, 0.4],
+            weights=[2, 4],
+            hemisphere="north",
+            expected_bearing=75.9637565,
+            expected_strength=0.9162457,
+            expected_poleward_affinity=0.2222222,
+            excepted_eastward_affinity=0.8888889,
+        ),
     ],
 )
 def test_get_bearing_summary_stats(param: BearingSummaryStatsPytestParam) -> None:

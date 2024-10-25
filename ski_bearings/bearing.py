@@ -166,8 +166,7 @@ def get_bearing_summary_stats(
 
     # Calculate the mean resultant length (mean bearing strength)
     vector_magnitude = np.hypot(total_x, total_y)
-    sum_of_weights = np.sum(weights)
-    strength_denominator = sum_of_weights * np.mean(strengths)
+    strength_denominator = np.sum(weights) * np.mean(strengths)
     # some ski areas have no elevation variation, example 7cc74a14-fdc2-4b15-aaf9-8998433ffd86
     mean_bearing_strength = (
         0.0 if strength_denominator == 0 else vector_magnitude / strength_denominator

@@ -190,6 +190,9 @@ def get_bearing_summary_stats(
     return BearingSummaryStats(
         mean_bearing=round(mean_bearing_deg, 7),
         mean_bearing_strength=round(mean_bearing_strength, 7),
-        poleward_affinity=round(poleward_affinity, 7),
-        eastward_affinity=round(eastward_affinity, 7),
+        # plus zero to avoid -0.0 <https://stackoverflow.com/a/74383961/4651668>
+        poleward_affinity=round(poleward_affinity + 0, 7)
+        if poleward_affinity is not None
+        else None,
+        eastward_affinity=round(eastward_affinity + 0, 7),
     )

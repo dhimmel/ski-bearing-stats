@@ -44,3 +44,9 @@ DOI: [10.1038/s41558-023-01759-5](https://doi.org/10.1038/s41558-023-01759-5)
 - [osmnx/pull/1149](https://github.com/gboeing/osmnx/pull/1149): _bearings_distribution: bin_centers terminology
 - [JakobGM/patito/issues/103](https://github.com/JakobGM/patito/issues/103): Validation fails on an empty list
 - [JakobGM/patito/issues/104](https://github.com/JakobGM/patito/issues/104): Optional list field with nested model fails to validate
+
+## License
+
+This project is built on data from [OpenSkiMap](https://openskimap.org/), which is based on [OpenStreetMap](https://www.openstreetmap.org/).
+This data is released under the [Open Data Commons Open Database License](https://opendatacommons.org/licenses/odbl/).
+Learn more at <https://www.openstreetmap.org/copyright>.

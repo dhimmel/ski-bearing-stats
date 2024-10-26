@@ -2,12 +2,14 @@ import itertools
 import json
 import logging
 import lzma
+from collections import Counter
 from enum import StrEnum
 from functools import cache
 from pathlib import Path
 from typing import Any, Literal
 
 import pandas as pd
+import polars as pl
 import requests
 
 from ski_bearings.utils import data_directory
@@ -55,8 +57,41 @@ def load_runs() -> Any:
         data = json.load(read_file)
     assert data["type"] == "FeatureCollection"
     runs = data["features"]
-    logging.info(f"Loaded {len(runs):,} runs.")
+    geometry_types = Counter(run["geometry"]["type"] for run in runs)
+    logging.info(f"Loaded {len(runs):,} runs with geometry types {geometry_types}")
     return runs
+
+
+def load_runs_pl() -> pl.DataFrame:
+    runs = load_runs()
+    rows = []
+    for run in runs:
+        if run["geometry"]["type"] != "LineString":
+            continue
+        row = {}
+        run_properties = run["properties"]
+        row["run_id"] = run_properties["id"]
+        row["run_name"] = run_properties["name"]
+        row["run_uses"] = run_properties["uses"]
+        row["run_status"] = run_properties["status"]
+        row["run_difficulty"] = run_properties["difficulty"]
+        row["run_convention"] = run_properties["convention"]
+        row["ski_area_ids"] = sorted(
+            ski_area["properties"]["id"] for ski_area in run_properties["skiAreas"]
+        )
+        row["run_sources"] = sorted(
+            "{type}:{id}".format(**source) for source in run_properties["sources"]
+        )
+        coordinate_rows = []
+        for i, (lon, lat, ele) in enumerate(
+            _clean_coordinates(run["geometry"]["coordinates"])
+        ):
+            coordinate_rows.append(
+                {"index": i, "latitude": lat, "longitude": lon, "elevation": ele}
+            )
+        row["run_coordinates"] = coordinate_rows
+        rows.append(row)
+    return pl.DataFrame(rows, strict=False)
 
 
 @cache
@@ -123,3 +158,21 @@ def get_ski_area_to_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
                 continue
             ski_area_to_runs.setdefault(ski_area_id, []).append(run)
     return ski_area_to_runs
+
+
+def _clean_coordinates(
+    coordinates: list[tuple[float, float, float]],
+) -> list[tuple[float, float, float]]:
+    """
+    Sanitize run LineString coordinates to remove floating point errors and ensure downhill runs.
+    NOTE: longitude comes before latitude in GeoJSON and osmnx, which is different than GPS coordinates.
+    """
+    # Round coordinates to undo floating point errors.
+    # https://github.com/russellporter/openskimap.org/issues/137
+    coordinates = [
+        (round(lon, 7), round(lat, 7), round(ele, 2)) for lon, lat, ele in coordinates
+    ]
+    if coordinates[0][2] < coordinates[-1][2]:
+        # Ensure the run is going downhill, such that starting elevation > ending elevation
+        coordinates.reverse()
+    return coordinates

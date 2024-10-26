@@ -11,6 +11,7 @@ from osmnx.bearing import add_edge_bearings
 from osmnx.distance import add_edge_lengths
 
 from ski_bearings.bearing import get_bearing_summary_stats
+from ski_bearings.openskimap_utils import _clean_coordinates
 
 
 @contextlib.contextmanager
@@ -20,24 +21,6 @@ def suppress_user_warning(
     with warnings.catch_warnings():
         warnings.filterwarnings(action="ignore", message=message, category=category)
         yield
-
-
-def _clean_coordinates(
-    coordinates: list[tuple[float, float, float]],
-) -> list[tuple[float, float, float]]:
-    """
-    Sanitize coordinates to remove floating point errors and ensure downhill runs.
-    NOTE: longitude comes before latitude in GeoJSON and osmnx, which is different than GPS coordinates.
-    """
-    # Round coordinates to undo floating point errors.
-    # https://github.com/russellporter/openskimap.org/issues/137
-    coordinates = [
-        (round(lon, 7), round(lat, 7), round(ele, 2)) for lon, lat, ele in coordinates
-    ]
-    if coordinates[0][2] < coordinates[-1][2]:
-        # Ensure the run is going downhill, such that starting elevation > ending elevation
-        coordinates.reverse()
-    return coordinates
 
 
 def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:

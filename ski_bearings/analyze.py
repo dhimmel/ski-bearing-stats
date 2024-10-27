@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 import polars as pl
+from matplotlib.backends.backend_pdf import PdfPages
 from patito.exceptions import DataFrameValidationError
 
 from ski_bearings.bearing import (
@@ -18,6 +19,7 @@ from ski_bearings.openskimap_utils import (
 from ski_bearings.osmnx_utils import (
     create_networkx_with_metadata,
 )
+from ski_bearings.plot import subplot_orientations
 from ski_bearings.utils import get_data_directory
 
 
@@ -214,3 +216,34 @@ def bearing_dists_by_country() -> pl.DataFrame:
             pl.col("ski_area_name").is_not_null(),
         ],
     )
+
+
+def ski_rose_the_world() -> pl.DataFrame:
+    path = get_data_directory().joinpath("ski-roses.pdf")
+    pdf_pages = PdfPages(
+        filename=path,
+        metadata={
+            "Title": "Ski Roses of the World: Downhill Ski Trail Orientations",
+            "Author": "https://github.com/dhimmel/ski-bearing-stats",
+        },
+    )
+    grouping_col_to_stats = {
+        "hemisphere": bearing_dists_by_hemisphere(),
+        "location__localized__en__country": bearing_dists_by_country(),
+        "location__localized__en__region": bearing_dists_by_us_state(),
+    }
+    figures = []
+    for grouping_col, groups_pl in grouping_col_to_stats.items():
+        logging.info(f"Plotting ski rose the world by {grouping_col}")
+        groups_pl = groups_pl.filter(pl.col("combined_vertical") > 10_000)
+        fig = subplot_orientations(
+            groups_pl=groups_pl,
+            grouping_col=grouping_col,
+            n_cols=min(4, len(groups_pl)),
+            free_y=True,
+        )
+        figures.append(fig)
+    logging.info(f"Writing ski rose the world to {path}")
+    with pdf_pages:
+        for fig in figures:
+            pdf_pages.savefig(fig, facecolor="#FFFFFF", bbox_inches="tight")

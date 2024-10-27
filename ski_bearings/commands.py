@@ -2,7 +2,11 @@ import logging
 
 import typer
 
-from ski_bearings.analyze import analyze_all_ski_areas, load_ski_areas_pl
+from ski_bearings.analyze import (
+    analyze_all_ski_areas,
+    load_ski_areas_pl,
+    ski_rose_the_world,
+)
 from ski_bearings.models import SkiAreaModel
 from ski_bearings.openskimap_utils import (
     download_openskimap_geojsons,
@@ -32,6 +36,12 @@ class Commands:
         ski_areas = load_ski_areas_pl()
         SkiAreaModel.validate(ski_areas, allow_superfluous_columns=True)
         logging.info("SkiAreaModel.validate success.")
+
+    @staticmethod
+    @cli.command(name="visualize")  # type: ignore [misc]
+    def visualize() -> None:
+        """Perform ski area aggregations and export visualizations."""
+        ski_rose_the_world()
 
     @staticmethod
     @cli.command(name="generate_test_data")  # type: ignore [misc]

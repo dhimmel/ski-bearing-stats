@@ -141,17 +141,16 @@ def get_bearing_summary_stats(
     - https://chatgpt.com/share/6718521f-6768-8011-aed4-db345efb68b7
     - https://chatgpt.com/share/a2648aee-194b-4744-8a81-648d124d17f2
     """
-    if isinstance(bearings, list):
-        bearings = np.array(bearings)
-    if isinstance(strengths, list):
-        strengths = np.array(strengths)
-    if isinstance(weights, list):
-        weights = np.array(weights)
     if weights is None:
         weights = np.ones_like(bearings, dtype=np.float64)
     if strengths is None:
         strengths = np.ones_like(bearings, dtype=np.float64)
-    assert bearings.shape == strengths.shape == weights.shape  # type: ignore [union-attr]
+
+    bearings = np.array(bearings, dtype=np.float64)
+    strengths = np.array(strengths, dtype=np.float64)
+    weights = np.array(weights, dtype=np.float64)
+
+    assert bearings.shape == strengths.shape == weights.shape
 
     # Scale vectors by strengths
     bearings_rad = np.deg2rad(bearings)

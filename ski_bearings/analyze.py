@@ -102,7 +102,7 @@ def _get_bearing_summary_stats_pl(struct_series: pl.Series) -> BearingSummarySta
     return get_bearing_summary_stats(
         bearings=df.get_column("mean_bearing").to_numpy(),
         strengths=df.get_column("mean_bearing_strength").to_numpy(),
-        weights=df.get_column("combined_vertical").to_numpy(),
+        weights=df.get_column("vector_magnitude").to_numpy(),
         hemisphere=hemisphere,
     )
 
@@ -133,7 +133,7 @@ def aggregate_ski_areas_pl(
             _mean_bearing_stats=pl.struct(
                 "mean_bearing",
                 "mean_bearing_strength",
-                "combined_vertical",
+                "vector_magnitude",
                 "hemisphere",
             ).map_batches(_get_bearing_summary_stats_pl, returns_scalar=True),
         )

@@ -99,6 +99,7 @@ def load_runs_pl() -> pl.DataFrame:
 
 def load_ski_area_json() -> pd.DataFrame:
     ski_areas_path = get_openskimap_path("ski_areas")
+    # polars cannot decompress xz: https://github.com/pola-rs/polars/pull/18536
     opener = lzma.open if ski_areas_path.suffix == ".xz" else open
     with opener(ski_areas_path) as read_file:  # type: ignore [operator]
         data = json.load(read_file)
@@ -108,48 +109,48 @@ def load_ski_area_json() -> pd.DataFrame:
     return ski_areas
 
 
-@cache
-def load_ski_areas_pd() -> pd.DataFrame:
-    return pd.json_normalize([x["properties"] for x in load_ski_area_json()], sep="__")
+def load_raw_ski_areas_pl() -> pl.DataFrame:
+    return pl.json_normalize(
+        data=[x["properties"] for x in load_ski_area_json()],
+        separator="__",
+        strict=False,
+    ).rename(mapping={"id": "ski_area_id", "name": "ski_area_name"})
 
 
 @cache
-def load_downhill_ski_areas() -> pd.DataFrame:
-    ski_areas = load_ski_areas_pd()
+def load_downhill_ski_areas_pl() -> pl.DataFrame:
     return (
-        ski_areas.rename(columns={"id": "ski_area_id", "name": "ski_area_name"})
-        .query("type == 'skiArea'")
-        .explode("activities")
-        .query("activities == 'downhill'")[
-            [
-                "ski_area_id",
-                "ski_area_name",
-                "generated",
-                "runConvention",
-                "status",
-                "location__iso3166_1Alpha2",
-                "location__iso3166_2",
-                "location__localized__en__country",
-                "location__localized__en__region",
-                "location__localized__en__locality",
-                "websites",
-                # "sources",  # inconsistently typed nested column 'id' as string or int
-                "statistics__minElevation",
-                "statistics__maxElevation",
-                "statistics__runs__minElevation",
-                "statistics__runs__maxElevation",
-                # *itertools.chain.from_iterable(
-                #     [
-                #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__count",
-                #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__lengthInKm",
-                #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__combinedElevationChange",
-                #     ]
-                #     for difficulty in SkiRunDifficulty
-                # ),
-                "statistics__lifts__minElevation",
-                "statistics__lifts__maxElevation",
-            ]
-        ]
+        load_raw_ski_areas_pl()
+        .filter(pl.col("type") == "skiArea")
+        .filter(pl.col("activities").list.contains("downhill"))
+        .select(
+            "ski_area_id",
+            "ski_area_name",
+            "generated",
+            "runConvention",
+            "status",
+            "location__iso3166_1Alpha2",
+            "location__iso3166_2",
+            "location__localized__en__country",
+            "location__localized__en__region",
+            "location__localized__en__locality",
+            "websites",
+            # "sources",  # inconsistently typed nested column 'id' as string or int
+            "statistics__minElevation",
+            "statistics__maxElevation",
+            "statistics__runs__minElevation",
+            "statistics__runs__maxElevation",
+            # *itertools.chain.from_iterable(
+            #     [
+            #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__count",
+            #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__lengthInKm",
+            #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__combinedElevationChange",
+            #     ]
+            #     for difficulty in SkiRunDifficulty
+            # ),
+            "statistics__lifts__minElevation",
+            "statistics__lifts__maxElevation",
+        )
     )
 
 

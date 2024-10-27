@@ -13,7 +13,7 @@ from ski_bearings.bearing import (
 from ski_bearings.models import SkiAreaModel
 from ski_bearings.openskimap_utils import (
     get_ski_area_to_runs,
-    load_downhill_ski_areas,
+    load_downhill_ski_areas_pl,
     load_runs,
 )
 from ski_bearings.osmnx_utils import (
@@ -34,10 +34,8 @@ def analyze_all_ski_areas() -> None:
     Keyed on ski_area_id.
     Write data as parquet.
     """
-    ski_area_df = load_downhill_ski_areas()
-    ski_area_metadatas = {
-        x["ski_area_id"]: x for x in ski_area_df.to_dict(orient="records")
-    }
+    ski_area_df = load_downhill_ski_areas_pl()
+    ski_area_metadatas = {x["ski_area_id"]: x for x in ski_area_df.to_dicts()}
     runs = load_runs()
     ski_area_to_runs = get_ski_area_to_runs(runs)
     bearing_dist_dfs = []

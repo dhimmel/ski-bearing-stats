@@ -1,5 +1,7 @@
 # Ski Run Bearings / Trail Orientation / Aspect
 
+[![Test Suite CI Status](https://github.com/dhimmel/ski-bearing-stats/actions/workflows/tests.yaml/badge.svg?branch=main&event=push)](https://github.com/dhimmel/ski-bearing-stats/actions/workflows/tests.yaml)
+
 WIP Ski Roses
 
 ## Development

@@ -153,27 +153,20 @@ def get_bearing_summary_stats(
 
     # Scale vectors by strengths
     bearings_rad = np.deg2rad(bearings)
-    x_components = strengths * np.cos(bearings_rad)
-    y_components = strengths * np.sin(bearings_rad)
+    # Sum all vectors in their complex number form using weights and bearings
+    total_complex = sum(weights * np.exp(1j * bearings_rad))
+    # Convert the result back to polar coordinates
+    vector_magnitude = np.abs(total_complex)
 
-    # Apply weights during summation
-    weighted_x = weights * x_components
-    weighted_y = weights * y_components
+    if vector_magnitude < 1e-10:
+        mean_bearing_rad = 0.0
+        mean_bearing_strength = 0.0
+    else:
+        mean_bearing_rad = np.angle(total_complex)
+        mean_bearing_strength = vector_magnitude / sum(
+            [w / s for w, s in zip(weights, strengths)]
+        )
 
-    # Sum the weighted vectors
-    total_x = np.sum(weighted_x)
-    total_y = np.sum(weighted_y)
-
-    # Calculate the mean resultant length (mean bearing strength)
-    vector_magnitude = np.hypot(total_x, total_y)
-    strength_denominator = np.sum(weights) * np.mean(strengths)
-    # some ski areas have no elevation variation, example 7cc74a14-fdc2-4b15-aaf9-8998433ffd86
-    mean_bearing_strength = (
-        0.0 if strength_denominator == 0 else vector_magnitude / strength_denominator
-    )
-
-    # Convert the sum vector back to a bearing
-    mean_bearing_rad = np.arctan2(total_y, total_x)
     mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
 
     if hemisphere == "north":
@@ -181,17 +174,18 @@ def get_bearing_summary_stats(
         poleward_affinity = mean_bearing_strength * np.cos(mean_bearing_rad)
     elif hemisphere == "south":
         # Southern Hemisphere: poleward is 180 degrees
-        poleward_affinity = mean_bearing_strength * np.cos(mean_bearing_rad - np.pi)
+        poleward_affinity = -mean_bearing_strength * np.cos(mean_bearing_rad)
     else:
         poleward_affinity = None
     eastward_affinity = mean_bearing_strength * np.sin(mean_bearing_rad)
 
     return BearingSummaryStats(
+        vector_magnitude=round(vector_magnitude, 7),
         mean_bearing=round(mean_bearing_deg, 7),
         mean_bearing_strength=round(mean_bearing_strength, 7),
         # plus zero to avoid -0.0 <https://stackoverflow.com/a/74383961/4651668>
-        poleward_affinity=round(poleward_affinity + 0, 7)
-        if poleward_affinity is not None
-        else None,
+        poleward_affinity=(
+            round(poleward_affinity + 0, 7) if poleward_affinity is not None else None
+        ),
         eastward_affinity=round(eastward_affinity + 0, 7),
     )

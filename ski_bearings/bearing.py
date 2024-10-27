@@ -164,11 +164,14 @@ def get_bearing_summary_stats(
         mean_bearing_strength = 0.0
     else:
         mean_bearing_rad = np.angle(total_complex)
-        mean_bearing_strength = vector_magnitude / sum(
-            np.divide(
-                weights, strengths, out=np.zeros_like(weights), where=strengths != 0
+        if np.all(strengths < 1e-10):
+            mean_bearing_strength = 0.0
+        else:
+            mean_bearing_strength = vector_magnitude / sum(
+                np.divide(
+                    weights, strengths, out=np.zeros_like(weights), where=strengths != 0
+                )
             )
-        )
 
     mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
 

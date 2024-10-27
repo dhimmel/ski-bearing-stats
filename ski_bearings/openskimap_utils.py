@@ -186,10 +186,13 @@ def _clean_coordinates(
     return coordinates
 
 
+test_ski_area_ids = [
+    "8896cde00150e73de1f1237320c88767c91ce099",  # Whaleback Mountain
+    "0dd6fca32f6c8a9cc7f681a9267f86b58415ea60",  # Storrs Hill Ski Area
+]
+
+
 def generate_openskimap_test_data() -> None:
-    test_ski_area_ids = [
-        "8896cde00150e73de1f1237320c88767c91ce099",  # Whaleback Mountain
-    ]
     test_run_features = []
     for run in load_runs():
         for ski_area in run["properties"]["skiAreas"]:

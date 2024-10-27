@@ -76,7 +76,9 @@ def analyze_all_ski_areas() -> None:
 
 
 def load_ski_areas_pl() -> pl.DataFrame:
-    return pl.read_parquet(source=get_ski_area_metrics_path())
+    path = get_ski_area_metrics_path()
+    logging.info(f"Loading ski area metrics from {path}")
+    return pl.read_parquet(source=path)
 
 
 def load_bearing_distribution_pl() -> pl.DataFrame:
@@ -111,10 +113,20 @@ def _get_bearing_summary_stats_pl(struct_series: pl.Series) -> BearingSummarySta
     )
 
 
+def _prepare_ski_area_filters(
+    ski_area_filters: list[pl.Expr] | None = None,
+) -> list[pl.Expr]:
+    if not ski_area_filters:
+        ski_area_filters = [pl.lit(True)]
+    return ski_area_filters
+
+
 def aggregate_ski_areas_pl(
     group_by: list[str],
     ski_area_filters: list[pl.Expr] | None = None,
 ) -> pl.DataFrame:
+    assert len(group_by) > 0
+    ski_area_filters = _prepare_ski_area_filters(ski_area_filters)
     bearings_pl = (
         aggregate_ski_area_bearing_dists_pl(
             group_by=group_by, ski_area_filters=ski_area_filters
@@ -153,7 +165,7 @@ def aggregate_ski_area_bearing_dists_pl(
 ) -> pl.DataFrame:
     return (
         load_ski_areas_pl()
-        .filter(*ski_area_filters)
+        .filter(*_prepare_ski_area_filters(ski_area_filters))
         .explode("bearings")
         .unnest("bearings")
         .group_by(*group_by, "num_bins", "bin_index")

@@ -1,9 +1,16 @@
 from dataclasses import dataclass
 from typing import Literal
 
+import polars as pl
 import pytest
 
+from ski_bearings.analyze import (
+    aggregate_ski_areas_pl,
+    analyze_all_ski_areas,
+)
 from ski_bearings.bearing import get_bearing_summary_stats
+from ski_bearings.openskimap_utils import load_runs
+from ski_bearings.osmnx_utils import create_networkx_with_metadata
 
 
 @dataclass
@@ -130,3 +137,27 @@ def test_get_bearing_summary_stats(param: BearingSummaryStatsPytestParam) -> Non
     assert stats.mean_bearing_strength == pytest.approx(param.expected_strength)
     assert stats.poleward_affinity == pytest.approx(param.expected_poleward_affinity)
     assert stats.eastward_affinity == pytest.approx(param.excepted_eastward_affinity)
+
+
+def test_get_bearing_summary_stats_repeated_aggregation() -> None:
+    """
+    https://github.com/dhimmel/ski-bearing-stats/issues/1
+    """
+    # aggregate all runs at once
+    all_runs = load_runs()
+    combined_graph = create_networkx_with_metadata(all_runs, ski_area_metadata={})
+    single_pass = combined_graph.graph
+    # aggregate runs by ski area and then aggregate ski areas
+    analyze_all_ski_areas()
+    # group by hemisphere to avoid polars
+    # ComputeError: at least one key is required in a group_by operation
+    ski_area_pl = aggregate_ski_areas_pl(group_by=["hemisphere"])
+    double_pass = ski_area_pl.row(by_predicate=pl.lit(True), named=True)
+    for key in [
+        "mean_bearing",
+        "mean_bearing_strength",
+        "poleward_affinity",
+        "eastward_affinity",
+        "vector_magnitude",
+    ]:
+        assert single_pass[key] == pytest.approx(double_pass[key])

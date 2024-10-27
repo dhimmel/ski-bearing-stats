@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 import polars as pl
 from patito.exceptions import DataFrameValidationError
@@ -17,9 +18,11 @@ from ski_bearings.openskimap_utils import (
 from ski_bearings.osmnx_utils import (
     create_networkx_with_metadata,
 )
-from ski_bearings.utils import data_directory
+from ski_bearings.utils import get_data_directory
 
-ski_area_metrics_path = data_directory.joinpath("ski_area_metrics.parquet")
+
+def get_ski_area_metrics_path(testing: bool = False) -> Path:
+    return get_data_directory(testing=testing).joinpath("ski_area_metrics.parquet")
 
 
 def analyze_all_ski_areas() -> None:
@@ -67,12 +70,13 @@ def analyze_all_ski_areas() -> None:
         SkiAreaModel.validate(ski_area_metrics_df, allow_superfluous_columns=True)
     except DataFrameValidationError as exc:
         logging.error(f"SkiAreaModel.validate failed with {exc}")
+    ski_area_metrics_path = get_ski_area_metrics_path()
     logging.info(f"Writing {ski_area_metrics_path}")
     ski_area_metrics_df.write_parquet(ski_area_metrics_path)
 
 
 def load_ski_areas_pl() -> pl.DataFrame:
-    return pl.read_parquet(ski_area_metrics_path)
+    return pl.read_parquet(source=get_ski_area_metrics_path())
 
 
 def load_bearing_distribution_pl() -> pl.DataFrame:

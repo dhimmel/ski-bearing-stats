@@ -82,7 +82,7 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
         .with_columns(pl.lit(num_bins).alias("num_bins"))
         .with_columns(
             pl.col("bin_center")
-            .replace(bearing_labels, default=None)
+            .replace_strict(bearing_labels, default=None)
             .alias("bin_label")
         )
         .with_row_index(name="bin_index", offset=1)

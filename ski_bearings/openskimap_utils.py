@@ -1,4 +1,3 @@
-import itertools
 import json
 import logging
 import lzma
@@ -139,14 +138,14 @@ def load_downhill_ski_areas() -> pd.DataFrame:
                 "statistics__maxElevation",
                 "statistics__runs__minElevation",
                 "statistics__runs__maxElevation",
-                *itertools.chain.from_iterable(
-                    [
-                        f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__count",
-                        f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__lengthInKm",
-                        f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__combinedElevationChange",
-                    ]
-                    for difficulty in SkiRunDifficulty
-                ),
+                # *itertools.chain.from_iterable(
+                #     [
+                #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__count",
+                #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__lengthInKm",
+                #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__combinedElevationChange",
+                #     ]
+                #     for difficulty in SkiRunDifficulty
+                # ),
                 "statistics__lifts__minElevation",
                 "statistics__lifts__maxElevation",
             ]

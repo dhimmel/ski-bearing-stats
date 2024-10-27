@@ -1,0 +1,182 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "properties": {
+        "activities": [
+          "downhill"
+        ],
+        "generated": false,
+        "id": "8896cde00150e73de1f1237320c88767c91ce099",
+        "location": {
+          "iso3166_1Alpha2": "US",
+          "iso3166_2": null,
+          "localized": {
+            "en": {
+              "country": "United States",
+              "region": null,
+              "locality": null
+            }
+          }
+        },
+        "name": "Whaleback Mountain",
+        "runConvention": "north_america",
+        "sources": [
+          {
+            "type": "openstreetmap",
+            "id": "way/252782489"
+          },
+          {
+            "type": "skimap.org",
+            "id": 1078
+          }
+        ],
+        "status": "operating",
+        "type": "skiArea",
+        "websites": [
+          "http://www.whaleback.com/"
+        ],
+        "statistics": {
+          "runs": {
+            "byActivity": {
+              "downhill": {
+                "byDifficulty": {
+                  "intermediate": {
+                    "count": 20,
+                    "lengthInKm": 3.789347958734279,
+                    "minElevation": 351.11,
+                    "maxElevation": 542.4499999999999,
+                    "combinedElevationChange": 734.4099999999997
+                  },
+                  "easy": {
+                    "count": 9,
+                    "lengthInKm": 3.55885886527459,
+                    "minElevation": 349.11,
+                    "maxElevation": 542.42,
+                    "combinedElevationChange": 505.61999999999995
+                  },
+                  "expert": {
+                    "count": 2,
+                    "lengthInKm": 0.6731526342202359,
+                    "minElevation": 349.11,
+                    "maxElevation": 498.46999999999997,
+                    "combinedElevationChange": 246.52999999999992
+                  },
+                  "advanced": {
+                    "count": 3,
+                    "lengthInKm": 0.45779400019225375,
+                    "minElevation": 350.92999999999995,
+                    "maxElevation": 434.62,
+                    "combinedElevationChange": 91.6400000000001
+                  }
+                }
+              }
+            },
+            "minElevation": 349.11,
+            "maxElevation": 542.4499999999999
+          },
+          "lifts": {
+            "byType": {
+              "chair_lift": {
+                "count": 1,
+                "lengthInKm": 0.7273941693040148,
+                "minElevation": 350.92999999999995,
+                "maxElevation": 542.4499999999999,
+                "combinedElevationChange": 191.49
+              },
+              "magic_carpet": {
+                "count": 1,
+                "lengthInKm": 0.024925487920308187,
+                "minElevation": 352.92999999999995,
+                "maxElevation": 358.31,
+                "combinedElevationChange": 5.380000000000052
+              },
+              "t-bar": {
+                "count": 1,
+                "lengthInKm": 0.2373224496214283,
+                "minElevation": 356.02,
+                "maxElevation": 405.65000000000003,
+                "combinedElevationChange": 49.63000000000005
+              },
+              "rope_tow": {
+                "count": 1,
+                "lengthInKm": 0.07296626871682102,
+                "minElevation": 351.53,
+                "maxElevation": 362.90999999999997,
+                "combinedElevationChange": 11.379999999999995
+              }
+            },
+            "minElevation": 350.92999999999995,
+            "maxElevation": 542.4499999999999
+          },
+          "maxElevation": 542.4499999999999,
+          "minElevation": 350.92999999999995
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              -72.1853144,
+              43.6048422
+            ],
+            [
+              -72.18634789999996,
+              43.60376590000001
+            ],
+            [
+              -72.18620779999998,
+              43.60016500000001
+            ],
+            [
+              -72.18989849999997,
+              43.59509910000001
+            ],
+            [
+              -72.18872569999998,
+              43.5935915
+            ],
+            [
+              -72.18581479999997,
+              43.592189900000015
+            ],
+            [
+              -72.18171679999998,
+              43.59307320000001
+            ],
+            [
+              -72.17927699999997,
+              43.59436870000001
+            ],
+            [
+              -72.1770916,
+              43.5977977
+            ],
+            [
+              -72.17649999999998,
+              43.59969870000001
+            ],
+            [
+              -72.17678269999996,
+              43.6014591
+            ],
+            [
+              -72.1801931,
+              43.6019206
+            ],
+            [
+              -72.18276619999996,
+              43.60281250000001
+            ],
+            [
+              -72.1853144,
+              43.6048422
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    }
+  ]
+}

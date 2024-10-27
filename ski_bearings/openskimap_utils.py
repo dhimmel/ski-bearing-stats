@@ -2,6 +2,7 @@ import itertools
 import json
 import logging
 import lzma
+import os
 from collections import Counter
 from enum import StrEnum
 from functools import cache
@@ -12,7 +13,7 @@ import pandas as pd
 import polars as pl
 import requests
 
-from ski_bearings.utils import data_directory
+from ski_bearings.utils import data_directory, test_data_directory
 
 
 class SkiRunDifficulty(StrEnum):
@@ -26,7 +27,11 @@ class SkiRunDifficulty(StrEnum):
     other = "other"
 
 
-def get_openskimap_path(name: Literal["runs", "ski_areas", "lifts"]) -> Path:
+def get_openskimap_path(
+    name: Literal["runs", "ski_areas", "lifts"], testing: bool = False
+) -> Path:
+    if testing or "PYTEST_CURRENT_TEST" in os.environ:
+        return test_data_directory.joinpath(f"{name}.geojson")
     return data_directory.joinpath(f"{name}.geojson.xz")
 
 
@@ -45,15 +50,14 @@ def download_openskimap_geojson(name: Literal["runs", "ski_areas", "lifts"]) -> 
 def download_openskimap_geojsons() -> None:
     """Download all OpenSkiMap geojson files."""
     for name in ["runs", "ski_areas", "lifts"]:
-        download_openskimap_geojson(name)  # type: ignore[arg-type]
+        download_openskimap_geojson(name)  # type: ignore [arg-type]
 
 
 @cache
 def load_runs() -> Any:
     runs_path = get_openskimap_path("runs")
-    if not runs_path.exists():
-        download_openskimap_geojson(name="runs")
-    with lzma.open(runs_path) as read_file:
+    opener = lzma.open if runs_path.suffix == ".xz" else open
+    with opener(runs_path) as read_file:  # type: ignore [operator]
         data = json.load(read_file)
     assert data["type"] == "FeatureCollection"
     runs = data["features"]
@@ -94,20 +98,25 @@ def load_runs_pl() -> pl.DataFrame:
     return pl.DataFrame(rows, strict=False)
 
 
-@cache
-def load_ski_areas() -> pd.DataFrame:
+def load_ski_area_json() -> pd.DataFrame:
     ski_areas_path = get_openskimap_path("ski_areas")
-    if not ski_areas_path.exists():
-        download_openskimap_geojson(name="ski_areas")
-    with lzma.open(ski_areas_path) as read_file:
+    opener = lzma.open if ski_areas_path.suffix == ".xz" else open
+    with opener(ski_areas_path) as read_file:  # type: ignore [operator]
         data = json.load(read_file)
     assert data["type"] == "FeatureCollection"
-    return pd.json_normalize([x["properties"] for x in data["features"]], sep="__")
+    ski_areas = data["features"]
+    logging.info(f"Loaded {len(ski_areas):,} ski areas.")
+    return ski_areas
+
+
+@cache
+def load_ski_areas_pd() -> pd.DataFrame:
+    return pd.json_normalize([x["properties"] for x in load_ski_area_json()], sep="__")
 
 
 @cache
 def load_downhill_ski_areas() -> pd.DataFrame:
-    ski_areas = load_ski_areas()
+    ski_areas = load_ski_areas_pd()
     return (
         ski_areas.rename(columns={"id": "ski_area_id", "name": "ski_area_name"})
         .query("type == 'skiArea'")
@@ -176,3 +185,32 @@ def _clean_coordinates(
         # Ensure the run is going downhill, such that starting elevation > ending elevation
         coordinates.reverse()
     return coordinates
+
+
+def generate_openskimap_test_data() -> None:
+    test_ski_area_ids = [
+        "8896cde00150e73de1f1237320c88767c91ce099",  # Whaleback Mountain
+    ]
+    test_run_features = []
+    for run in load_runs():
+        for ski_area in run["properties"]["skiAreas"]:
+            if ski_area["properties"]["id"] in test_ski_area_ids:
+                test_run_features.append(run)
+    test_runs = {
+        "type": "FeatureCollection",
+        "features": test_run_features,
+    }
+    test_ski_areas = {
+        "type": "FeatureCollection",
+        "features": [
+            x
+            for x in load_ski_area_json()
+            if x["properties"]["id"] in test_ski_area_ids
+        ],
+    }
+    get_openskimap_path("runs", testing=True).write_text(
+        json.dumps(test_runs, indent=2, ensure_ascii=False)
+    )
+    get_openskimap_path("ski_areas", testing=True).write_text(
+        json.dumps(test_ski_areas, indent=2, ensure_ascii=False)
+    )

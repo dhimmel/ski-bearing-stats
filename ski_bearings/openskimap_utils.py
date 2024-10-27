@@ -135,7 +135,16 @@ def load_downhill_ski_areas_pl() -> pl.DataFrame:
             "location__localized__en__region",
             "location__localized__en__locality",
             "websites",
-            # "sources",  # inconsistently typed nested column 'id' as string or int
+            # sources can have inconsistently typed nested column 'id' as string or int
+            pl.col("sources")
+            .list.eval(
+                pl.concat_str(
+                    pl.element().struct.field("type"),
+                    pl.element().struct.field("id"),
+                    separator=":",
+                )
+            )
+            .alias("sources"),
             "statistics__minElevation",
             "statistics__maxElevation",
             "statistics__runs__minElevation",

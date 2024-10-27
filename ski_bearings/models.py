@@ -108,6 +108,10 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         ge=-1,
         le=1,
     )
+    vector_magnitude: float | None = Field(
+        description="Weighted vector summation of all segments of the ski area. "
+        "Used to calculate the mean bearing and mean bearing strength.",
+    )
     # https://github.com/JakobGM/patito/issues/104
     # bearings: list[SkiAreaBearingDistributionModel] = Field(
     #     description="Bearing distribution of the ski area.",

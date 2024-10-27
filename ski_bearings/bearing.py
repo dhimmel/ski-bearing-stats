@@ -99,6 +99,8 @@ class BearingSummaryStats:
     """The poleward affinity, representing the tendency of bearings to cluster towards the neatest pole (1.0) or equator (-1.0)."""
     eastward_affinity: float
     """The eastern affinity, representing the tendency of bearings to cluster towards the east (1.0) or west (-1.0)."""
+    vector_magnitude: float
+    """The magnitude (length, norm) of the resultant vector, representing the overall sum of the bearings."""
 
 
 def get_bearing_summary_stats(
@@ -164,7 +166,9 @@ def get_bearing_summary_stats(
     else:
         mean_bearing_rad = np.angle(total_complex)
         mean_bearing_strength = vector_magnitude / sum(
-            [w / s for w, s in zip(weights, strengths)]
+            np.divide(
+                weights, strengths, out=np.zeros_like(weights), where=strengths != 0
+            )
         )
 
     mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
@@ -180,7 +184,6 @@ def get_bearing_summary_stats(
     eastward_affinity = mean_bearing_strength * np.sin(mean_bearing_rad)
 
     return BearingSummaryStats(
-        vector_magnitude=round(vector_magnitude, 7),
         mean_bearing=round(mean_bearing_deg, 7),
         mean_bearing_strength=round(mean_bearing_strength, 7),
         # plus zero to avoid -0.0 <https://stackoverflow.com/a/74383961/4651668>
@@ -188,4 +191,5 @@ def get_bearing_summary_stats(
             round(poleward_affinity + 0, 7) if poleward_affinity is not None else None
         ),
         eastward_affinity=round(eastward_affinity + 0, 7),
+        vector_magnitude=round(vector_magnitude, 7),
     )

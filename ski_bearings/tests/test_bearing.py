@@ -151,8 +151,8 @@ def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     analyze_all_ski_areas()
     # group by hemisphere to avoid polars
     # ComputeError: at least one key is required in a group_by operation
-    ski_area_pl = aggregate_ski_areas_pl(group_by=["hemisphere"])
-    double_pass = ski_area_pl.row(by_predicate=pl.lit(True), named=True)
+    hemisphere_pl = aggregate_ski_areas_pl(group_by=["hemisphere"])
+    double_pass = hemisphere_pl.row(by_predicate=pl.lit(True), named=True)
     for key in [
         "mean_bearing",
         "mean_bearing_strength",

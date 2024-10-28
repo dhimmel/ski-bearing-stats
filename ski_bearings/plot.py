@@ -226,7 +226,11 @@ def subplot_orientations(
     n_rows = math.ceil(n_subplots / n_cols)
     figsize = (n_cols * SUBPLOT_FIGSIZE, n_rows * SUBPLOT_FIGSIZE)
     fig, axes = plt.subplots(
-        n_rows, n_cols, figsize=figsize, subplot_kw={"projection": "polar"}
+        nrows=n_rows,
+        ncols=n_cols,
+        squeeze=False,
+        figsize=figsize,
+        subplot_kw={"projection": "polar"},
     )
     dists_pl = (
         groups_pl.select(grouping_col, "bearings")

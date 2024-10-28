@@ -198,7 +198,7 @@ def _clean_coordinates(
 
 test_ski_area_ids = [
     "8896cde00150e73de1f1237320c88767c91ce099",  # Whaleback Mountain
-    "0dd6fca32f6c8a9cc7f681a9267f86b58415ea60",  # Storrs Hill Ski Area
+    "dc24f332f3117625dc09479b5d10cbb31a592be4",  # Storrs Hill Ski Area
 ]
 
 

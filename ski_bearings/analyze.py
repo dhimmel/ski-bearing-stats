@@ -216,7 +216,7 @@ def bearing_dists_by_country() -> pl.DataFrame:
     )
 
 
-def ski_rose_the_world() -> pl.DataFrame:
+def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
     path = get_data_directory().joinpath("ski-roses.pdf")
     pdf_pages = PdfPages(
         filename=path,
@@ -232,8 +232,15 @@ def ski_rose_the_world() -> pl.DataFrame:
     }
     figures = []
     for grouping_col, groups_pl in grouping_col_to_stats.items():
-        logging.info(f"Plotting ski rose the world by {grouping_col}")
-        groups_pl = groups_pl.filter(pl.col("combined_vertical") > 10_000)
+        logging.info(f"Plotting ski roses by {grouping_col}")
+        groups_pl = groups_pl.filter(
+            pl.col("combined_vertical") >= min_combined_vertical
+        )
+        if groups_pl.is_empty():
+            logging.info(
+                f"Skipping {grouping_col} plot which returns no groups with combined_vertical >= {min_combined_vertical:,}m."
+            )
+            continue
         fig = subplot_orientations(
             groups_pl=groups_pl,
             grouping_col=grouping_col,

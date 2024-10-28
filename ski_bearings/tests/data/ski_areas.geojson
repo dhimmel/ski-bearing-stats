@@ -177,6 +177,169 @@
         ],
         "type": "Polygon"
       }
+    },
+    {
+      "properties": {
+        "activities": [
+          "downhill"
+        ],
+        "generated": false,
+        "id": "dc24f332f3117625dc09479b5d10cbb31a592be4",
+        "location": {
+          "iso3166_1Alpha2": "US",
+          "iso3166_2": null,
+          "localized": {
+            "en": {
+              "country": "United States",
+              "region": null,
+              "locality": null
+            }
+          }
+        },
+        "name": "Storrs Hill Ski Area",
+        "runConvention": "north_america",
+        "sources": [
+          {
+            "type": "openstreetmap",
+            "id": "way/1090626629"
+          },
+          {
+            "type": "skimap.org",
+            "id": 4118
+          }
+        ],
+        "status": "operating",
+        "type": "skiArea",
+        "websites": [
+          "https://skistorrshill.com/"
+        ],
+        "statistics": {
+          "runs": {
+            "byActivity": {
+              "downhill": {
+                "byDifficulty": {
+                  "other": {
+                    "count": 5,
+                    "lengthInKm": 1.2642494231961585,
+                    "minElevation": 161.75,
+                    "maxElevation": 257.67,
+                    "combinedElevationChange": 231.46000000000004
+                  }
+                }
+              }
+            },
+            "minElevation": 161.75,
+            "maxElevation": 257.67
+          },
+          "lifts": {
+            "byType": {
+              "drag_lift": {
+                "count": 1,
+                "lengthInKm": 0.40465585678911375,
+                "minElevation": 165.73999999999998,
+                "maxElevation": 256.67,
+                "combinedElevationChange": 90.93000000000004
+              }
+            },
+            "minElevation": 165.73999999999998,
+            "maxElevation": 256.67
+          },
+          "maxElevation": 256.67,
+          "minElevation": 165.73999999999998
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              -72.2528541,
+              43.636689
+            ],
+            [
+              -72.25350879999998,
+              43.6366286
+            ],
+            [
+              -72.2533251,
+              43.6362611
+            ],
+            [
+              -72.2528507,
+              43.6355914
+            ],
+            [
+              -72.25261350000002,
+              43.63513930000002
+            ],
+            [
+              -72.25277059999996,
+              43.63453000000001
+            ],
+            [
+              -72.2531948,
+              43.6340344
+            ],
+            [
+              -72.2535857,
+              43.633647499999995
+            ],
+            [
+              -72.25388629999998,
+              43.6332365
+            ],
+            [
+              -72.25392640000003,
+              43.6328472
+            ],
+            [
+              -72.2537026,
+              43.632129100000014
+            ],
+            [
+              -72.25288079999997,
+              43.63133850000001
+            ],
+            [
+              -72.2522628,
+              43.6310411
+            ],
+            [
+              -72.2518151,
+              43.631067699999996
+            ],
+            [
+              -72.2510802,
+              43.632530500000016
+            ],
+            [
+              -72.25092660000003,
+              43.6334202
+            ],
+            [
+              -72.25035199999998,
+              43.63452280000001
+            ],
+            [
+              -72.2502017,
+              43.634941
+            ],
+            [
+              -72.25179179999998,
+              43.635528500000014
+            ],
+            [
+              -72.25226950000003,
+              43.63568090000001
+            ],
+            [
+              -72.2528541,
+              43.636689
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
     }
   ]
 }

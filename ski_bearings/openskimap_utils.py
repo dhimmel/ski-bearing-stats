@@ -220,6 +220,7 @@ def generate_openskimap_test_data() -> None:
             if x["properties"]["id"] in test_ski_area_ids
         ],
     }
+    assert len(test_runs["features"]) == len(test_ski_area_ids)
     get_openskimap_path("runs", testing=True).write_text(
         json.dumps(test_runs, indent=2, ensure_ascii=False)
     )

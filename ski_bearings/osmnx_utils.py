@@ -79,6 +79,7 @@ def create_networkx_with_metadata(
             bearings=bearings,
             strengths=None,
             weights=weights,
+            combined_vertical=weights,
             hemisphere=graph.graph["hemisphere"],
         )
         graph.graph.update(dataclasses.asdict(stats))

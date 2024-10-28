@@ -35,25 +35,25 @@ class SkiAreaModel(Model):  # type: ignore [misc]
     status: Literal["operating", "abandoned", "proposed", "disused"] | None = Field(
         description="Operating status of the ski area."
     )
-    location__iso3166_1Alpha2: str | None = Field(
-        description="ISO 3166-1 alpha-2 two-letter country code.",
-        examples=["US", "FR"],
-    )
-    location__iso3166_2: str | None = Field(
-        description="ISO 3166-2 code for principal subdivision (e.g., province or state) of the country.",
-        examples=["US-NH", "JP-01", "FR-ARA"],
-    )
-    location__localized__en__country: str | None = Field(
+    country: str | None = Field(
         description="Country where the ski area is located.",
         examples=["United States"],
     )
-    location__localized__en__region: str | None = Field(
-        description="Region where the ski area is located.",
+    region: str | None = Field(
+        description="Region/subdivision/province/state where the ski area is located.",
         examples=["New Hampshire"],
     )
-    location__localized__en__locality: str | None = Field(
-        description="Locality where the ski area is located.",
+    locality: str | None = Field(
+        description="Locality/town/city where the ski area is located.",
         examples=["Jackson"],
+    )
+    country_code: str | None = Field(
+        description="ISO 3166-1 alpha-2 two-letter country code.",
+        examples=["US", "FR"],
+    )
+    country_subdiv_code: str | None = Field(
+        description="ISO 3166-2 code for principal subdivision (e.g., province or state) of the country.",
+        examples=["US-NH", "JP-01", "FR-ARA"],
     )
     # Validation fails on an empty list https://github.com/JakobGM/patito/issues/103
     websites: list[str | None] = Field(

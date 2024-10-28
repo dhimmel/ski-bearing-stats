@@ -129,11 +129,11 @@ def load_downhill_ski_areas_pl() -> pl.DataFrame:
             "generated",
             "runConvention",
             "status",
-            "location__iso3166_1Alpha2",
-            "location__iso3166_2",
-            "location__localized__en__country",
-            "location__localized__en__region",
-            "location__localized__en__locality",
+            pl.col("location__localized__en__country").alias("country"),
+            pl.col("location__localized__en__region").alias("region"),
+            pl.col("location__localized__en__locality").alias("locality"),
+            pl.col("location__iso3166_2").alias("country_code"),
+            pl.col("location__iso3166_1Alpha2").alias("country_subdiv_code"),
             "websites",
             # sources can have inconsistently typed nested column 'id' as string or int
             pl.col("sources")

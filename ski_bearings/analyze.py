@@ -140,7 +140,7 @@ def aggregate_ski_areas_pl(
         .group_by(*group_by)
         .agg(
             ski_areas_count=pl.n_unique("ski_area_id"),
-            country_count=pl.n_unique("location__localized__en__country"),
+            country_count=pl.n_unique("country"),
             combined_vertical=pl.sum("combined_vertical"),
             run_count=pl.sum("run_count"),
             run_count_filtered=pl.sum("run_count_filtered"),
@@ -184,10 +184,10 @@ def aggregate_ski_area_bearing_dists_pl(
 
 def bearing_dists_by_us_state() -> pl.DataFrame:
     return aggregate_ski_areas_pl(
-        group_by=["location__localized__en__region"],
+        group_by=["region"],
         ski_area_filters=[
-            pl.col("location__localized__en__country") == "United States",
-            pl.col("location__localized__en__region").is_not_null(),
+            pl.col("country") == "United States",
+            pl.col("region").is_not_null(),
             pl.col("status") == "operating",
             pl.col("ski_area_name").is_not_null(),
         ],
@@ -207,9 +207,9 @@ def bearing_dists_by_hemisphere() -> pl.DataFrame:
 
 def bearing_dists_by_country() -> pl.DataFrame:
     return aggregate_ski_areas_pl(
-        group_by=["location__localized__en__country"],
+        group_by=["country"],
         ski_area_filters=[
-            pl.col("location__localized__en__country").is_not_null(),
+            pl.col("country").is_not_null(),
             pl.col("status") == "operating",
             pl.col("ski_area_name").is_not_null(),
         ],
@@ -227,8 +227,8 @@ def ski_rose_the_world() -> pl.DataFrame:
     )
     grouping_col_to_stats = {
         "hemisphere": bearing_dists_by_hemisphere(),
-        "location__localized__en__country": bearing_dists_by_country(),
-        "location__localized__en__region": bearing_dists_by_us_state(),
+        "country": bearing_dists_by_country(),
+        "region": bearing_dists_by_us_state(),
     }
     figures = []
     for grouping_col, groups_pl in grouping_col_to_stats.items():

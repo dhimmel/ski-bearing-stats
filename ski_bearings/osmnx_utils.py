@@ -77,7 +77,6 @@ def create_networkx_with_metadata(
         graph.graph["combined_vertical"] = sum(weights)
         stats = get_bearing_summary_stats(
             bearings=bearings,
-            strengths=None,
             weights=weights,
             combined_vertical=weights,
             hemisphere=graph.graph["hemisphere"],

@@ -107,7 +107,6 @@ def _get_bearing_summary_stats_pl(struct_series: pl.Series) -> BearingSummarySta
         hemisphere = None
     return get_bearing_summary_stats(
         bearings=df.get_column("mean_bearing").to_numpy(),
-        strengths=df.get_column("mean_bearing_strength").to_numpy(),
         weights=df.get_column("vector_magnitude").to_numpy(),
         combined_vertical=df.get_column("combined_vertical").to_numpy(),
         hemisphere=hemisphere,

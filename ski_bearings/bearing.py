@@ -107,7 +107,6 @@ class BearingSummaryStats:
 
 def get_bearing_summary_stats(
     bearings: list[float] | npt.NDArray[np.float64],
-    strengths: list[float] | npt.NDArray[np.float64] | None = None,
     weights: list[float] | npt.NDArray[np.float64] | None = None,
     combined_vertical: list[float] | npt.NDArray[np.float64] | None = None,
     hemisphere: Literal["north", "south"] | None = None,
@@ -119,10 +118,6 @@ def get_bearing_summary_stats(
 
     bearings:
         An array or list of bearing angles in degrees. These represent directions, headings, or orientations.
-    strengths:
-        An array or list of strengths (magnitudes, amplitudes, reliabilities) corresponding to each bearing.
-        If None, all strengths are assumed to be 1.
-        These represent the inherent magnitude, confidence, or reliability of each bearing.
     weights:
         An array or list of weights (importance factors, influence coefficients, scaling factors) applied to each bearing.
         If None, all weights are assumed to be 1.
@@ -152,49 +147,31 @@ def get_bearing_summary_stats(
         weights = np.ones_like(bearings, dtype=np.float64)
     if combined_vertical is None:
         combined_vertical = np.ones_like(bearings, dtype=np.float64)
-    if strengths is None:
-        strengths = np.ones_like(bearings, dtype=np.float64)
 
     bearings = np.array(bearings, dtype=np.float64)
-    strengths = np.array(strengths, dtype=np.float64)
     weights = np.array(weights, dtype=np.float64)
 
-    assert bearings.shape == strengths.shape == weights.shape
+    assert bearings.shape == weights.shape
 
     combined_vertical = sum(combined_vertical)
-    # Scale vectors by strengths
     bearings_rad = np.deg2rad(bearings)
     # Sum all vectors in their complex number form using weights and bearings
     total_complex = sum(weights * np.exp(1j * bearings_rad))
     # Convert the result back to polar coordinates
     vector_magnitude = np.abs(total_complex)
-    vert_ratio = vector_magnitude / combined_vertical
-
-    if vector_magnitude < 1e-10:
-        mean_bearing_rad = 0.0
-        mean_bearing_strength = 0.0
-    else:
-        mean_bearing_rad = np.angle(total_complex)
-        if np.all(strengths < 1e-10):
-            mean_bearing_strength = 0.0
-        else:
-            mean_bearing_strength = vector_magnitude / sum(
-                np.divide(
-                    weights, strengths, out=np.zeros_like(weights), where=strengths != 0
-                )
-            )
-
+    mean_bearing_strength = vector_magnitude / combined_vertical
+    mean_bearing_rad = np.angle(total_complex) if vector_magnitude > 1e-10 else 0.0
     mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
 
     if hemisphere == "north":
         # Northern Hemisphere: poleward is 0 degrees
-        poleward_affinity = vert_ratio * np.cos(mean_bearing_rad)
+        poleward_affinity = mean_bearing_strength * np.cos(mean_bearing_rad)
     elif hemisphere == "south":
         # Southern Hemisphere: poleward is 180 degrees
-        poleward_affinity = -vert_ratio * np.cos(mean_bearing_rad)
+        poleward_affinity = -mean_bearing_strength * np.cos(mean_bearing_rad)
     else:
         poleward_affinity = None
-    eastward_affinity = vert_ratio * np.sin(mean_bearing_rad)
+    eastward_affinity = mean_bearing_strength * np.sin(mean_bearing_rad)
 
     return BearingSummaryStats(
         mean_bearing=round(mean_bearing_deg, 7),

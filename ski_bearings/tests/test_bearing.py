@@ -21,7 +21,6 @@ class BearingSummaryStatsPytestParam:
     """
 
     bearings: list[float] | None
-    strengths: list[float] | None
     weights: list[float] | None
     combined_vertical: list[float] | None
     hemisphere: Literal["north", "south"] | None
@@ -36,7 +35,6 @@ class BearingSummaryStatsPytestParam:
     [
         BearingSummaryStatsPytestParam(
             bearings=[0.0],
-            strengths=None,
             weights=[2.0],
             combined_vertical=[2.0],
             hemisphere="north",
@@ -47,7 +45,6 @@ class BearingSummaryStatsPytestParam:
         ),
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 90.0],
-            strengths=None,
             weights=[1.0, 1.0],
             combined_vertical=None,
             hemisphere="south",
@@ -58,7 +55,6 @@ class BearingSummaryStatsPytestParam:
         ),
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 90.0],
-            strengths=None,
             weights=[0.5, 0.5],
             combined_vertical=[0.5, 0.5],
             hemisphere="north",
@@ -69,7 +65,6 @@ class BearingSummaryStatsPytestParam:
         ),
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 90.0],
-            strengths=[0.5, 0.5],
             weights=None,
             combined_vertical=[2.0, 2.0],
             hemisphere="north",
@@ -80,7 +75,6 @@ class BearingSummaryStatsPytestParam:
         ),
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 360.0],
-            strengths=None,
             weights=[1.0, 1.0],
             combined_vertical=None,
             hemisphere="north",
@@ -91,18 +85,16 @@ class BearingSummaryStatsPytestParam:
         ),
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 90.0],
-            strengths=None,
             weights=[0.0, 1.0],
             combined_vertical=[0.5, 1.5],
             hemisphere="north",
             expected_bearing=90.0,
-            expected_strength=1.0,
+            expected_strength=0.5,
             expected_poleward_affinity=0.0,
             excepted_eastward_affinity=0.5,
         ),
         BearingSummaryStatsPytestParam(
             bearings=[90.0, 270.0],
-            strengths=[0.1, 0.9],
             weights=None,
             combined_vertical=None,
             hemisphere="north",
@@ -113,7 +105,6 @@ class BearingSummaryStatsPytestParam:
         ),  # should cancel each other out
         BearingSummaryStatsPytestParam(
             bearings=[90.0],
-            strengths=[0.0],
             weights=[0.0],
             combined_vertical=None,
             hemisphere="north",
@@ -125,7 +116,6 @@ class BearingSummaryStatsPytestParam:
         # weights and strengths
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 90.0],
-            strengths=[0.2, 0.4],
             weights=[2, 4],
             combined_vertical=[10.0, 10.0],
             hemisphere="north",
@@ -139,7 +129,6 @@ class BearingSummaryStatsPytestParam:
 def test_get_bearing_summary_stats(param: BearingSummaryStatsPytestParam) -> None:
     stats = get_bearing_summary_stats(
         bearings=param.bearings,
-        strengths=param.strengths,
         weights=param.weights,
         combined_vertical=param.combined_vertical,
         hemisphere=param.hemisphere,

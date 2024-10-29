@@ -139,7 +139,6 @@ def test_get_bearing_summary_stats(param: BearingSummaryStatsPytestParam) -> Non
     assert stats.eastward_affinity == pytest.approx(param.excepted_eastward_affinity)
 
 
-@pytest.mark.xfail(reason="working on polar affinity")  # TODO to remove
 def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     """
     https://github.com/dhimmel/ski-bearing-stats/issues/1

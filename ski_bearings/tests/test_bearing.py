@@ -22,8 +22,8 @@ class BearingSummaryStatsPytestParam:
     """
 
     bearings: list[float] | None
-    strengths: list[float] | None
     weights: list[float] | None
+    combined_vertical: list[float] | None
     hemisphere: Literal["north", "south"] | None
     expected_bearing: float
     expected_strength: float
@@ -36,8 +36,8 @@ class BearingSummaryStatsPytestParam:
     [
         BearingSummaryStatsPytestParam(
             bearings=[0.0],
-            strengths=None,
             weights=[2.0],
+            combined_vertical=[2.0],
             hemisphere="north",
             expected_bearing=0.0,
             expected_strength=1.0,
@@ -46,8 +46,8 @@ class BearingSummaryStatsPytestParam:
         ),
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 90.0],
-            strengths=None,
             weights=[1.0, 1.0],
+            combined_vertical=None,
             hemisphere="south",
             expected_bearing=45.0,
             expected_strength=0.7071068,
@@ -56,8 +56,8 @@ class BearingSummaryStatsPytestParam:
         ),
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 90.0],
-            strengths=None,
             weights=[0.5, 0.5],
+            combined_vertical=[0.5, 0.5],
             hemisphere="north",
             expected_bearing=45.0,
             expected_strength=0.7071068,
@@ -66,8 +66,8 @@ class BearingSummaryStatsPytestParam:
         ),
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 90.0],
-            strengths=[0.5, 0.5],
             weights=None,
+            combined_vertical=[2.0, 2.0],
             hemisphere="north",
             expected_bearing=45.0,
             expected_strength=0.3535534,
@@ -76,8 +76,8 @@ class BearingSummaryStatsPytestParam:
         ),
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 360.0],
-            strengths=None,
             weights=[1.0, 1.0],
+            combined_vertical=None,
             hemisphere="north",
             expected_bearing=360.0,
             expected_strength=1.0,
@@ -86,18 +86,18 @@ class BearingSummaryStatsPytestParam:
         ),
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 90.0],
-            strengths=None,
             weights=[0.0, 1.0],
+            combined_vertical=[0.5, 1.5],
             hemisphere="north",
             expected_bearing=90.0,
-            expected_strength=1.0,
+            expected_strength=0.5,
             expected_poleward_affinity=0.0,
-            excepted_eastward_affinity=1.0,
+            excepted_eastward_affinity=0.5,
         ),
         BearingSummaryStatsPytestParam(
             bearings=[90.0, 270.0],
-            strengths=[0.1, 0.9],
             weights=None,
+            combined_vertical=None,
             hemisphere="north",
             expected_bearing=0.0,
             expected_strength=0.0,
@@ -106,19 +106,19 @@ class BearingSummaryStatsPytestParam:
         ),  # should cancel each other out
         BearingSummaryStatsPytestParam(
             bearings=[90.0],
-            strengths=[0.0],
-            weights=None,
+            weights=[0.0],
+            combined_vertical=None,
             hemisphere="north",
-            expected_bearing=90.0,
+            expected_bearing=0.0,
             expected_strength=0.0,
             expected_poleward_affinity=0.0,
             excepted_eastward_affinity=0.0,
-        ),
+        ),  # strength can only be 0 when weight is 0
         # weights and strengths
         BearingSummaryStatsPytestParam(
             bearings=[0.0, 90.0],
-            strengths=[0.2, 0.4],
             weights=[2, 4],
+            combined_vertical=[10.0, 10.0],
             hemisphere="north",
             expected_bearing=63.4349488,
             expected_strength=0.2236068,
@@ -130,8 +130,8 @@ class BearingSummaryStatsPytestParam:
 def test_get_bearing_summary_stats(param: BearingSummaryStatsPytestParam) -> None:
     stats = get_bearing_summary_stats(
         bearings=param.bearings,
-        strengths=param.strengths,
         weights=param.weights,
+        combined_vertical=param.combined_vertical,
         hemisphere=param.hemisphere,
     )
     assert stats.mean_bearing == pytest.approx(param.expected_bearing)

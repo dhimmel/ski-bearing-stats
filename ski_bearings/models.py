@@ -1,6 +1,59 @@
-from typing import Literal
+from typing import Annotated, Literal
 
 from patito import Field, Model
+
+
+class BearingStatsModel(Model):  # type: ignore [misc]
+    bearing_mean: Annotated[
+        float | None,
+        Field(
+            description="The mean bearing in degrees.",
+            ge=0,
+            lt=360,
+        ),
+    ]
+    bearing_alignment: Annotated[
+        float | None,
+        Field(
+            description="Bearing alignment score, representing the concentration / consistency / cohesion of the bearings.",
+            ge=0,
+            le=1,
+        ),
+    ]
+    bearing_magnitude_net: Annotated[
+        float | None,
+        Field(
+            description="Weighted vector summation of all segments of the ski area. "
+            "Used to calculate the mean bearing and mean bearing strength.",
+        ),
+    ]
+    bearing_magnitude_cum: Annotated[
+        float | None,
+        Field(
+            description="Weighted vector summation of all segments of the ski area. "
+            "Used to calculate the mean bearing and mean bearing strength.",
+        ),
+    ]
+    poleward_affinity: Annotated[
+        float | None,
+        Field(
+            description="The poleward affinity, representing the tendency of bearings to cluster towards the neatest pole (1.0) or equator (-1.0). "
+            "Positive values indicate bearings cluster towards the pole of the hemisphere in which the ski area is located. "
+            "Negative values indicate bearings cluster towards the equator.",
+            ge=-1,
+            le=1,
+        ),
+    ]
+    eastward_affinity: Annotated[
+        float | None,
+        Field(
+            description="The eastern affinity, representing the tendency of bearings to cluster towards the east (1.0) or west (-1.0). "
+            "Positive values indicate bearings cluster towards the east. "
+            "Negative values indicate bearings cluster towards the west.",
+            ge=-1,
+            le=1,
+        ),
+    ]
 
 
 class SkiAreaBearingDistributionModel(Model):  # type: ignore [misc]
@@ -84,6 +137,10 @@ class SkiAreaModel(Model):  # type: ignore [misc]
     combined_vertical: float | None = Field(
         description="Total vertical drop of the ski area in meters.",
     )
+    # https://github.com/pydantic/pydantic/issues/1010#issuecomment-1009747056
+    for field_name in BearingStatsModel.model_fields:
+        __annotations__[field_name] = BearingStatsModel.__annotations__[field_name]
+    del field_name
     bearing_mean: float | None = Field(
         description="Mean bearing of the ski area in degrees.",
         ge=0,

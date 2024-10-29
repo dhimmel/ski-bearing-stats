@@ -79,7 +79,7 @@ class BearingSummaryStatsPytestParam:
             weights=[1.0, 1.0],
             combined_vertical=None,
             hemisphere="north",
-            expected_bearing=360.0,
+            expected_bearing=0.0,
             expected_strength=1.0,
             expected_poleward_affinity=1.0,
             excepted_eastward_affinity=0.0,

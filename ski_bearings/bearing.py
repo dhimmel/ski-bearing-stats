@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Literal
 
 import networkx as nx
@@ -6,6 +5,8 @@ import numpy as np
 import numpy.typing as npt
 import osmnx
 import polars as pl
+
+from ski_bearings.models import BearingStatsModel
 
 bearing_labels = {
     0.0: "N",
@@ -89,28 +90,12 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
     )
 
 
-@dataclass
-class BearingSummaryStats:
-    bearing_mean: float
-    """The mean bearing in degrees, calculated from the weighted and strength-scaled vectors."""
-    bearing_alignment: float
-    """Bearing alignment score, representing the concentration / consistency / cohesion of the bearings."""
-    bearing_magnitude_net: float
-    """The magnitude (length, norm) of the resultant vector, representing the overall sum of the bearings."""
-    bearing_magnitude_cum: float
-    """The sum of the total verticals of all the original segments attributing to this bearing summary/group of trails."""
-    poleward_affinity: float | None
-    """The poleward affinity, representing the tendency of bearings to cluster towards the neatest pole (1.0) or equator (-1.0)."""
-    eastward_affinity: float
-    """The eastern affinity, representing the tendency of bearings to cluster towards the east (1.0) or west (-1.0)."""
-
-
 def get_bearing_summary_stats(
     bearings: list[float] | npt.NDArray[np.float64],
     net_magnitudes: list[float] | npt.NDArray[np.float64] | None = None,
     cum_magnitudes: list[float] | npt.NDArray[np.float64] | None = None,
     hemisphere: Literal["north", "south"] | None = None,
-) -> BearingSummaryStats:
+) -> BearingStatsModel:
     """
     Compute the mean bearing (i.e. average direction, mean angle)
     and mean bearing strength (i.e. resultant vector length, concentration, magnitude) from a set of bearings,
@@ -159,7 +144,7 @@ def get_bearing_summary_stats(
     net_magnitude = np.abs(total_complex)
     alignment = net_magnitude / cum_magnitude if cum_magnitude > 1e-10 else 0.0
     mean_bearing_rad = np.angle(total_complex) if net_magnitude > 1e-10 else 0.0
-    mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
+    mean_bearing_deg = np.rad2deg(np.round(mean_bearing_rad, 10)) % 360
 
     if hemisphere == "north":
         # Northern Hemisphere: poleward is 0 degrees
@@ -171,7 +156,7 @@ def get_bearing_summary_stats(
         poleward_affinity = None
     eastward_affinity = alignment * np.sin(mean_bearing_rad)
 
-    return BearingSummaryStats(
+    return BearingStatsModel(
         bearing_mean=round(mean_bearing_deg, 7),
         bearing_alignment=round(alignment, 7),
         # plus zero to avoid -0.0 <https://stackoverflow.com/a/74383961/4651668>

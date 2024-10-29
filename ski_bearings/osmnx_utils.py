@@ -1,5 +1,4 @@
 import contextlib
-import dataclasses
 import statistics
 import warnings
 from collections.abc import Generator
@@ -81,5 +80,5 @@ def create_networkx_with_metadata(
             cum_magnitudes=weights,
             hemisphere=graph.graph["hemisphere"],
         )
-        graph.graph.update(dataclasses.asdict(stats))
+        graph.graph.update(stats.model_dump())
     return graph

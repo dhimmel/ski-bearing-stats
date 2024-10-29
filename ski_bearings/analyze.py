@@ -6,11 +6,10 @@ from matplotlib.backends.backend_pdf import PdfPages
 from patito.exceptions import DataFrameValidationError
 
 from ski_bearings.bearing import (
-    BearingSummaryStats,
     get_bearing_distributions_df,
     get_bearing_summary_stats,
 )
-from ski_bearings.models import SkiAreaModel
+from ski_bearings.models import BearingStatsModel, SkiAreaModel
 from ski_bearings.openskimap_utils import (
     get_ski_area_to_runs,
     load_downhill_ski_areas_pl,
@@ -94,7 +93,7 @@ def load_bearing_distribution_pl() -> pl.DataFrame:
     )
 
 
-def _get_bearing_summary_stats_pl(struct_series: pl.Series) -> BearingSummaryStats:
+def _get_bearing_summary_stats_pl(struct_series: pl.Series) -> BearingStatsModel:
     df = (
         struct_series.alias("input_struct")
         .to_frame()

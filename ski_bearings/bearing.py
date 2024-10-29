@@ -91,24 +91,24 @@ def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.Dat
 
 @dataclass
 class BearingSummaryStats:
-    mean_bearing: float
+    bearing_mean: float
     """The mean bearing in degrees, calculated from the weighted and strength-scaled vectors."""
-    mean_bearing_strength: float
-    """The mean bearing strength (normalized magnitude, mean resultant length), representing the concentration, consistency, or dispersion of the bearings."""
+    bearing_alignment: float
+    """Bearing alignment score, representing the concentration / consistency / cohesion of the bearings."""
+    bearing_magnitude_net: float
+    """The magnitude (length, norm) of the resultant vector, representing the overall sum of the bearings."""
+    bearing_magnitude_cum: float
+    """The sum of the total verticals of all the original segments attributing to this bearing summary/group of trails."""
     poleward_affinity: float | None
     """The poleward affinity, representing the tendency of bearings to cluster towards the neatest pole (1.0) or equator (-1.0)."""
     eastward_affinity: float
     """The eastern affinity, representing the tendency of bearings to cluster towards the east (1.0) or west (-1.0)."""
-    vector_magnitude: float
-    """The magnitude (length, norm) of the resultant vector, representing the overall sum of the bearings."""
-    combined_vertical: float
-    """The sum of the total verticals of all the originial segments attributing to this bearing summary/group of trails."""
 
 
 def get_bearing_summary_stats(
     bearings: list[float] | npt.NDArray[np.float64],
-    weights: list[float] | npt.NDArray[np.float64] | None = None,
-    combined_vertical: list[float] | npt.NDArray[np.float64] | None = None,
+    net_magnitudes: list[float] | npt.NDArray[np.float64] | None = None,
+    cum_magnitudes: list[float] | npt.NDArray[np.float64] | None = None,
     hemisphere: Literal["north", "south"] | None = None,
 ) -> BearingSummaryStats:
     """
@@ -118,14 +118,14 @@ def get_bearing_summary_stats(
 
     bearings:
         An array or list of bearing angles in degrees. These represent directions, headings, or orientations.
-    weights:
+    net_magnitudes:
         An array or list of weights (importance factors, influence coefficients, scaling factors) applied to each bearing.
         If None, all weights are assumed to be 1.
         These represent external weighting factors, priorities, or significance levels assigned to each bearing.
-    combined_vertical:
+    cum_magnitudes:
         An array or list of combined verticals of the each bearing.
         If None, all combined verticals are assumed to be 1.
-        These represent the total verticals of all the originial group of segments attributing to this bearing.
+        These represent the total verticals of all the original group of segments attributing to this bearing.
     hemisphere:
         The hemisphere in which the bearings are located used to calculate poleward affinity.
         If None, poleward affinity is not calculated.
@@ -143,44 +143,42 @@ def get_bearing_summary_stats(
     - https://chatgpt.com/share/6718521f-6768-8011-aed4-db345efb68b7
     - https://chatgpt.com/share/a2648aee-194b-4744-8a81-648d124d17f2
     """
-    if weights is None:
-        weights = np.ones_like(bearings, dtype=np.float64)
-    if combined_vertical is None:
-        combined_vertical = np.ones_like(bearings, dtype=np.float64)
-
+    if net_magnitudes is None:
+        net_magnitudes = np.ones_like(bearings, dtype=np.float64)
+    if cum_magnitudes is None:
+        cum_magnitudes = np.ones_like(bearings, dtype=np.float64)
     bearings = np.array(bearings, dtype=np.float64)
-    weights = np.array(weights, dtype=np.float64)
+    net_magnitudes = np.array(net_magnitudes, dtype=np.float64)
+    cum_magnitudes = np.array(cum_magnitudes, dtype=np.float64)
+    assert bearings.shape == net_magnitudes.shape == cum_magnitudes.shape
 
-    assert bearings.shape == weights.shape
-
-    combined_vertical = sum(combined_vertical)
-    bearings_rad = np.deg2rad(bearings)
     # Sum all vectors in their complex number form using weights and bearings
-    total_complex = sum(weights * np.exp(1j * bearings_rad))
+    total_complex = sum(net_magnitudes * np.exp(1j * np.deg2rad(bearings)))
     # Convert the result back to polar coordinates
-    vector_magnitude = np.abs(total_complex)
-    mean_bearing_strength = vector_magnitude / combined_vertical
-    mean_bearing_rad = np.angle(total_complex) if vector_magnitude > 1e-10 else 0.0
+    cum_magnitude = sum(cum_magnitudes)
+    net_magnitude = np.abs(total_complex)
+    alignment = net_magnitude / cum_magnitude if cum_magnitude > 1e-10 else 0.0
+    mean_bearing_rad = np.angle(total_complex) if net_magnitude > 1e-10 else 0.0
     mean_bearing_deg = np.rad2deg(mean_bearing_rad) % 360
 
     if hemisphere == "north":
         # Northern Hemisphere: poleward is 0 degrees
-        poleward_affinity = mean_bearing_strength * np.cos(mean_bearing_rad)
+        poleward_affinity = alignment * np.cos(mean_bearing_rad)
     elif hemisphere == "south":
         # Southern Hemisphere: poleward is 180 degrees
-        poleward_affinity = -mean_bearing_strength * np.cos(mean_bearing_rad)
+        poleward_affinity = -alignment * np.cos(mean_bearing_rad)
     else:
         poleward_affinity = None
-    eastward_affinity = mean_bearing_strength * np.sin(mean_bearing_rad)
+    eastward_affinity = alignment * np.sin(mean_bearing_rad)
 
     return BearingSummaryStats(
-        mean_bearing=round(mean_bearing_deg, 7),
-        mean_bearing_strength=round(mean_bearing_strength, 7),
+        bearing_mean=round(mean_bearing_deg, 7),
+        bearing_alignment=round(alignment, 7),
         # plus zero to avoid -0.0 <https://stackoverflow.com/a/74383961/4651668>
         poleward_affinity=(
             round(poleward_affinity + 0, 7) if poleward_affinity is not None else None
         ),
         eastward_affinity=round(eastward_affinity + 0, 7),
-        vector_magnitude=round(vector_magnitude, 7),
-        combined_vertical=round(combined_vertical, 7),
+        bearing_magnitude_net=round(net_magnitude, 7),
+        bearing_magnitude_cum=round(cum_magnitude, 7),
     )

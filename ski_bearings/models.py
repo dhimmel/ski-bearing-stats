@@ -84,15 +84,23 @@ class SkiAreaModel(Model):  # type: ignore [misc]
     combined_vertical: float | None = Field(
         description="Total vertical drop of the ski area in meters.",
     )
-    mean_bearing: float | None = Field(
+    bearing_mean: float | None = Field(
         description="Mean bearing of the ski area in degrees.",
         ge=0,
         lt=360,
     )
-    mean_bearing_strength: float | None = Field(
+    bearing_alignment: float | None = Field(
         description="Mean bearing strength of the ski area.",
         ge=0,
         le=1,
+    )
+    bearing_magnitude_net: float | None = Field(
+        description="Weighted vector summation of all segments of the ski area. "
+        "Used to calculate the mean bearing and mean bearing strength.",
+    )
+    bearing_magnitude_cum: float | None = Field(
+        description="Weighted vector summation of all segments of the ski area. "
+        "Used to calculate the mean bearing and mean bearing strength.",
     )
     poleward_affinity: float | None = Field(
         description="Poleward affinity of the ski area. "
@@ -107,10 +115,6 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         "Negative values indicate bearings cluster towards the west.",
         ge=-1,
         le=1,
-    )
-    vector_magnitude: float | None = Field(
-        description="Weighted vector summation of all segments of the ski area. "
-        "Used to calculate the mean bearing and mean bearing strength.",
     )
     # https://github.com/JakobGM/patito/issues/104
     # bearings: list[SkiAreaBearingDistributionModel] = Field(

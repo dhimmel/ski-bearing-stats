@@ -275,10 +275,10 @@ def subplot_orientations(
         )
         ax.title.set_size(18)
         ax.yaxis.grid(False)
-        if free_y and "mean_bearing" in group_info:
+        if free_y and "bearing_mean" in group_info:
             ax.scatter(
-                x=np.radians(group_info["mean_bearing"]),
-                y=group_info["mean_bearing_strength"] * ax.get_ylim()[1],
+                x=np.radians(group_info["bearing_mean"]),
+                y=group_info["bearing_alignment"] * ax.get_ylim()[1],
                 color="blue",
                 label="Mean Bearing",
                 zorder=2,
@@ -331,11 +331,11 @@ def plot_mean_bearing(
 
     # bearings
     positions = (
-        ski_areas_pl.select(pl.col("mean_bearing").radians().alias("mean_bearing_rad"))
-        .get_column("mean_bearing_rad")
+        ski_areas_pl.select(pl.col("bearing_mean").radians().alias("bearing_mean_rad"))
+        .get_column("bearing_mean_rad")
         .to_numpy()
     )
-    magnitudes = ski_areas_pl.get_column("mean_bearing_strength").to_numpy()
+    magnitudes = ski_areas_pl.get_column("bearing_alignment").to_numpy()
 
     # create PolarAxes (if not passed-in) then set N at top and go clockwise
     fig, ax = _get_fig_ax(ax=ax, figsize=figsize, bgcolor=None, polar=True)

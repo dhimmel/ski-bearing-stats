@@ -106,9 +106,9 @@ def _get_bearing_summary_stats_pl(struct_series: pl.Series) -> BearingSummarySta
     except ValueError:
         hemisphere = None
     return get_bearing_summary_stats(
-        bearings=df.get_column("mean_bearing").to_numpy(),
-        weights=df.get_column("vector_magnitude").to_numpy(),
-        combined_vertical=df.get_column("combined_vertical").to_numpy(),
+        bearings=df.get_column("bearing_mean").to_numpy(),
+        net_magnitudes=df.get_column("bearing_magnitude_net").to_numpy(),
+        cum_magnitudes=df.get_column("bearing_magnitude_cum").to_numpy(),
         hemisphere=hemisphere,
     )
 
@@ -145,15 +145,16 @@ def aggregate_ski_areas_pl(
             run_count_filtered=pl.sum("run_count_filtered"),
             latitude=pl.mean("latitude"),
             longitude=pl.mean("longitude"),
-            _mean_bearing_stats=pl.struct(
-                "mean_bearing",
-                "mean_bearing_strength",
-                "vector_magnitude",
-                "combined_vertical",
+            combined_vertical=pl.sum("combined_vertical"),
+            _bearing_stats=pl.struct(
+                "bearing_mean",
+                "bearing_alignment",
+                "bearing_magnitude_net",
+                "bearing_magnitude_cum",
                 "hemisphere",
             ).map_batches(_get_bearing_summary_stats_pl, returns_scalar=True),
         )
-        .unnest("_mean_bearing_stats")
+        .unnest("_bearing_stats")
         .join(bearings_pl, on=group_by)
         .sort(*group_by)
     )

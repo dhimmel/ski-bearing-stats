@@ -130,12 +130,12 @@ class BearingSummaryStatsPytestParam:
 def test_get_bearing_summary_stats(param: BearingSummaryStatsPytestParam) -> None:
     stats = get_bearing_summary_stats(
         bearings=param.bearings,
-        weights=param.weights,
-        combined_vertical=param.combined_vertical,
+        net_magnitudes=param.weights,
+        cum_magnitudes=param.combined_vertical,
         hemisphere=param.hemisphere,
     )
-    assert stats.mean_bearing == pytest.approx(param.expected_bearing)
-    assert stats.mean_bearing_strength == pytest.approx(param.expected_strength)
+    assert stats.bearing_mean == pytest.approx(param.expected_bearing)
+    assert stats.bearing_alignment == pytest.approx(param.expected_strength)
     assert stats.poleward_affinity == pytest.approx(param.expected_poleward_affinity)
     assert stats.eastward_affinity == pytest.approx(param.excepted_eastward_affinity)
 
@@ -167,11 +167,12 @@ def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     for key in [
         "run_count",
         "run_count_filtered",
-        "mean_bearing",
-        "mean_bearing_strength",
+        "bearing_mean",
+        "bearing_alignment",
+        "bearing_magnitude_net",
+        "bearing_magnitude_cum",
         "poleward_affinity",
         "eastward_affinity",
-        "vector_magnitude",
     ]:
         assert single_pass[key] == pytest.approx(
             double_pass[key]

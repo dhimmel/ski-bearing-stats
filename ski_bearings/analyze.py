@@ -12,8 +12,9 @@ from ski_bearings.bearing import (
 from ski_bearings.models import BearingStatsModel, SkiAreaModel
 from ski_bearings.openskimap_utils import (
     get_ski_area_to_runs,
-    load_downhill_ski_areas_pl,
-    load_runs,
+    load_downhill_ski_areas_from_download_pl,
+    load_runs_from_download,
+    load_runs_from_download_pl,
 )
 from ski_bearings.osmnx_utils import (
     create_networkx_with_metadata,
@@ -26,6 +27,10 @@ def get_ski_area_metrics_path(testing: bool = False) -> Path:
     return get_data_directory(testing=testing).joinpath("ski_area_metrics.parquet")
 
 
+def get_runs_parquet_path(testing: bool = False) -> Path:
+    return get_data_directory(testing=testing).joinpath("runs.parquet")
+
+
 def analyze_all_ski_areas() -> None:
     """
     Analyze ski areas to create a table of ski areas and their metrics
@@ -33,9 +38,14 @@ def analyze_all_ski_areas() -> None:
     Keyed on ski_area_id.
     Write data as parquet.
     """
-    ski_area_df = load_downhill_ski_areas_pl()
+    runs_df = load_runs_from_download_pl()
+    runs_path = get_runs_parquet_path()
+    logging.info(f"Writing {runs_path}")
+    runs_df.write_parquet(runs_path)
+
+    ski_area_df = load_downhill_ski_areas_from_download_pl()
     ski_area_metadatas = {x["ski_area_id"]: x for x in ski_area_df.to_dicts()}
-    runs = load_runs()
+    runs = load_runs_from_download()
     ski_area_to_runs = get_ski_area_to_runs(runs)
     bearing_dist_dfs = []
     ski_area_metrics = []
@@ -72,6 +82,12 @@ def analyze_all_ski_areas() -> None:
     ski_area_metrics_path = get_ski_area_metrics_path()
     logging.info(f"Writing {ski_area_metrics_path}")
     ski_area_metrics_df.write_parquet(ski_area_metrics_path)
+
+
+def load_runs_pl() -> pl.DataFrame:
+    path = get_ski_area_metrics_path()
+    logging.info(f"Loading ski area metrics from {path}")
+    return pl.read_parquet(source=path)
 
 
 def load_ski_areas_pl() -> pl.DataFrame:

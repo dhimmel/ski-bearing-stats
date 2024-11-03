@@ -8,10 +8,10 @@ from functools import cache
 from pathlib import Path
 from typing import Any, Literal
 
-import pandas as pd
 import polars as pl
 import requests
 
+from ski_bearings.models import RunCoordinateModel
 from ski_bearings.utils import data_directory, test_data_directory
 
 
@@ -53,20 +53,35 @@ def download_openskimap_geojsons() -> None:
 
 
 @cache
-def load_runs() -> Any:
+def load_runs_from_download() -> list[Any]:
     runs_path = get_openskimap_path("runs")
     opener = lzma.open if runs_path.suffix == ".xz" else open
     with opener(runs_path) as read_file:  # type: ignore [operator]
         data = json.load(read_file)
     assert data["type"] == "FeatureCollection"
     runs = data["features"]
+    assert isinstance(runs, list)
     geometry_types = Counter(run["geometry"]["type"] for run in runs)
     logging.info(f"Loaded {len(runs):,} runs with geometry types {geometry_types}")
     return runs
 
 
-def load_runs_pl() -> pl.DataFrame:
-    runs = load_runs()
+def _structure_coordinates(
+    coordinates: list[tuple[float, float, float]],
+) -> list[RunCoordinateModel]:
+    return [
+        RunCoordinateModel(
+            index=i,
+            latitude=lat,
+            longitude=lon,
+            elevation=ele,
+        )
+        for i, (lon, lat, ele) in enumerate(coordinates)
+    ]
+
+
+def load_runs_from_download_pl() -> pl.DataFrame:
+    runs = load_runs_from_download()
     rows = []
     for run in runs:
         if run["geometry"]["type"] != "LineString":
@@ -85,19 +100,19 @@ def load_runs_pl() -> pl.DataFrame:
         row["run_sources"] = sorted(
             "{type}:{id}".format(**source) for source in run_properties["sources"]
         )
-        coordinate_rows = []
-        for i, (lon, lat, ele) in enumerate(
-            _clean_coordinates(run["geometry"]["coordinates"])
-        ):
-            coordinate_rows.append(
-                {"index": i, "latitude": lat, "longitude": lon, "elevation": ele}
-            )
-        row["run_coordinates"] = coordinate_rows
+        coordinates = run["geometry"]["coordinates"]
+        row["run_coordinates_raw"] = [
+            x.model_dump() for x in _structure_coordinates(coordinates)
+        ]
+        row["run_coordinates_clean"] = [
+            x.model_dump()
+            for x in _structure_coordinates(_clean_coordinates(coordinates))
+        ]
         rows.append(row)
     return pl.DataFrame(rows, strict=False)
 
 
-def load_ski_area_json() -> pd.DataFrame:
+def load_ski_areas_from_download() -> list[Any]:
     ski_areas_path = get_openskimap_path("ski_areas")
     # polars cannot decompress xz: https://github.com/pola-rs/polars/pull/18536
     opener = lzma.open if ski_areas_path.suffix == ".xz" else open
@@ -105,22 +120,23 @@ def load_ski_area_json() -> pd.DataFrame:
         data = json.load(read_file)
     assert data["type"] == "FeatureCollection"
     ski_areas = data["features"]
+    assert isinstance(ski_areas, list)
     logging.info(f"Loaded {len(ski_areas):,} ski areas.")
     return ski_areas
 
 
-def load_raw_ski_areas_pl() -> pl.DataFrame:
+def load_ski_areas_from_download_pl() -> pl.DataFrame:
     return pl.json_normalize(
-        data=[x["properties"] for x in load_ski_area_json()],
+        data=[x["properties"] for x in load_ski_areas_from_download()],
         separator="__",
         strict=False,
     ).rename(mapping={"id": "ski_area_id", "name": "ski_area_name"})
 
 
 @cache
-def load_downhill_ski_areas_pl() -> pl.DataFrame:
+def load_downhill_ski_areas_from_download_pl() -> pl.DataFrame:
     return (
-        load_raw_ski_areas_pl()
+        load_ski_areas_from_download_pl()
         .filter(pl.col("type") == "skiArea")
         .filter(pl.col("activities").list.contains("downhill"))
         .select(
@@ -180,6 +196,8 @@ def get_ski_area_to_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
 
 def _clean_coordinates(
     coordinates: list[tuple[float, float, float]],
+    min_elevation: float = -100.0,
+    ensure_downhill: bool = True,
 ) -> list[tuple[float, float, float]]:
     """
     Sanitize run LineString coordinates to remove floating point errors and ensure downhill runs.
@@ -187,13 +205,20 @@ def _clean_coordinates(
     """
     # Round coordinates to undo floating point errors.
     # https://github.com/russellporter/openskimap.org/issues/137
-    coordinates = [
-        (round(lon, 7), round(lat, 7), round(ele, 2)) for lon, lat, ele in coordinates
-    ]
-    if coordinates[0][2] < coordinates[-1][2]:
+    clean_coords = []
+    for lon, lat, ele in coordinates:
+        if ele < min_elevation:
+            # remove extreme negative elevations
+            # https://github.com/russellporter/openskimap.org/issues/141
+            continue
+        # TODO: consider extreme slope filtering
+        clean_coords.append((round(lon, 7), round(lat, 7), round(ele, 2)))
+    if not clean_coords:
+        return clean_coords
+    if ensure_downhill and (clean_coords[0][2] < clean_coords[-1][2]):
         # Ensure the run is going downhill, such that starting elevation > ending elevation
-        coordinates.reverse()
-    return coordinates
+        clean_coords.reverse()
+    return clean_coords
 
 
 test_ski_area_ids = [
@@ -204,7 +229,7 @@ test_ski_area_ids = [
 
 def generate_openskimap_test_data() -> None:
     test_run_features = []
-    for run in load_runs():
+    for run in load_runs_from_download():
         for ski_area in run["properties"]["skiAreas"]:
             if ski_area["properties"]["id"] in test_ski_area_ids:
                 test_run_features.append(run)
@@ -216,7 +241,7 @@ def generate_openskimap_test_data() -> None:
         "type": "FeatureCollection",
         "features": [
             x
-            for x in load_ski_area_json()
+            for x in load_ski_areas_from_download()
             if x["properties"]["id"] in test_ski_area_ids
         ],
     }

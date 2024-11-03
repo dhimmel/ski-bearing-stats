@@ -10,7 +10,7 @@ from ski_bearings.analyze import (
     analyze_all_ski_areas,
 )
 from ski_bearings.bearing import get_bearing_summary_stats
-from ski_bearings.openskimap_utils import get_ski_area_to_runs, load_runs
+from ski_bearings.openskimap_utils import get_ski_area_to_runs, load_runs_from_download
 from ski_bearings.osmnx_utils import create_networkx_with_metadata
 
 
@@ -145,7 +145,7 @@ def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     https://github.com/dhimmel/ski-bearing-stats/issues/1
     """
     # aggregate all runs at once
-    all_runs = load_runs()
+    all_runs = load_runs_from_download()
     # we cannot create networkx graph directly from all runs because get_ski_area_to_runs performs some filtering
     ski_area_to_runs = get_ski_area_to_runs(all_runs)
     all_runs_filtered = list(itertools.chain.from_iterable(ski_area_to_runs.values()))

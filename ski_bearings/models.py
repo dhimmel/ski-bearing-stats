@@ -3,6 +3,25 @@ from typing import Annotated, Literal
 from patito import Field, Model
 
 
+class RunCoordinateModel(Model):  # type: ignore [misc]
+    index: Annotated[
+        int,
+        Field(description="Zero-indexed order of the coordinate in the run."),
+    ]
+    latitude: Annotated[
+        float,
+        Field(description="Latitude of the coordinate in decimal degrees."),
+    ]
+    longitude: Annotated[
+        float,
+        Field(description="Longitude of the coordinate in decimal degrees."),
+    ]
+    elevation: Annotated[
+        float,
+        Field(description="Elevation of the coordinate in meters."),
+    ]
+
+
 class BearingStatsModel(Model):  # type: ignore [misc]
     bearing_mean: Annotated[
         float | None,

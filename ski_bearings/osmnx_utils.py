@@ -29,15 +29,23 @@ def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
     graph = nx.MultiDiGraph(crs="EPSG:4326")  # https://epsg.io/4326
     graph.graph["run_count"] = len(runs)
     # filter out unsupported geometries like Polygons
-    runs = [run for run in runs if run["geometry"]["type"] == "LineString"]
-    graph.graph["run_count_filtered"] = len(runs)
+    clean_runs = []
     for run in runs:
+        if run["geometry"]["type"] != "LineString":
+            continue
+        if "downhill" not in run["properties"]["uses"]:
+            continue
+        if coords := _clean_coordinates(run["geometry"]["coordinates"]):
+            run["geometry"]["coordinates_clean"] = coords
+            clean_runs.append(run)
+    graph.graph["run_count_filtered"] = len(clean_runs)
+    for run in clean_runs:
         run["geometry"]["coordinates_clean"] = _clean_coordinates(
             run["geometry"]["coordinates"]
         )
         for lon, lat, elevation in run["geometry"]["coordinates_clean"]:
             graph.add_node((lon, lat), x=lon, y=lat, elevation=elevation)
-    for run in runs:
+    for run in clean_runs:
         coordinates = run["geometry"]["coordinates_clean"].copy()
         lon_0, lat_0, elevation_0 = coordinates.pop(0)
         for lon_1, lat_1, elevation_1 in coordinates:

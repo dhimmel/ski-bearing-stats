@@ -55,6 +55,7 @@ def download_openskimap_geojsons() -> None:
 @cache
 def load_runs_from_download() -> list[Any]:
     runs_path = get_openskimap_path("runs")
+    logging.info(f"Loading runs from {runs_path}")
     opener = lzma.open if runs_path.suffix == ".xz" else open
     with opener(runs_path) as read_file:  # type: ignore [operator]
         data = json.load(read_file)

@@ -1,4 +1,5 @@
 import contextlib
+import itertools
 import statistics
 import warnings
 from collections.abc import Generator
@@ -10,7 +11,6 @@ from osmnx.bearing import add_edge_bearings
 from osmnx.distance import add_edge_lengths
 
 from ski_bearings.bearing import get_bearing_summary_stats
-from ski_bearings.openskimap_utils import _clean_coordinates
 
 
 @contextlib.contextmanager
@@ -22,31 +22,20 @@ def suppress_user_warning(
         yield
 
 
-def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
+def create_networkx(
+    runs: list[list[tuple[float, float, float]]],
+) -> nx.MultiDiGraph:
     """
-    Convert runs to an newtorkx MultiDiGraph compatible with OSMnx.
+    Convert run coordinates to a newtorkx MultiDiGraph compatible with OSMnx.
     """
     graph = nx.MultiDiGraph(crs="EPSG:4326")  # https://epsg.io/4326
-    graph.graph["run_count"] = len(runs)
-    # filter out unsupported geometries like Polygons
-    clean_runs = []
-    for run in runs:
-        if run["geometry"]["type"] != "LineString":
+    graph.graph["run_count_filtered"] = len(runs)
+    for lon, lat, elevation in itertools.chain.from_iterable(runs):
+        graph.add_node((lon, lat), x=lon, y=lat, elevation=elevation)
+    for coordinates in runs:
+        if len(coordinates) < 2:
             continue
-        if "downhill" not in run["properties"]["uses"]:
-            continue
-        if coords := _clean_coordinates(run["geometry"]["coordinates"]):
-            run["geometry"]["coordinates_clean"] = coords
-            clean_runs.append(run)
-    graph.graph["run_count_filtered"] = len(clean_runs)
-    for run in clean_runs:
-        run["geometry"]["coordinates_clean"] = _clean_coordinates(
-            run["geometry"]["coordinates"]
-        )
-        for lon, lat, elevation in run["geometry"]["coordinates_clean"]:
-            graph.add_node((lon, lat), x=lon, y=lat, elevation=elevation)
-    for run in clean_runs:
-        coordinates = run["geometry"]["coordinates_clean"].copy()
+        coordinates = coordinates.copy()
         lon_0, lat_0, elevation_0 = coordinates.pop(0)
         for lon_1, lat_1, elevation_1 in coordinates:
             graph.add_edge(
@@ -62,10 +51,9 @@ def create_networkx(runs: list[Any]) -> nx.MultiDiGraph:
 
 
 def create_networkx_with_metadata(
-    runs: list[dict[str, Any]], ski_area_metadata: dict[str, Any]
+    runs: list[list[tuple[float, float, float]]],
+    ski_area_metadata: dict[str, Any],
 ) -> nx.MultiDiGraph:
-    # ski_area_id = ski_area_metadata["ski_area_id"]
-    # ski_area_name = ski_area_metadata["ski_area_name"]
     graph = create_networkx(runs)
     graph.graph = ski_area_metadata | graph.graph
     if graph.number_of_nodes() > 0:

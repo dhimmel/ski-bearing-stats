@@ -13,7 +13,6 @@ from ski_bearings.models import BearingStatsModel, SkiAreaModel
 from ski_bearings.openskimap_utils import (
     get_ski_area_to_runs,
     load_downhill_ski_areas_from_download_pl,
-    load_runs_from_download,
     load_runs_from_download_pl,
 )
 from ski_bearings.osmnx_utils import (
@@ -31,22 +30,23 @@ def get_runs_parquet_path(testing: bool = False) -> Path:
     return get_data_directory(testing=testing).joinpath("runs.parquet")
 
 
-def analyze_all_ski_areas() -> None:
+def analyze_all_ski_areas(skip_runs: bool = False) -> None:
     """
     Analyze ski areas to create a table of ski areas and their metrics
     including bearing distributions.
     Keyed on ski_area_id.
     Write data as parquet.
     """
-    runs_df = load_runs_from_download_pl()
-    runs_path = get_runs_parquet_path()
-    logging.info(f"Writing {runs_path}")
-    runs_df.write_parquet(runs_path)
+    if not skip_runs:
+        runs_df = load_runs_from_download_pl()
+        runs_path = get_runs_parquet_path()
+        logging.info(f"Writing {runs_path}")
+        runs_df.write_parquet(runs_path)
+        del runs_df
 
     ski_area_df = load_downhill_ski_areas_from_download_pl()
     ski_area_metadatas = {x["ski_area_id"]: x for x in ski_area_df.to_dicts()}
-    runs = load_runs_from_download()
-    ski_area_to_runs = get_ski_area_to_runs(runs)
+    ski_area_to_runs = get_ski_area_to_runs(runs_pl=load_runs_pl())
     bearing_dist_dfs = []
     ski_area_metrics = []
     for ski_area_id, ski_area_metadata in ski_area_metadatas.items():
@@ -85,7 +85,7 @@ def analyze_all_ski_areas() -> None:
 
 
 def load_runs_pl() -> pl.DataFrame:
-    path = get_ski_area_metrics_path()
+    path = get_runs_parquet_path()
     logging.info(f"Loading ski area metrics from {path}")
     return pl.read_parquet(source=path)
 
@@ -156,7 +156,6 @@ def aggregate_ski_areas_pl(
         .agg(
             ski_areas_count=pl.n_unique("ski_area_id"),
             country_count=pl.n_unique("country"),
-            run_count=pl.sum("run_count"),
             run_count_filtered=pl.sum("run_count_filtered"),
             latitude=pl.mean("latitude"),
             longitude=pl.mean("longitude"),

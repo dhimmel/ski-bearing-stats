@@ -180,19 +180,35 @@ def load_downhill_ski_areas_from_download_pl() -> pl.DataFrame:
     )
 
 
-def get_ski_area_to_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
+def get_ski_area_to_runs(
+    runs_pl: pl.DataFrame,
+) -> dict[str, list[list[tuple[float, float, float]]]]:
+    """
+    For each ski area, get a list of runs, where each run is a list of (lon, lat, ele) coordinates.
+    """
     # ski area names can be duplicated, like 'Black Mountain', so use the id instead.
-    ski_area_to_runs: dict[str, Any] = {}
-    for run in runs:
-        if "downhill" not in run["properties"]["uses"]:
-            continue
-        if not (ski_areas := run["properties"]["skiAreas"]):
-            continue
-        for ski_area in ski_areas:
-            if not (ski_area_id := ski_area["properties"]["id"]):
-                continue
-            ski_area_to_runs.setdefault(ski_area_id, []).append(run)
-    return ski_area_to_runs
+    return dict(
+        runs_pl.filter(pl.col("run_uses").list.contains("downhill"))
+        .explode("ski_area_ids")
+        .filter(pl.col("ski_area_ids").is_not_null())
+        .select(
+            pl.col("ski_area_ids").alias("ski_area_id"),
+            pl.col("run_coordinates_clean")
+            .list.eval(
+                pl.concat_list(
+                    pl.element().struct.field("longitude"),
+                    pl.element().struct.field("latitude"),
+                    pl.element().struct.field("elevation"),
+                ).list.to_array(width=3)
+            )
+            .alias("run_coordinates_tuples"),
+        )
+        .group_by("ski_area_id")
+        .agg(
+            pl.col("run_coordinates_tuples").alias("run_coordinates"),
+        )
+        .iter_rows()
+    )
 
 
 def _clean_coordinates(

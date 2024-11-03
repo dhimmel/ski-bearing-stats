@@ -1,4 +1,5 @@
 import logging
+from typing import Annotated
 
 import typer
 
@@ -25,9 +26,11 @@ class Commands:
 
     @staticmethod
     @cli.command(name="analyze")  # type: ignore [misc]
-    def analyze() -> None:
+    def analyze(
+        skip_runs: Annotated[bool, typer.Option("--skip-runs")] = False,
+    ) -> None:
         """Extract ski area metadata and metrics."""
-        analyze_all_ski_areas()
+        analyze_all_ski_areas(skip_runs=skip_runs)
 
     @staticmethod
     @cli.command(name="validate")  # type: ignore [misc]

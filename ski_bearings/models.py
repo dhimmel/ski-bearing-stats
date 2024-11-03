@@ -132,12 +132,8 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         description="List of URLs for the ski area.",
         examples=["https://www.blackmt.com/"],
     )
-    run_count: int = Field(
-        description="Total number of runs in the ski area.",
-        ge=0,
-    )
     run_count_filtered: int = Field(
-        description="Number of runs in the ski area with supported geometries.",
+        description="Number of downhill runs in the ski area with supported geometries.",
         ge=0,
     )
     latitude: float | None = Field(

@@ -8,9 +8,10 @@ import pytest
 from ski_bearings.analyze import (
     aggregate_ski_areas_pl,
     analyze_all_ski_areas,
+    load_runs_pl,
 )
 from ski_bearings.bearing import get_bearing_summary_stats
-from ski_bearings.openskimap_utils import get_ski_area_to_runs, load_runs_from_download
+from ski_bearings.openskimap_utils import get_ski_area_to_runs
 from ski_bearings.osmnx_utils import create_networkx_with_metadata
 
 
@@ -144,17 +145,17 @@ def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     """
     https://github.com/dhimmel/ski-bearing-stats/issues/1
     """
+    analyze_all_ski_areas()
     # aggregate all runs at once
-    all_runs = load_runs_from_download()
     # we cannot create networkx graph directly from all runs because get_ski_area_to_runs performs some filtering
-    ski_area_to_runs = get_ski_area_to_runs(all_runs)
+    ski_area_to_runs = get_ski_area_to_runs(runs_pl=load_runs_pl())
     all_runs_filtered = list(itertools.chain.from_iterable(ski_area_to_runs.values()))
+    assert len(all_runs_filtered) > 0
     combined_graph = create_networkx_with_metadata(
         all_runs_filtered, ski_area_metadata={}
     )
     single_pass = combined_graph.graph
     # aggregate runs by ski area and then aggregate ski areas
-    analyze_all_ski_areas()
     # group by hemisphere to avoid polars
     # ComputeError: at least one key is required in a group_by operation
     hemisphere_pl = aggregate_ski_areas_pl(
@@ -165,7 +166,6 @@ def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     )
     double_pass = hemisphere_pl.row(by_predicate=pl.lit(True), named=True)
     for key in [
-        "run_count",
         "run_count_filtered",
         "bearing_mean",
         "bearing_alignment",

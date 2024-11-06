@@ -50,6 +50,8 @@ DOI: [10.1038/s41558-023-01759-5](https://doi.org/10.1038/s41558-023-01759-5)
 
 ## License
 
+The code in this repository is released under a [BSD-2-Clause Plus Patent License](LICENSE.md).
+
 This project is built on data from [OpenSkiMap](https://openskimap.org/), which is based on [OpenStreetMap](https://www.openstreetmap.org/).
 This data is released under the [Open Data Commons Open Database License](https://opendatacommons.org/licenses/odbl/).
 Learn more at <https://www.openstreetmap.org/copyright>.

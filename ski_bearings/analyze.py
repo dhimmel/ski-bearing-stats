@@ -220,6 +220,26 @@ def bearing_dists_by_hemisphere() -> pl.DataFrame:
     )
 
 
+def bearing_dists_by_status() -> pl.DataFrame:
+    """
+    Bearing distributions by ski area operating status.
+    Only includes ski areas in the northern hemisphere because there were no abandoned ski areas in the southern hemisphere at ToW.
+    """
+    return aggregate_ski_areas_pl(
+        group_by=["hemisphere", "status"],
+        ski_area_filters=[
+            pl.col("hemisphere") == "north",
+            pl.col("status").is_in(["abandoned", "operating"]),
+        ],
+    ).with_columns(
+        group_name=pl.format(
+            "{} in {} Hem.",
+            pl.col("status").str.to_titlecase(),
+            pl.col("hemisphere").str.to_titlecase(),
+        )
+    )
+
+
 def bearing_dists_by_country() -> pl.DataFrame:
     return aggregate_ski_areas_pl(
         group_by=["country"],
@@ -242,6 +262,7 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
     )
     grouping_col_to_stats = {
         "hemisphere": bearing_dists_by_hemisphere(),
+        "group_name": bearing_dists_by_status(),
         "country": bearing_dists_by_country(),
         "region": bearing_dists_by_us_state(),
     }

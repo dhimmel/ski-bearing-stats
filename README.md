@@ -26,14 +26,10 @@ Geoff Boeing
 *Computers, Environment and Urban Systems* (2017-09) <https://doi.org/gbvjxq>  
 DOI: [10.1016/j.compenvurbsys.2017.05.004](https://doi.org/10.1016/j.compenvurbsys.2017.05.004)
 
-3. https://github.com/russellporter/openskimap.org/issues/82
-
-4. **Climate change exacerbates snow-water-energy challenges for European ski tourism**  
+3. **Climate change exacerbates snow-water-energy challenges for European ski tourism**  
 Hugues François, Raphaëlle Samacoïts, David Neil Bird, Judith Köberl, Franz Prettenthaler, Samuel Morin  
 *Nature Climate Change* (2023-08-28) <https://doi.org/gsnhbv>  
 DOI: [10.1038/s41558-023-01759-5](https://doi.org/10.1038/s41558-023-01759-5)
-
-5. https://github.com/gboeing/osmnx/issues/1137
 
 ## Upstream issue tracking
 

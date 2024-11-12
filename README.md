@@ -41,6 +41,11 @@ Hugues François, Raphaëlle Samacoïts, David Neil Bird, Judith Köberl, Franz 
 *Nature Climate Change* (2023-08-28) <https://doi.org/gsnhbv>  
 DOI: [10.1038/s41558-023-01759-5](https://doi.org/10.1038/s41558-023-01759-5)
 
+4. **2022 International Report on Snow & Mountain Tourism: Overview of the key industry figures for ski resorts**  
+Laurent Vanat  
+(2022-04) <https://www.vanat.ch/international-report-on-snow-mountain-tourism>  
+ISBN: [9782970102892](https://www.thebookedition.com/fr/2022-international-snow-report-p-389872.html)
+
 List of related webpages:
 
 - https://forums.alpinezone.com/threads/mountain-slopes-facing-side.11630/
@@ -55,8 +60,13 @@ List of related webpages:
 
 - Table of all OpenStreetMap users that have contributed to ski areas, i.e. top skiers
 - Display table webpage background of falling snowflakes ([examples](https://freefrontend.com/css-snow-effects/))
+- Display table base / summit elevation and vertical. Number of lifts
+- Display table [custom filters](https://glin.github.io/reactable/articles/custom-filtering.html)
 - Table column descriptions in title/tooltips
 - Max slope v difficulty by region
+- Cleanup unused dependencies
+- How many ski areas in the world, comparing to the Vanat report
+- Total combined vert of ski areas by rank of ski area (how much do big resorts drive the aggregated metrics)
 
 ## Upstream issue tracking
 

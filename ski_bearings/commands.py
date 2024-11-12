@@ -8,6 +8,7 @@ from ski_bearings.analyze import (
     load_ski_areas_pl,
     ski_rose_the_world,
 )
+from ski_bearings.display import export_display_notebook
 from ski_bearings.models import SkiAreaModel
 from ski_bearings.openskimap_utils import (
     download_openskimap_geojsons,
@@ -45,6 +46,14 @@ class Commands:
     def visualize() -> None:
         """Perform ski area aggregations and export visualizations."""
         ski_rose_the_world()
+
+    @staticmethod
+    @cli.command(name="display")  # type: ignore [misc]
+    def display() -> None:
+        """
+        Display ski area metrics in a web browser.
+        """
+        export_display_notebook()
 
     @staticmethod
     @cli.command(name="generate_test_data")  # type: ignore [misc]

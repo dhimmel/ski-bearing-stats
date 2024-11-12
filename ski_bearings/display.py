@@ -1,7 +1,34 @@
+import subprocess
+import unicodedata
+
 import polars as pl
 import reactable
 
 from ski_bearings.analyze import load_bearing_distribution_pl, load_ski_areas_pl
+from ski_bearings.utils import get_data_directory
+
+
+def export_display_notebook() -> None:
+    directory = get_data_directory()
+    subprocess.run(
+        args=[
+            "jupyter",
+            "nbconvert",
+            "--execute",
+            "--to=html",
+            f"--output-dir={directory}",
+            "--no-input",
+            "ski_bearings/display.ipynb",
+        ],
+        check=True,
+    )
+
+
+def country_code_to_emoji(country_code: str) -> str:
+    assert len(country_code) == 2
+    return unicodedata.lookup(
+        f"REGIONAL INDICATOR SYMBOL LETTER {country_code[0]}"
+    ) + unicodedata.lookup(f"REGIONAL INDICATOR SYMBOL LETTER {country_code[1]}")
 
 
 def get_ski_area_frontend_table() -> pl.DataFrame:
@@ -31,6 +58,9 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
                 "ski_area_name",
             ).alias("ski_area_hyper"),
             "status",
+            pl.col("country_code")
+            .map_elements(country_code_to_emoji, return_dtype=pl.String)
+            .alias("country_emoji"),
             "country",
             "region",
             "locality",
@@ -106,9 +136,15 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 searchable=True,
             ),
             reactable.Column(
+                id="country_emoji",
+                name="Country",
+                searchable=True,
+            ),
+            reactable.Column(
                 id="country",
                 name="Country",
                 searchable=True,
+                show=False,
             ),
             reactable.Column(
                 id="region",
@@ -192,7 +228,13 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.ColGroup(name="Ski Area", columns=["ski_area_hyper", "status"]),
             reactable.ColGroup(
                 name="Location",
-                columns=["country", "region", "locality", "country_subdiv_code"],
+                columns=[
+                    "country_emoji",
+                    "country",
+                    "region",
+                    "locality",
+                    "country_subdiv_code",
+                ],
             ),
             reactable.ColGroup(
                 name="Downhill Runs",

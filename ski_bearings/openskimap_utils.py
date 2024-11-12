@@ -57,7 +57,7 @@ def load_runs_from_download() -> list[Any]:
     runs_path = get_openskimap_path("runs")
     logging.info(f"Loading runs from {runs_path}")
     opener = lzma.open if runs_path.suffix == ".xz" else open
-    with opener(runs_path) as read_file:  # type: ignore [operator]
+    with opener(runs_path) as read_file:
         data = json.load(read_file)
     assert data["type"] == "FeatureCollection"
     runs = data["features"]
@@ -117,7 +117,7 @@ def load_ski_areas_from_download() -> list[Any]:
     ski_areas_path = get_openskimap_path("ski_areas")
     # polars cannot decompress xz: https://github.com/pola-rs/polars/pull/18536
     opener = lzma.open if ski_areas_path.suffix == ".xz" else open
-    with opener(ski_areas_path) as read_file:  # type: ignore [operator]
+    with opener(ski_areas_path) as read_file:
         data = json.load(read_file)
     assert data["type"] == "FeatureCollection"
     ski_areas = data["features"]

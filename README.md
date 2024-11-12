@@ -14,6 +14,16 @@ poetry run ski_bearings download
 poetry run ski_bearings analyze
 ```
 
+Commands that you will have to run less frequently:
+
+```shell
+# install the poetry environment in poetry.lock
+poetry install
+
+# install the pre-commit git hooks
+pre-commit install
+```
+
 ## References
 
 1. **Urban spatial order: street network orientation, configuration, and entropy**  

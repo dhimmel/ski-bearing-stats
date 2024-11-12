@@ -2,6 +2,7 @@ import subprocess
 import unicodedata
 from pathlib import Path
 
+import IPython.display
 import polars as pl
 import reactable
 
@@ -26,6 +27,11 @@ def export_display_notebook() -> None:
             Path(__file__).parent.joinpath("display.ipynb"),
         ],
     )
+
+
+def embed_reactable_html() -> None:
+    IPython.display.display(IPython.display.HTML(html_style))
+    reactable.embed_css()
 
 
 def country_code_to_emoji(country_code: str) -> str:

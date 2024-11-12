@@ -65,12 +65,32 @@ function(cellInfo) {
 }
 """)
 
+_js_azimuth_arrow = reactable.JS("""
+function(cellInfo) {
+    const azimuth = cellInfo.value; // Original azimuth for arrow rotation
+    const displayedAzimuth = Math.round(azimuth); // Rounded azimuth for display only
+
+    return `
+    <div class="azimuth-arrow-cell" style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <svg width="24" height="24" viewBox="0 0 24 24" style="transform: rotate(${azimuth}deg); margin-bottom: 4px;">
+            <circle cx="12" cy="12" r="2" fill="black" />
+            <line x1="12" y1="12" x2="12" y2="4" stroke="black" stroke-width="2" />
+            <polygon points="8,6 12,1 16,6" fill="black" />
+        </svg>
+        <span style="font-size: 12px; color: #333;">${displayedAzimuth}°</span>
+    </div>
+    `;
+}
+""")
+
 
 def get_ski_area_reactable() -> reactable.Reactable:
     return reactable.Reactable(
         data=get_ski_area_frontend_table().drop("ski_area_id", "ski_area_name"),
         striped=True,
         searchable=True,
+        highlight=True,
+        full_width=True,
         columns=[
             reactable.Column(
                 id="ski_area_hyper",
@@ -78,6 +98,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 html=True,
                 min_width=250,
                 searchable=True,
+                sticky="left",  # makes entire group sticky
             ),
             reactable.Column(
                 id="status",
@@ -107,14 +128,16 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.Column(
                 id="combined_vertical",
                 name="Vertical",
-                format=reactable.ColFormat(suffix="m", digits=0),
+                format=reactable.ColFormat(suffix="m", digits=0, separators=True),
                 searchable=False,
             ),
             reactable.Column(
                 id="bearing_mean",
                 name="Azimuth",
-                format=reactable.ColFormat(suffix="°", digits=0),
+                # format=reactable.ColFormat(suffix="°", digits=0),
                 searchable=False,
+                cell=_js_azimuth_arrow,
+                html=True,
             ),
             reactable.Column(
                 id="bearing_alignment",
@@ -141,24 +164,28 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="N",
                 format=reactable.ColFormat(percent=True, digits=0),
                 searchable=False,
+                max_width=45,
             ),
             reactable.Column(
                 id="bin_proportion_E",
                 name="E",
                 format=reactable.ColFormat(percent=True, digits=0),
                 searchable=False,
+                max_width=45,
             ),
             reactable.Column(
                 id="bin_proportion_S",
                 name="S",
                 format=reactable.ColFormat(percent=True, digits=0),
                 searchable=False,
+                max_width=45,
             ),
             reactable.Column(
                 id="bin_proportion_W",
                 name="W",
                 format=reactable.ColFormat(percent=True, digits=0),
                 searchable=False,
+                max_width=45,
             ),
         ],
         column_groups=[
@@ -181,7 +208,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 ],
             ),
             reactable.ColGroup(
-                name="Proportion",
+                name="Cardinal Directions",
                 columns=[
                     "bin_proportion_N",
                     "bin_proportion_E",

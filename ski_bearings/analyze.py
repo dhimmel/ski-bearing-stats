@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+import matplotlib.pyplot
 import polars as pl
 from matplotlib.backends.backend_pdf import PdfPages
 from patito.exceptions import DataFrameValidationError
@@ -18,7 +19,7 @@ from ski_bearings.openskimap_utils import (
 from ski_bearings.osmnx_utils import (
     create_networkx_with_metadata,
 )
-from ski_bearings.plot import subplot_orientations
+from ski_bearings.plot import plot_orientation, subplot_orientations
 from ski_bearings.utils import get_data_directory
 
 
@@ -90,19 +91,23 @@ def load_runs_pl() -> pl.DataFrame:
     return pl.read_parquet(source=path)
 
 
-def load_ski_areas_pl() -> pl.DataFrame:
+def load_ski_areas_pl(ski_area_filters: list[pl.Expr] | None = None) -> pl.DataFrame:
     path = get_ski_area_metrics_path()
     logging.info(f"Loading ski area metrics from {path}")
-    return pl.read_parquet(source=path)
+    return pl.read_parquet(source=path).filter(
+        *_prepare_ski_area_filters(ski_area_filters)
+    )
 
 
-def load_bearing_distribution_pl() -> pl.DataFrame:
+def load_bearing_distribution_pl(
+    ski_area_filters: list[pl.Expr] | None = None,
+) -> pl.DataFrame:
     """
     Table of ski area bearing distributions.
     Keyed on ski_area_id, num_bins, bin_center.
     """
     return (
-        load_ski_areas_pl()
+        load_ski_areas_pl(ski_area_filters=ski_area_filters)
         .select("ski_area_id", "bearings")
         .explode("bearings")
         .unnest("bearings")
@@ -141,7 +146,6 @@ def aggregate_ski_areas_pl(
     ski_area_filters: list[pl.Expr] | None = None,
 ) -> pl.DataFrame:
     assert len(group_by) > 0
-    ski_area_filters = _prepare_ski_area_filters(ski_area_filters)
     bearings_pl = (
         aggregate_ski_area_bearing_dists_pl(
             group_by=group_by, ski_area_filters=ski_area_filters
@@ -150,8 +154,7 @@ def aggregate_ski_areas_pl(
         .agg(bearings=pl.struct(pl.exclude(group_by)))
     )
     return (
-        load_ski_areas_pl()
-        .filter(*ski_area_filters)
+        load_ski_areas_pl(ski_area_filters=ski_area_filters)
         .group_by(*group_by)
         .agg(
             ski_areas_count=pl.n_unique("ski_area_id"),
@@ -179,8 +182,7 @@ def aggregate_ski_area_bearing_dists_pl(
     ski_area_filters: list[pl.Expr] | None = None,
 ) -> pl.DataFrame:
     return (
-        load_ski_areas_pl()
-        .filter(*_prepare_ski_area_filters(ski_area_filters))
+        load_ski_areas_pl(ski_area_filters=ski_area_filters)
         .explode("bearings")
         .unnest("bearings")
         .group_by(*group_by, "num_bins", "bin_index")
@@ -288,3 +290,59 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
     with pdf_pages:
         for fig in figures:
             pdf_pages.savefig(fig, facecolor="#FFFFFF", bbox_inches="tight")
+            matplotlib.pyplot.close(fig)
+
+
+def get_display_ski_area_filters() -> list[pl.Expr]:
+    """Ski area filters to produce a subset of ski areas for display."""
+    return [
+        pl.col("run_count_filtered") >= 3,
+        pl.col("combined_vertical") >= 50,
+        pl.col("ski_area_name").is_not_null(),
+    ]
+
+
+def create_ski_area_roses(overwrite: bool = False) -> None:
+    """
+    Export ski area roses to SVG for display.
+    """
+    directory = get_data_directory().joinpath("ski_areas")
+    directory.mkdir(exist_ok=True)
+    partitions = (
+        load_bearing_distribution_pl(ski_area_filters=get_display_ski_area_filters())
+        .filter(pl.col("num_bins") == 8)
+        .partition_by("ski_area_id", as_dict=True)
+    )
+    logging.info(
+        f"Creating ski area roses for {len(partitions)} ski areas in {directory}."
+    )
+    for (ski_area_id,), bearing_pl in partitions.items():
+        path = directory.joinpath(f"{ski_area_id}.svg")
+        if not overwrite and path.exists():
+            continue
+        fig, ax = plot_orientation(
+            bin_counts=bearing_pl.get_column("bin_count").to_numpy(),
+            bin_centers=bearing_pl.get_column("bin_center").to_numpy(),
+            margin_text={},
+            figsize=(1, 1),
+            alpha=1.0,
+            edgecolor="#6b6b6b",
+            linewidth=0.4,
+            disable_xticks=True,
+        )
+        # make the polar frame less prominent
+        ax.spines["polar"].set_linewidth(0.4)
+        ax.spines["polar"].set_color("#6b6b6b")
+        # TODO: reduce margins around svg
+        logging.info(f"Writing {path}")
+        fig.savefig(
+            path,
+            format="svg",
+            bbox_inches="tight",
+            transparent=True,
+            metadata={
+                "Title": "Ski Roses of the World: Downhill Ski Trail Orientations",
+                "Creator": "https://github.com/dhimmel/ski-bearing-stats",
+            },
+        )
+        matplotlib.pyplot.close(fig)

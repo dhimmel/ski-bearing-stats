@@ -46,7 +46,7 @@ def plot_orientation(
     bin_counts: npt.NDArray[np.float64],
     bin_centers: npt.NDArray[np.float64],
     ax: PolarAxes | None = None,
-    figsize: tuple[float, float] = (5, 5),
+    figsize: tuple[float, float] = (4.5, 4.5),
     max_bin_count: float | None = None,
     area: bool = True,
     color: str = "#D4A0A7",
@@ -56,6 +56,7 @@ def plot_orientation(
     title: str | None = None,
     title_y: float = 1.05,
     title_font: dict[str, Any] | None = None,
+    disable_xticks: bool = False,
     xtick_font: dict[str, Any] | None = None,
     margin_text: dict[MarginTextLocation, str] | None = None,
 ) -> tuple[Figure, PolarAxes]:
@@ -133,13 +134,19 @@ def plot_orientation(
     ax.set_ylim(top=ylim)
 
     # configure the y-ticks and remove their labels
+    ax.set_yticks([])
     ax.set_yticklabels(labels="")
 
     # configure the x-ticks and their labels
-    xticklabels = ["N", "", "E", "", "S", "", "W", ""]
-    ax.set_xticks(ax.get_xticks())
-    ax.set_xticklabels(labels=xticklabels, fontdict=xtick_font)
-    ax.tick_params(axis="x", which="major", pad=-2)
+    if disable_xticks:
+        ax.set_xticks([])
+    else:
+        # this seemingly no-op line prevents
+        # UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
+        ax.set_xticks(ax.get_xticks())
+        xticklabels = ["N", "", "E", "", "S", "", "W", ""]
+        ax.set_xticklabels(labels=xticklabels, fontdict=xtick_font)
+        ax.tick_params(axis="x", which="major", pad=-2)
 
     # draw the bars
     ax.bar(

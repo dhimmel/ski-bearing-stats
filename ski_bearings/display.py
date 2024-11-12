@@ -1,16 +1,21 @@
 import subprocess
 import unicodedata
+from pathlib import Path
 
 import polars as pl
 import reactable
 
-from ski_bearings.analyze import load_bearing_distribution_pl, load_ski_areas_pl
+from ski_bearings.analyze import (
+    get_display_ski_area_filters,
+    load_bearing_distribution_pl,
+    load_ski_areas_pl,
+)
 from ski_bearings.utils import get_data_directory
 
 
 def export_display_notebook() -> None:
     directory = get_data_directory()
-    subprocess.run(
+    subprocess.check_call(
         args=[
             "jupyter",
             "nbconvert",
@@ -18,9 +23,8 @@ def export_display_notebook() -> None:
             "--to=html",
             f"--output-dir={directory}",
             "--no-input",
-            "ski_bearings/display.ipynb",
+            Path(__file__).parent.joinpath("display.ipynb"),
         ],
-        check=True,
     )
 
 
@@ -46,9 +50,7 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
     )
     return (
         load_ski_areas_pl()
-        .filter(pl.col("run_count_filtered") >= 3)
-        .filter(pl.col("combined_vertical") >= 50)
-        .filter(pl.col("ski_area_name").is_not_null())
+        .filter(*get_display_ski_area_filters())
         .select(
             "ski_area_id",
             "ski_area_name",
@@ -70,6 +72,7 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
             "bearing_alignment",
             "poleward_affinity",
             "eastward_affinity",
+            pl.format("""<img src="ski_areas/{}.svg">""", "ski_area_id").alias("rose"),
         )
         .join(cardinal_direction_props, on="ski_area_id", how="left")
         .sort("ski_area_name")
@@ -134,6 +137,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="status",
                 name="Status",
                 searchable=True,
+                show=False,
             ),
             reactable.Column(
                 id="country_emoji",
@@ -222,6 +226,13 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 format=reactable.ColFormat(percent=True, digits=0),
                 searchable=False,
                 max_width=45,
+            ),
+            reactable.Column(
+                id="rose",
+                name="Rose",
+                searchable=False,
+                html=True,
+                # max_width=45,
             ),
         ],
         column_groups=[

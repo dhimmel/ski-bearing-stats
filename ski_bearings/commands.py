@@ -5,6 +5,7 @@ import typer
 
 from ski_bearings.analyze import (
     analyze_all_ski_areas,
+    create_ski_area_roses,
     load_ski_areas_pl,
     ski_rose_the_world,
 )
@@ -43,9 +44,12 @@ class Commands:
 
     @staticmethod
     @cli.command(name="visualize")  # type: ignore [misc]
-    def visualize() -> None:
+    def visualize(
+        overwrite: Annotated[bool, typer.Option("--overwrite")] = False,
+    ) -> None:
         """Perform ski area aggregations and export visualizations."""
         ski_rose_the_world()
+        create_ski_area_roses(overwrite=overwrite)
 
     @staticmethod
     @cli.command(name="display")  # type: ignore [misc]

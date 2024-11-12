@@ -31,6 +31,23 @@ Hugues François, Raphaëlle Samacoïts, David Neil Bird, Judith Köberl, Franz 
 *Nature Climate Change* (2023-08-28) <https://doi.org/gsnhbv>  
 DOI: [10.1038/s41558-023-01759-5](https://doi.org/10.1038/s41558-023-01759-5)
 
+List of related webpages:
+
+- https://forums.alpinezone.com/threads/mountain-slopes-facing-side.11630/
+- https://avalanche.org/avalanche-encyclopedia/terrain/slope-characteristics/aspect/
+- https://www.onxmaps.com/backcountry/app/features/slope-aspect-map
+- https://en.wikipedia.org/wiki/Aspect_(geography)
+- https://gisgeography.com/aspect-map/
+- https://geoffboeing.com/2018/07/comparing-city-street-orientations/
+
+
+## Wild Ideas
+
+- Table of all OpenStreetMap users that have contributed to ski areas, i.e. top skiers
+- Display table webpage background of falling snowflakes ([examples](https://freefrontend.com/css-snow-effects/))
+- Table column descriptions in title/tooltips
+- Max slope v difficulty by region
+
 ## Upstream issue tracking
 
 - [openskimap.org/issues/82](https://github.com/russellporter/openskimap.org/issues/82): Add slope aspect information

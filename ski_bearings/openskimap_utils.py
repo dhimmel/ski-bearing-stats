@@ -41,9 +41,16 @@ def download_openskimap_geojson(name: Literal["runs", "ski_areas", "lifts"]) -> 
     url = f"https://tiles.skimap.org/geojson/{name}.geojson"
     path = get_openskimap_path(name)
     logging.info(f"Downloading {url} to {path}")
-    response = requests.get(url, allow_redirects=True)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "From": "https://github.com/dhimmel/ski-bearing-stats",
+    }
+    response = requests.get(url, allow_redirects=True, headers=headers)
     response.raise_for_status()
-    logging.info(response.content[:1000])
+    # The status code is 200 even when the content is
+    # HTTPError: 403 Client Error: Forbidden for url
+    if response.content.startswith(b"HTTPError"):
+        raise ValueError(response.text)
     with lzma.open(path, "wb") as write_file:
         write_file.write(response.content)
     compressed_size_mb = path.stat().st_size / 1024**2

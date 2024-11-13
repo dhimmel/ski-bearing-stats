@@ -42,6 +42,7 @@ def download_openskimap_geojson(name: Literal["runs", "ski_areas", "lifts"]) -> 
     path = get_openskimap_path(name)
     logging.info(f"Downloading {url} to {path}")
     response = requests.get(url, allow_redirects=True)
+    response.raise_for_status()
     with lzma.open(path, "wb") as write_file:
         write_file.write(response.content)
     compressed_size_mb = path.stat().st_size / 1024**2

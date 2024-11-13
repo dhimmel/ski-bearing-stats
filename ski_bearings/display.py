@@ -82,8 +82,42 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
     )
 
 
+_country_filter = reactable.JS("""
+function(rows, columnId, filterValue) {
+    const filterValueLower = filterValue.toLowerCase();
+    return rows.filter(function(row) {
+        return (
+            (row.values["country"] && row.values["country"].toLowerCase().includes(filterValueLower)) ||
+            (row.values["country_code"] && row.values["country_code"].toLowerCase() === filterValueLower) ||
+            (row.values["country_emoji"] && row.values["country_emoji"] === filterValue)
+        );
+    });
+}
+""")
+
+_min_value_filter = reactable.JS("""
+function(rows, columnId, filterValue) {
+    return rows.filter(function(row) {
+        return (
+            row.values[columnId] >= filterValue
+        );
+    });
+}
+""")
+
+_min_percent_filter = reactable.JS("""
+function(rows, columnId, filterValue) {
+    return rows.filter(function(row) {
+        return (
+            100 * row.values[columnId] >= filterValue
+        );
+    });
+}
+""")
+
+
 # derived from example https://machow.github.io/reactable-py/demos/twitter-followers.html
-_js_percent = reactable.JS("""
+_percent_with_bar_cell = reactable.JS("""
 function(cellInfo) {
     // Format as percentage
     const pct = (cellInfo.value * 100).toFixed(0) + "%"
@@ -101,7 +135,7 @@ function(cellInfo) {
 }
 """)
 
-_js_azimuth_arrow = reactable.JS("""
+_azimuth_cell = reactable.JS("""
 function(cellInfo) {
     const azimuth = cellInfo.value; // Original azimuth for arrow rotation
     const displayedAzimuth = Math.round(azimuth); // Rounded azimuth for display only
@@ -116,19 +150,6 @@ function(cellInfo) {
         <span style="font-size: 12px; color: #333;">${displayedAzimuth}°</span>
     </div>
     `;
-}
-""")
-
-_country_filter = reactable.JS("""
-function(rows, columnId, filterValue) {
-    const filterValueLower = filterValue.toLowerCase();
-    return rows.filter(function(row) {
-        return (
-            (row.values["country"] && row.values["country"].toLowerCase().includes(filterValueLower)) ||
-            (row.values["country_code"] && row.values["country_code"].toLowerCase() === filterValueLower) ||
-            (row.values["country_emoji"] && row.values["country_emoji"] === filterValue)
-        );
-    });
 }
 """)
 
@@ -148,6 +169,13 @@ def get_ski_area_reactable() -> reactable.Reactable:
     def _country_cell(ci: reactable.CellInfo) -> str:
         country_emoji = data_pl.item(row=ci.row_index, column="country_emoji")
         return f"{country_emoji}<br>{ci.value}"
+
+    bin_proportion_column_kwargs = {
+        "format": reactable.ColFormat(percent=True, digits=0),
+        "max_width": 45,
+        "filterable": True,
+        "filter_method": _min_percent_filter,
+    }
 
     return reactable.Reactable(
         data=data_pl,
@@ -202,59 +230,65 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.Column(
                 id="run_count_filtered",
                 name="Runs",
+                filterable=True,
+                filter_method=_min_value_filter,
             ),
             reactable.Column(
                 id="combined_vertical",
                 name="Vertical",
                 format=reactable.ColFormat(suffix="m", digits=0, separators=True),
+                filterable=True,
+                filter_method=_min_value_filter,
             ),
             reactable.Column(
                 id="bearing_mean",
                 name="Azimuth",
                 # format=reactable.ColFormat(suffix="°", digits=0),
-                cell=_js_azimuth_arrow,
+                cell=_azimuth_cell,
                 html=True,
             ),
             reactable.Column(
                 id="bearing_alignment",
                 name="Alignment",
                 # format=reactable.ColFormat(percent=True, digits=0),
-                cell=_js_percent,
+                cell=_percent_with_bar_cell,
                 html=True,
+                filterable=True,
+                filter_method=_min_percent_filter,
             ),
             reactable.Column(
                 id="poleward_affinity",
                 name="Poleward",
                 format=reactable.ColFormat(percent=True, digits=0),
+                filterable=True,
+                filter_method=_min_percent_filter,
             ),
             reactable.Column(
                 id="eastward_affinity",
                 name="Eastward",
                 format=reactable.ColFormat(percent=True, digits=0),
+                filterable=True,
+                filter_method=_min_percent_filter,
             ),
             reactable.Column(
                 id="bin_proportion_N",
                 name="N",
-                format=reactable.ColFormat(percent=True, digits=0),
-                max_width=45,
+                **bin_proportion_column_kwargs,
             ),
             reactable.Column(
                 id="bin_proportion_E",
                 name="E",
-                format=reactable.ColFormat(percent=True, digits=0),
-                max_width=45,
+                **bin_proportion_column_kwargs,
             ),
             reactable.Column(
                 id="bin_proportion_S",
                 name="S",
-                format=reactable.ColFormat(percent=True, digits=0),
-                max_width=45,
+                **bin_proportion_column_kwargs,
             ),
             reactable.Column(
                 id="bin_proportion_W",
                 name="W",
-                format=reactable.ColFormat(percent=True, digits=0),
-                max_width=45,
+                **bin_proportion_column_kwargs,
             ),
             reactable.Column(
                 id="rose",

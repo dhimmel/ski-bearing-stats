@@ -41,10 +41,26 @@ Hugues François, Raphaëlle Samacoïts, David Neil Bird, Judith Köberl, Franz 
 *Nature Climate Change* (2023-08-28) <https://doi.org/gsnhbv>  
 DOI: [10.1038/s41558-023-01759-5](https://doi.org/10.1038/s41558-023-01759-5)
 
-4. **2022 International Report on Snow & Mountain Tourism: Overview of the key industry figures for ski resorts**  
+4. **Vulnerability of ski tourism towards internal climate variability and climate change in the Swiss Alps**  
+Fabian Willibald, Sven Kotlarski, Pirmin Philipp Ebner, Mathias Bavay, Christoph Marty, Fabian V Trentini, Ralf Ludwig, Adrienne Grêt-Regamey  
+*Science of The Total Environment* (2021-08) <https://doi.org/gvzmqw>  
+DOI: [10.1016/j.scitotenv.2021.147054](https://doi.org/10.1016/j.scitotenv.2021.147054) · PMID: [33894612](https://www.ncbi.nlm.nih.gov/pubmed/33894612)
+
+5. **2022 International Report on Snow & Mountain Tourism: Overview of the key industry figures for ski resorts**  
 Laurent Vanat  
 (2022-04) <https://www.vanat.ch/international-report-on-snow-mountain-tourism>  
 ISBN: [9782970102892](https://www.thebookedition.com/fr/2022-international-snow-report-p-389872.html)
+
+6. **SkiVis: Visual Exploration and Route Planning in Ski Resorts**  
+Julius Rauscher, Raphael Buchmüller, Daniel A Keim, Matthias Miller  
+*IEEE Transactions on Visualization and Computer Graphics* (2023) <https://doi.org/g8qtfb>  
+DOI: [10.1109/tvcg.2023.3326940](https://doi.org/10.1109/tvcg.2023.3326940) · PMID: [37874714](https://www.ncbi.nlm.nih.gov/pubmed/37874714)
+
+7. **OSM Ski Resort Routing**
+Wenzel Friedsam, Robin Hieber, Alexander Kharitonov, Tobias Rupp  
+*Proceedings of the 29th International Conference on Advances in Geographic Information Systems* (2021-11-02) <https://doi.org/g8qtf6>  
+DOI: [10.1145/3474717.3483628](https://doi.org/10.1145/3474717.3483628)
+
 
 List of related webpages:
 

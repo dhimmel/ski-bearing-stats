@@ -71,6 +71,7 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
             "country_code",
             "region",
             "locality",
+            "hemisphere",
             "run_count_filtered",
             pl.col("combined_vertical").round(5),
             "bearing_mean",
@@ -82,6 +83,10 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
         .join(cardinal_direction_props, on="ski_area_id", how="left")
         .sort("ski_area_name")
     )
+
+
+def _hemisphere_cell(ci: reactable.CellInfo) -> htmltools.Tag:
+    return {"north": "ℕ°", "south": "𝕊°"}[ci.value]
 
 
 _country_filter = reactable.JS("""
@@ -224,6 +229,13 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 show=False,
             ),
             reactable.Column(
+                id="hemisphere",
+                name="ℍem",
+                cell=_hemisphere_cell,
+                filterable=True,
+                max_width=50,
+            ),
+            reactable.Column(
                 id="country",
                 name="Country",
                 cell=_country_cell,
@@ -326,6 +338,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.ColGroup(
                 name="Location",
                 columns=[
+                    "hemisphere",
                     "country_emoji",
                     "country",
                     "region",

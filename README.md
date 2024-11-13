@@ -101,6 +101,7 @@ List of related webpages:
 - [osmnx/pull/1149](https://github.com/gboeing/osmnx/pull/1149): _bearings_distribution: bin_centers terminology
 - [JakobGM/patito/issues/103](https://github.com/JakobGM/patito/issues/103): Validation fails on an empty list
 - [JakobGM/patito/issues/104](https://github.com/JakobGM/patito/issues/104): Optional list field with nested model fails to validate
+- [pola-rs/polars/issues/19771](https://github.com/pola-rs/polars/issues/19771): A no-op filter errors when the dataframe has an all null column
 
 ## License
 

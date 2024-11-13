@@ -1,11 +1,13 @@
 import subprocess
 import unicodedata
 from pathlib import Path
+from typing import Any
 
 import htmltools
 import IPython.display
 import polars as pl
 import reactable
+from mizani.palettes import gradient_n_pal
 
 from ski_bearings.analyze import (
     get_display_ski_area_filters,
@@ -115,6 +117,25 @@ function(rows, columnId, filterValue) {
 }
 """)
 
+_sequential_percent_palette = gradient_n_pal(["#ffffff", "#a100bf"])
+_diverging_percent_palette = gradient_n_pal(["#e89200", "#ffffff", "#007dbf"])
+
+
+def _percent_sequential_style(ci: reactable.CellInfo) -> dict[str, Any] | None:
+    """Style cell background for columns whose values range from 0% to 100%."""
+    if not isinstance(ci.value, int | float):
+        return None
+    color = _sequential_percent_palette(ci.value)
+    return {"background": color}
+
+
+def _percent_diverging_style(ci: reactable.CellInfo) -> dict[str, Any] | None:
+    """Style cell background for columns whose values range from -100% to 100%."""
+    if not isinstance(ci.value, int | float):
+        return None
+    color = _diverging_percent_palette((ci.value + 1) / 2)
+    return {"background": color}
+
 
 # derived from example https://machow.github.io/reactable-py/demos/twitter-followers.html
 _percent_with_bar_cell = reactable.JS("""
@@ -175,6 +196,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
         "max_width": 45,
         "filterable": True,
         "filter_method": _min_percent_filter,
+        "style": _percent_sequential_style,
     }
 
     return reactable.Reactable(
@@ -262,6 +284,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 format=reactable.ColFormat(percent=True, digits=0),
                 filterable=True,
                 filter_method=_min_percent_filter,
+                style=_percent_diverging_style,
             ),
             reactable.Column(
                 id="eastward_affinity",
@@ -269,6 +292,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 format=reactable.ColFormat(percent=True, digits=0),
                 filterable=True,
                 filter_method=_min_percent_filter,
+                style=_percent_diverging_style,
             ),
             reactable.Column(
                 id="bin_proportion_N",

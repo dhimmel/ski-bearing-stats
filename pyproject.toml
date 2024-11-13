@@ -14,14 +14,16 @@ python = "^3.12"
 geojson = "^3.1.0"
 plotnine = "^0.13.0"
 jupyter = "^1.0.0"
-polars = "^1.5"
-osmnx = "^2.0.0b1"
+polars = "^1.10"
+osmnx = "^2.0.0rc2"
 geopandas = "^1.0"
 pyarrow = "^17.0"
 typer = {extras = ["all"], version = "^0.12.0"}
 plotly = "^5.20.0"
 lets-plot = "^4.3.1"
-patito = "^0.7.0"
+# installing from main until pinned polars version is released
+# https://github.com/JakobGM/patito/issues/105
+patito = {git = "https://github.com/JakobGM/patito.git", rev = "main"}
 svgpath2mpl = "^1.0.0"
 itables = "^2.2.3"
 reactable = "^0.1.2"

@@ -71,7 +71,7 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
             "country_code",
             "region",
             "locality",
-            "hemisphere",
+            "latitude",
             "run_count_filtered",
             pl.col("combined_vertical").round(5),
             "bearing_mean",
@@ -85,10 +85,6 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
     )
 
 
-def _hemisphere_cell(ci: reactable.CellInfo) -> htmltools.Tag:
-    return {"north": "ℕ°", "south": "𝕊°"}[ci.value]
-
-
 _country_filter = reactable.JS("""
 function(rows, columnId, filterValue) {
     const filterValueLower = filterValue.toLowerCase();
@@ -97,6 +93,67 @@ function(rows, columnId, filterValue) {
             (row.values["country"] && row.values["country"].toLowerCase().includes(filterValueLower)) ||
             (row.values["country_code"] && row.values["country_code"].toLowerCase() === filterValueLower) ||
             (row.values["country_emoji"] && row.values["country_emoji"] === filterValue)
+        );
+    });
+}
+""")
+
+
+def _latitude_cell(ci: reactable.CellInfo) -> htmltools.Tag:
+    latitude = ci.value
+    background_color = _latitude_palette(abs(latitude) / 90)
+    hemisphere_symbol = "ℕ" if latitude > 0 else "𝕊"
+
+    return htmltools.span(
+        [
+            htmltools.span(
+                hemisphere_symbol,
+                style=htmltools.css(
+                    font_size="1em",  # Font size for the hemisphere symbol
+                    line_height="1em",  # Adjust line height for better spacing
+                ),
+            ),
+            htmltools.span(
+                f"{latitude:.1f}°",
+                style=htmltools.css(
+                    font_size="0.7em",  # Smaller font for latitude
+                    line_height="1em",  # Adjust line height for proper spacing
+                    margin_top="0.2em",  # Adds vertical distance between lines
+                ),
+            ),
+        ],
+        class_="badge",
+        style=htmltools.css(
+            background_color=background_color,
+            color="white",
+            width="3em",  # Set equal width and height for a circle
+            height="3em",
+            border_radius="50%",  # Maximum border radius for a circle
+            display="inline-flex",  # Use flexbox for layout
+            flex_direction="column",  # Stack items vertically
+            align_items="center",  # Center items horizontally
+            justify_content="center",  # Center items vertically
+            text_align="center",  # Center text within each line
+        ),
+    )
+
+
+_latitude_filter = reactable.JS("""
+function(rows, columnId, filterValue) {
+    return rows.filter(function(row) {
+        const latitude = row.values["latitude"];
+        const hemisphere = latitude > 0 ? "north" : "south";
+        const numericFilter = parseFloat(filterValue);
+        return (
+            // Handle "-" as a filter for Southern Hemisphere
+            (filterValue === "-" && latitude <= 0) ||
+            // Handle numeric filter values
+            (!isNaN(numericFilter) && (
+                (numericFilter > 0 && latitude >= numericFilter) ||
+                (numericFilter < 0 && latitude <= numericFilter)
+            )) ||
+            // Handle string filter values for "north" or "south"
+            (typeof filterValue === "string" && hemisphere.includes(filterValue.toLowerCase()))
         );
     });
 }
@@ -124,6 +181,7 @@ function(rows, columnId, filterValue) {
 
 _sequential_percent_palette = gradient_n_pal(["#ffffff", "#a100bf"])
 _diverging_percent_palette = gradient_n_pal(["#e89200", "#ffffff", "#007dbf"])
+_latitude_palette = gradient_n_pal(["#ffffff", "#000000"])
 
 
 def _percent_sequential_style(ci: reactable.CellInfo) -> dict[str, Any] | None:
@@ -229,11 +287,12 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 show=False,
             ),
             reactable.Column(
-                id="hemisphere",
-                name="ℍem",
-                cell=_hemisphere_cell,
+                id="latitude",
+                name="ℍφ",
+                cell=_latitude_cell,
                 filterable=True,
-                max_width=50,
+                filter_method=_latitude_filter,
+                max_width=60,
             ),
             reactable.Column(
                 id="country",
@@ -338,7 +397,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.ColGroup(
                 name="Location",
                 columns=[
-                    "hemisphere",
+                    "latitude",
                     "country_emoji",
                     "country",
                     "region",

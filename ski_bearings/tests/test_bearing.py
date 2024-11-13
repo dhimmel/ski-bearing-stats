@@ -158,13 +158,7 @@ def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     # aggregate runs by ski area and then aggregate ski areas
     # group by hemisphere to avoid polars
     # ComputeError: at least one key is required in a group_by operation
-    hemisphere_pl = aggregate_ski_areas_pl(
-        group_by=["hemisphere"],
-        # on test data, the default .filter(pl.lit(True)) gave a polars error:
-        # ShapeError: filter's length: 1 differs from that of the series: 2
-        # https://github.com/pola-rs/polars/issues/19771
-        ski_area_filters=[pl.col("hemisphere").is_not_null()],
-    )
+    hemisphere_pl = aggregate_ski_areas_pl(group_by=["hemisphere"])
     double_pass = hemisphere_pl.row(by_predicate=pl.lit(True), named=True)
     for key in [
         "run_count_filtered",

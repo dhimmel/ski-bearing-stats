@@ -135,9 +135,11 @@ def _get_bearing_summary_stats_pl(struct_series: pl.Series) -> BearingStatsModel
 
 def _prepare_ski_area_filters(
     ski_area_filters: list[pl.Expr] | None = None,
-) -> list[pl.Expr]:
+) -> list[pl.Expr | bool]:
     if not ski_area_filters:
-        ski_area_filters = [pl.lit(True)]
+        # pl.lit(True) had issues that True did not.
+        # https://github.com/pola-rs/polars/issues/19771
+        ski_area_filters = [True]
     return ski_area_filters
 
 

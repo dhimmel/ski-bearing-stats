@@ -2,6 +2,7 @@ import subprocess
 import unicodedata
 from pathlib import Path
 
+import htmltools
 import IPython.display
 import polars as pl
 import reactable
@@ -60,16 +61,12 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
         .select(
             "ski_area_id",
             "ski_area_name",
-            pl.format(
-                "<a href='https://openskimap.org/?obj={}' target='_blank'>{}</a>",
-                "ski_area_id",
-                "ski_area_name",
-            ).alias("ski_area_hyper"),
             "status",
             pl.col("country_code")
             .map_elements(country_code_to_emoji, return_dtype=pl.String)
             .alias("country_emoji"),
             "country",
+            "country_code",
             "region",
             "locality",
             "run_count_filtered",
@@ -122,66 +119,99 @@ function(cellInfo) {
 }
 """)
 
+_country_filter = reactable.JS("""
+function(rows, columnId, filterValue) {
+    const filterValueLower = filterValue.toLowerCase();
+    return rows.filter(function(row) {
+        return (
+            (row.values["country"] && row.values["country"].toLowerCase().includes(filterValueLower)) ||
+            (row.values["country_code"] && row.values["country_code"].toLowerCase() === filterValueLower) ||
+            (row.values["country_emoji"] && row.values["country_emoji"] === filterValue)
+        );
+    });
+}
+""")
+
 
 def get_ski_area_reactable() -> reactable.Reactable:
+    data_pl = get_ski_area_frontend_table()
+
+    def _ski_area_cell(ci: reactable.CellInfo) -> htmltools.Tag:
+        ski_area_id = data_pl.item(row=ci.row_index, column="ski_area_id")
+        url = htmltools.a(
+            ci.value,
+            href=f"https://openskimap.org/?obj={ski_area_id}",
+            target="blank_",
+        )
+        return url
+
+    def _country_cell(ci: reactable.CellInfo) -> str:
+        country_emoji = data_pl.item(row=ci.row_index, column="country_emoji")
+        return f"{country_emoji}<br>{ci.value}"
+
     return reactable.Reactable(
-        data=get_ski_area_frontend_table().drop("ski_area_id", "ski_area_name"),
+        data=data_pl,
         striped=True,
-        searchable=True,
+        searchable=False,
         highlight=True,
         full_width=True,
         columns=[
             reactable.Column(
-                id="ski_area_hyper",
-                name="Name",
-                html=True,
+                id="ski_area_id",
+                show=False,
+            ),
+            reactable.Column(
+                id="ski_area_name",
+                name="Ski Area",
+                cell=_ski_area_cell,
                 min_width=250,
-                searchable=True,
+                filterable=True,
                 sticky="left",  # makes entire group sticky
             ),
             reactable.Column(
                 id="status",
                 name="Status",
-                searchable=True,
                 show=False,
-            ),
-            reactable.Column(
-                id="country_emoji",
-                name="Country",
-                searchable=True,
             ),
             reactable.Column(
                 id="country",
                 name="Country",
-                searchable=True,
+                cell=_country_cell,
+                html=True,
+                filter_method=_country_filter,
+                filterable=True,
+            ),
+            reactable.Column(
+                id="country_emoji",
+                show=False,
+            ),
+            reactable.Column(
+                id="country_code",
                 show=False,
             ),
             reactable.Column(
                 id="region",
                 name="Region",
-                searchable=True,
+                filterable=True,
             ),
             reactable.Column(
                 id="locality",
                 name="Locality",
-                searchable=True,
+                filterable=True,
             ),
             reactable.Column(
                 id="run_count_filtered",
                 name="Runs",
-                searchable=False,
             ),
             reactable.Column(
                 id="combined_vertical",
                 name="Vertical",
                 format=reactable.ColFormat(suffix="m", digits=0, separators=True),
-                searchable=False,
             ),
             reactable.Column(
                 id="bearing_mean",
                 name="Azimuth",
                 # format=reactable.ColFormat(suffix="°", digits=0),
-                searchable=False,
                 cell=_js_azimuth_arrow,
                 html=True,
             ),
@@ -189,7 +219,6 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="bearing_alignment",
                 name="Alignment",
                 # format=reactable.ColFormat(percent=True, digits=0),
-                searchable=False,
                 cell=_js_percent,
                 html=True,
             ),
@@ -197,46 +226,39 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="poleward_affinity",
                 name="Poleward",
                 format=reactable.ColFormat(percent=True, digits=0),
-                searchable=False,
             ),
             reactable.Column(
                 id="eastward_affinity",
                 name="Eastward",
                 format=reactable.ColFormat(percent=True, digits=0),
-                searchable=False,
             ),
             reactable.Column(
                 id="bin_proportion_N",
                 name="N",
                 format=reactable.ColFormat(percent=True, digits=0),
-                searchable=False,
                 max_width=45,
             ),
             reactable.Column(
                 id="bin_proportion_E",
                 name="E",
                 format=reactable.ColFormat(percent=True, digits=0),
-                searchable=False,
                 max_width=45,
             ),
             reactable.Column(
                 id="bin_proportion_S",
                 name="S",
                 format=reactable.ColFormat(percent=True, digits=0),
-                searchable=False,
                 max_width=45,
             ),
             reactable.Column(
                 id="bin_proportion_W",
                 name="W",
                 format=reactable.ColFormat(percent=True, digits=0),
-                searchable=False,
                 max_width=45,
             ),
             reactable.Column(
                 id="rose",
                 name="Rose",
-                searchable=False,
                 html=True,
                 # max_width=45,
             ),

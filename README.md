@@ -2,6 +2,11 @@
 
 [![Test Suite CI Status](https://github.com/dhimmel/ski-bearing-stats/actions/workflows/tests.yaml/badge.svg?branch=main&event=push)](https://github.com/dhimmel/ski-bearing-stats/actions/workflows/tests.yaml)
 
+> [!IMPORTANT]
+> This project is currently under heavy development and is not yet ready for public consumption.
+> If you happen to locate the results of the analyses in the meantime,
+> please do not disseminate them before contacting the authors.
+
 WIP Ski Roses
 
 ## Development

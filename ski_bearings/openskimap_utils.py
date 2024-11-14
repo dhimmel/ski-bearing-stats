@@ -38,7 +38,7 @@ def download_openskimap_geojson(name: Literal["runs", "ski_areas", "lifts"]) -> 
     """Download a single geojson file from OpenSkiMap and save it to disk with compression."""
     if not data_directory.exists():
         data_directory.mkdir()
-    url = f"https://tiles.skimap.org/geojson/{name}.geojson"
+    url = f"https://tiles.openskimap.org/geojson/{name}.geojson"
     path = get_openskimap_path(name)
     logging.info(f"Downloading {url} to {path}")
     headers = {

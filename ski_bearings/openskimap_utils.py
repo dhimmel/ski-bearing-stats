@@ -252,15 +252,6 @@ test_ski_area_ids = [
 
 
 def generate_openskimap_test_data() -> None:
-    test_run_features = []
-    for run in load_runs_from_download():
-        for ski_area in run["properties"]["skiAreas"]:
-            if ski_area["properties"]["id"] in test_ski_area_ids:
-                test_run_features.append(run)
-    test_runs = {
-        "type": "FeatureCollection",
-        "features": test_run_features,
-    }
     test_ski_areas = {
         "type": "FeatureCollection",
         "features": [
@@ -269,10 +260,32 @@ def generate_openskimap_test_data() -> None:
             if x["properties"]["id"] in test_ski_area_ids
         ],
     }
-    assert len(test_runs["features"]) == len(test_ski_area_ids)
+    assert len(test_ski_areas["features"]) == len(test_ski_area_ids)
+
+    def filter_by_ski_areas_property(
+        features: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        features_filtered = []
+        for feature in features:
+            for ski_area in feature["properties"]["skiAreas"]:
+                if ski_area["properties"]["id"] in test_ski_area_ids:
+                    features_filtered.append(feature)
+        return features_filtered
+
+    test_runs = {
+        "type": "FeatureCollection",
+        "features": filter_by_ski_areas_property(load_runs_from_download()),
+    }
+    test_lifts = {
+        "type": "FeatureCollection",
+        "features": filter_by_ski_areas_property(load_openskimap_geojson("lifts")),
+    }
+    get_openskimap_path("ski_areas", testing=True).write_text(
+        json.dumps(test_ski_areas, indent=2, ensure_ascii=False)
+    )
     get_openskimap_path("runs", testing=True).write_text(
         json.dumps(test_runs, indent=2, ensure_ascii=False)
     )
-    get_openskimap_path("ski_areas", testing=True).write_text(
-        json.dumps(test_ski_areas, indent=2, ensure_ascii=False)
+    get_openskimap_path("lifts", testing=True).write_text(
+        json.dumps(test_lifts, indent=2, ensure_ascii=False)
     )

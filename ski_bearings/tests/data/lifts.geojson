@@ -1,0 +1,1211 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "lift",
+        "liftType": "drag_lift",
+        "status": "operating",
+        "name": null,
+        "oneway": null,
+        "ref": null,
+        "description": null,
+        "occupancy": null,
+        "capacity": null,
+        "duration": null,
+        "bubble": null,
+        "heating": null,
+        "color": "hsl(0, 82%, 42%)",
+        "skiAreas": [
+          {
+            "properties": {
+              "activities": [
+                "downhill"
+              ],
+              "generated": false,
+              "id": "dc24f332f3117625dc09479b5d10cbb31a592be4",
+              "location": {
+                "iso3166_1Alpha2": "US",
+                "iso3166_2": null,
+                "localized": {
+                  "en": {
+                    "country": "United States",
+                    "region": null,
+                    "locality": null
+                  }
+                }
+              },
+              "name": "Storrs Hill Ski Area",
+              "runConvention": "north_america",
+              "sources": [
+                {
+                  "type": "openstreetmap",
+                  "id": "way/1090626629"
+                },
+                {
+                  "type": "skimap.org",
+                  "id": 4118
+                }
+              ],
+              "status": "operating",
+              "type": "skiArea",
+              "websites": [
+                "https://skistorrshill.com/"
+              ],
+              "statistics": {
+                "runs": {
+                  "byActivity": {
+                    "downhill": {
+                      "byDifficulty": {
+                        "other": {
+                          "count": 5,
+                          "lengthInKm": 1.2642494231961585,
+                          "minElevation": 161.75,
+                          "maxElevation": 257.67,
+                          "combinedElevationChange": 231.46000000000004
+                        }
+                      }
+                    }
+                  },
+                  "minElevation": 161.75,
+                  "maxElevation": 257.67
+                },
+                "lifts": {
+                  "byType": {
+                    "drag_lift": {
+                      "count": 1,
+                      "lengthInKm": 0.40465585678911375,
+                      "minElevation": 165.73999999999998,
+                      "maxElevation": 256.67,
+                      "combinedElevationChange": 90.93000000000004
+                    }
+                  },
+                  "minElevation": 165.73999999999998,
+                  "maxElevation": 256.67
+                },
+                "maxElevation": 256.67,
+                "minElevation": 165.73999999999998
+              }
+            },
+            "type": "Feature",
+            "geometry": {
+              "coordinates": [
+                [
+                  [
+                    -72.2528541,
+                    43.636689
+                  ],
+                  [
+                    -72.25350879999998,
+                    43.6366286
+                  ],
+                  [
+                    -72.2533251,
+                    43.6362611
+                  ],
+                  [
+                    -72.2528507,
+                    43.6355914
+                  ],
+                  [
+                    -72.25261350000002,
+                    43.63513930000002
+                  ],
+                  [
+                    -72.25277059999996,
+                    43.63453000000001
+                  ],
+                  [
+                    -72.2531948,
+                    43.6340344
+                  ],
+                  [
+                    -72.2535857,
+                    43.633647499999995
+                  ],
+                  [
+                    -72.25388629999998,
+                    43.6332365
+                  ],
+                  [
+                    -72.25392640000003,
+                    43.6328472
+                  ],
+                  [
+                    -72.2537026,
+                    43.632129100000014
+                  ],
+                  [
+                    -72.25288079999997,
+                    43.63133850000001
+                  ],
+                  [
+                    -72.2522628,
+                    43.6310411
+                  ],
+                  [
+                    -72.2518151,
+                    43.631067699999996
+                  ],
+                  [
+                    -72.2510802,
+                    43.632530500000016
+                  ],
+                  [
+                    -72.25092660000003,
+                    43.6334202
+                  ],
+                  [
+                    -72.25035199999998,
+                    43.63452280000001
+                  ],
+                  [
+                    -72.2502017,
+                    43.634941
+                  ],
+                  [
+                    -72.25179179999998,
+                    43.635528500000014
+                  ],
+                  [
+                    -72.25226950000003,
+                    43.63568090000001
+                  ],
+                  [
+                    -72.2528541,
+                    43.636689
+                  ]
+                ]
+              ],
+              "type": "Polygon"
+            }
+          }
+        ],
+        "sources": [
+          {
+            "type": "openstreetmap",
+            "id": "way/169342919"
+          }
+        ],
+        "location": null,
+        "websites": [],
+        "id": "163027d67df79943aa11ad91948b07006568e41f"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -72.2514948,
+            43.63477560000001,
+            165.73999999999998
+          ],
+          [
+            -72.25153460000003,
+            43.63449230000001,
+            173.94
+          ],
+          [
+            -72.25155430000002,
+            43.6342978,
+            179.31
+          ],
+          [
+            -72.2515785,
+            43.6340867,
+            186.70999999999998
+          ],
+          [
+            -72.25162470000004,
+            43.6336834,
+            193.1
+          ],
+          [
+            -72.2516951,
+            43.6330691,
+            209.18
+          ],
+          [
+            -72.25175540000002,
+            43.6324897,
+            222.26999999999998
+          ],
+          [
+            -72.2519108,
+            43.631149,
+            256.67
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "lift",
+        "liftType": "chair_lift",
+        "status": "operating",
+        "name": "Sky Lift",
+        "oneway": true,
+        "ref": null,
+        "description": null,
+        "occupancy": 2,
+        "capacity": null,
+        "duration": 360,
+        "bubble": false,
+        "heating": false,
+        "color": "hsl(0, 82%, 42%)",
+        "skiAreas": [
+          {
+            "properties": {
+              "activities": [
+                "downhill"
+              ],
+              "generated": false,
+              "id": "8896cde00150e73de1f1237320c88767c91ce099",
+              "location": {
+                "iso3166_1Alpha2": "US",
+                "iso3166_2": null,
+                "localized": {
+                  "en": {
+                    "country": "United States",
+                    "region": null,
+                    "locality": null
+                  }
+                }
+              },
+              "name": "Whaleback Mountain",
+              "runConvention": "north_america",
+              "sources": [
+                {
+                  "type": "openstreetmap",
+                  "id": "way/252782489"
+                },
+                {
+                  "type": "skimap.org",
+                  "id": 1078
+                }
+              ],
+              "status": "operating",
+              "type": "skiArea",
+              "websites": [
+                "http://www.whaleback.com/"
+              ],
+              "statistics": {
+                "runs": {
+                  "byActivity": {
+                    "downhill": {
+                      "byDifficulty": {
+                        "intermediate": {
+                          "count": 20,
+                          "lengthInKm": 3.789347958734279,
+                          "minElevation": 351.11,
+                          "maxElevation": 542.4499999999999,
+                          "combinedElevationChange": 734.4099999999997
+                        },
+                        "easy": {
+                          "count": 9,
+                          "lengthInKm": 3.55885886527459,
+                          "minElevation": 349.11,
+                          "maxElevation": 542.42,
+                          "combinedElevationChange": 505.61999999999995
+                        },
+                        "expert": {
+                          "count": 2,
+                          "lengthInKm": 0.6731526342202359,
+                          "minElevation": 349.11,
+                          "maxElevation": 498.46999999999997,
+                          "combinedElevationChange": 246.52999999999992
+                        },
+                        "advanced": {
+                          "count": 3,
+                          "lengthInKm": 0.45779400019225375,
+                          "minElevation": 350.92999999999995,
+                          "maxElevation": 434.62,
+                          "combinedElevationChange": 91.6400000000001
+                        }
+                      }
+                    }
+                  },
+                  "minElevation": 349.11,
+                  "maxElevation": 542.4499999999999
+                },
+                "lifts": {
+                  "byType": {
+                    "chair_lift": {
+                      "count": 1,
+                      "lengthInKm": 0.7273941693040148,
+                      "minElevation": 350.92999999999995,
+                      "maxElevation": 542.4499999999999,
+                      "combinedElevationChange": 191.49
+                    },
+                    "magic_carpet": {
+                      "count": 1,
+                      "lengthInKm": 0.024925487920308187,
+                      "minElevation": 352.92999999999995,
+                      "maxElevation": 358.31,
+                      "combinedElevationChange": 5.380000000000052
+                    },
+                    "t-bar": {
+                      "count": 1,
+                      "lengthInKm": 0.2373224496214283,
+                      "minElevation": 356.02,
+                      "maxElevation": 405.65000000000003,
+                      "combinedElevationChange": 49.63000000000005
+                    },
+                    "rope_tow": {
+                      "count": 1,
+                      "lengthInKm": 0.07296626871682102,
+                      "minElevation": 351.53,
+                      "maxElevation": 362.90999999999997,
+                      "combinedElevationChange": 11.379999999999995
+                    }
+                  },
+                  "minElevation": 350.92999999999995,
+                  "maxElevation": 542.4499999999999
+                },
+                "maxElevation": 542.4499999999999,
+                "minElevation": 350.92999999999995
+              }
+            },
+            "type": "Feature",
+            "geometry": {
+              "coordinates": [
+                [
+                  [
+                    -72.1853144,
+                    43.6048422
+                  ],
+                  [
+                    -72.18634789999996,
+                    43.60376590000001
+                  ],
+                  [
+                    -72.18620779999998,
+                    43.60016500000001
+                  ],
+                  [
+                    -72.18989849999997,
+                    43.59509910000001
+                  ],
+                  [
+                    -72.18872569999998,
+                    43.5935915
+                  ],
+                  [
+                    -72.18581479999997,
+                    43.592189900000015
+                  ],
+                  [
+                    -72.18171679999998,
+                    43.59307320000001
+                  ],
+                  [
+                    -72.17927699999997,
+                    43.59436870000001
+                  ],
+                  [
+                    -72.1770916,
+                    43.5977977
+                  ],
+                  [
+                    -72.17649999999998,
+                    43.59969870000001
+                  ],
+                  [
+                    -72.17678269999996,
+                    43.6014591
+                  ],
+                  [
+                    -72.1801931,
+                    43.6019206
+                  ],
+                  [
+                    -72.18276619999996,
+                    43.60281250000001
+                  ],
+                  [
+                    -72.1853144,
+                    43.6048422
+                  ]
+                ]
+              ],
+              "type": "Polygon"
+            }
+          }
+        ],
+        "sources": [
+          {
+            "type": "openstreetmap",
+            "id": "way/252693149"
+          }
+        ],
+        "location": null,
+        "websites": [],
+        "id": "41014dd60dd2af503da8d75d377e9ed248082fb1"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -72.1810835,
+            43.601601699999996,
+            350.92999999999995
+          ],
+          [
+            -72.1811177,
+            43.6015032,
+            352.07
+          ],
+          [
+            -72.1811271,
+            43.601476,
+            353.07
+          ],
+          [
+            -72.1812401,
+            43.6011744,
+            358.98999999999995
+          ],
+          [
+            -72.1814393,
+            43.60063810000001,
+            377.71
+          ],
+          [
+            -72.1816908,
+            43.59996090000001,
+            404.19
+          ],
+          [
+            -72.18197269999997,
+            43.5992017,
+            449.86
+          ],
+          [
+            -72.18217769999997,
+            43.5986496,
+            477.27
+          ],
+          [
+            -72.18238619999995,
+            43.598088200000014,
+            495.1
+          ],
+          [
+            -72.18261609999998,
+            43.5974691,
+            513.76
+          ],
+          [
+            -72.18294809999996,
+            43.59657520000002,
+            533.8599999999999
+          ],
+          [
+            -72.18313479999998,
+            43.59607240000001,
+            541.72
+          ],
+          [
+            -72.18330759999996,
+            43.59560980000001,
+            542.4499999999999
+          ],
+          [
+            -72.1834275,
+            43.5952842,
+            542.42
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "lift",
+        "liftType": "magic_carpet",
+        "status": "operating",
+        "name": "Magic Carpet",
+        "oneway": null,
+        "ref": null,
+        "description": null,
+        "occupancy": null,
+        "capacity": null,
+        "duration": null,
+        "bubble": null,
+        "heating": null,
+        "color": "hsl(0, 82%, 42%)",
+        "skiAreas": [
+          {
+            "properties": {
+              "activities": [
+                "downhill"
+              ],
+              "generated": false,
+              "id": "8896cde00150e73de1f1237320c88767c91ce099",
+              "location": {
+                "iso3166_1Alpha2": "US",
+                "iso3166_2": null,
+                "localized": {
+                  "en": {
+                    "country": "United States",
+                    "region": null,
+                    "locality": null
+                  }
+                }
+              },
+              "name": "Whaleback Mountain",
+              "runConvention": "north_america",
+              "sources": [
+                {
+                  "type": "openstreetmap",
+                  "id": "way/252782489"
+                },
+                {
+                  "type": "skimap.org",
+                  "id": 1078
+                }
+              ],
+              "status": "operating",
+              "type": "skiArea",
+              "websites": [
+                "http://www.whaleback.com/"
+              ],
+              "statistics": {
+                "runs": {
+                  "byActivity": {
+                    "downhill": {
+                      "byDifficulty": {
+                        "intermediate": {
+                          "count": 20,
+                          "lengthInKm": 3.789347958734279,
+                          "minElevation": 351.11,
+                          "maxElevation": 542.4499999999999,
+                          "combinedElevationChange": 734.4099999999997
+                        },
+                        "easy": {
+                          "count": 9,
+                          "lengthInKm": 3.55885886527459,
+                          "minElevation": 349.11,
+                          "maxElevation": 542.42,
+                          "combinedElevationChange": 505.61999999999995
+                        },
+                        "expert": {
+                          "count": 2,
+                          "lengthInKm": 0.6731526342202359,
+                          "minElevation": 349.11,
+                          "maxElevation": 498.46999999999997,
+                          "combinedElevationChange": 246.52999999999992
+                        },
+                        "advanced": {
+                          "count": 3,
+                          "lengthInKm": 0.45779400019225375,
+                          "minElevation": 350.92999999999995,
+                          "maxElevation": 434.62,
+                          "combinedElevationChange": 91.6400000000001
+                        }
+                      }
+                    }
+                  },
+                  "minElevation": 349.11,
+                  "maxElevation": 542.4499999999999
+                },
+                "lifts": {
+                  "byType": {
+                    "chair_lift": {
+                      "count": 1,
+                      "lengthInKm": 0.7273941693040148,
+                      "minElevation": 350.92999999999995,
+                      "maxElevation": 542.4499999999999,
+                      "combinedElevationChange": 191.49
+                    },
+                    "magic_carpet": {
+                      "count": 1,
+                      "lengthInKm": 0.024925487920308187,
+                      "minElevation": 352.92999999999995,
+                      "maxElevation": 358.31,
+                      "combinedElevationChange": 5.380000000000052
+                    },
+                    "t-bar": {
+                      "count": 1,
+                      "lengthInKm": 0.2373224496214283,
+                      "minElevation": 356.02,
+                      "maxElevation": 405.65000000000003,
+                      "combinedElevationChange": 49.63000000000005
+                    },
+                    "rope_tow": {
+                      "count": 1,
+                      "lengthInKm": 0.07296626871682102,
+                      "minElevation": 351.53,
+                      "maxElevation": 362.90999999999997,
+                      "combinedElevationChange": 11.379999999999995
+                    }
+                  },
+                  "minElevation": 350.92999999999995,
+                  "maxElevation": 542.4499999999999
+                },
+                "maxElevation": 542.4499999999999,
+                "minElevation": 350.92999999999995
+              }
+            },
+            "type": "Feature",
+            "geometry": {
+              "coordinates": [
+                [
+                  [
+                    -72.1853144,
+                    43.6048422
+                  ],
+                  [
+                    -72.18634789999996,
+                    43.60376590000001
+                  ],
+                  [
+                    -72.18620779999998,
+                    43.60016500000001
+                  ],
+                  [
+                    -72.18989849999997,
+                    43.59509910000001
+                  ],
+                  [
+                    -72.18872569999998,
+                    43.5935915
+                  ],
+                  [
+                    -72.18581479999997,
+                    43.592189900000015
+                  ],
+                  [
+                    -72.18171679999998,
+                    43.59307320000001
+                  ],
+                  [
+                    -72.17927699999997,
+                    43.59436870000001
+                  ],
+                  [
+                    -72.1770916,
+                    43.5977977
+                  ],
+                  [
+                    -72.17649999999998,
+                    43.59969870000001
+                  ],
+                  [
+                    -72.17678269999996,
+                    43.6014591
+                  ],
+                  [
+                    -72.1801931,
+                    43.6019206
+                  ],
+                  [
+                    -72.18276619999996,
+                    43.60281250000001
+                  ],
+                  [
+                    -72.1853144,
+                    43.6048422
+                  ]
+                ]
+              ],
+              "type": "Polygon"
+            }
+          }
+        ],
+        "sources": [
+          {
+            "type": "openstreetmap",
+            "id": "way/255618835"
+          }
+        ],
+        "location": null,
+        "websites": [],
+        "id": "418ed6448e5511d1f46d29c90c66522f18f63773"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -72.1814376,
+            43.601584,
+            352.92999999999995
+          ],
+          [
+            -72.1815662,
+            43.6013801,
+            358.31
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "lift",
+        "liftType": "rope_tow",
+        "status": "operating",
+        "name": "Rope Tow",
+        "oneway": null,
+        "ref": null,
+        "description": null,
+        "occupancy": null,
+        "capacity": null,
+        "duration": null,
+        "bubble": null,
+        "heating": null,
+        "color": "hsl(0, 82%, 42%)",
+        "skiAreas": [
+          {
+            "properties": {
+              "activities": [
+                "downhill"
+              ],
+              "generated": false,
+              "id": "8896cde00150e73de1f1237320c88767c91ce099",
+              "location": {
+                "iso3166_1Alpha2": "US",
+                "iso3166_2": null,
+                "localized": {
+                  "en": {
+                    "country": "United States",
+                    "region": null,
+                    "locality": null
+                  }
+                }
+              },
+              "name": "Whaleback Mountain",
+              "runConvention": "north_america",
+              "sources": [
+                {
+                  "type": "openstreetmap",
+                  "id": "way/252782489"
+                },
+                {
+                  "type": "skimap.org",
+                  "id": 1078
+                }
+              ],
+              "status": "operating",
+              "type": "skiArea",
+              "websites": [
+                "http://www.whaleback.com/"
+              ],
+              "statistics": {
+                "runs": {
+                  "byActivity": {
+                    "downhill": {
+                      "byDifficulty": {
+                        "intermediate": {
+                          "count": 20,
+                          "lengthInKm": 3.789347958734279,
+                          "minElevation": 351.11,
+                          "maxElevation": 542.4499999999999,
+                          "combinedElevationChange": 734.4099999999997
+                        },
+                        "easy": {
+                          "count": 9,
+                          "lengthInKm": 3.55885886527459,
+                          "minElevation": 349.11,
+                          "maxElevation": 542.42,
+                          "combinedElevationChange": 505.61999999999995
+                        },
+                        "expert": {
+                          "count": 2,
+                          "lengthInKm": 0.6731526342202359,
+                          "minElevation": 349.11,
+                          "maxElevation": 498.46999999999997,
+                          "combinedElevationChange": 246.52999999999992
+                        },
+                        "advanced": {
+                          "count": 3,
+                          "lengthInKm": 0.45779400019225375,
+                          "minElevation": 350.92999999999995,
+                          "maxElevation": 434.62,
+                          "combinedElevationChange": 91.6400000000001
+                        }
+                      }
+                    }
+                  },
+                  "minElevation": 349.11,
+                  "maxElevation": 542.4499999999999
+                },
+                "lifts": {
+                  "byType": {
+                    "chair_lift": {
+                      "count": 1,
+                      "lengthInKm": 0.7273941693040148,
+                      "minElevation": 350.92999999999995,
+                      "maxElevation": 542.4499999999999,
+                      "combinedElevationChange": 191.49
+                    },
+                    "magic_carpet": {
+                      "count": 1,
+                      "lengthInKm": 0.024925487920308187,
+                      "minElevation": 352.92999999999995,
+                      "maxElevation": 358.31,
+                      "combinedElevationChange": 5.380000000000052
+                    },
+                    "t-bar": {
+                      "count": 1,
+                      "lengthInKm": 0.2373224496214283,
+                      "minElevation": 356.02,
+                      "maxElevation": 405.65000000000003,
+                      "combinedElevationChange": 49.63000000000005
+                    },
+                    "rope_tow": {
+                      "count": 1,
+                      "lengthInKm": 0.07296626871682102,
+                      "minElevation": 351.53,
+                      "maxElevation": 362.90999999999997,
+                      "combinedElevationChange": 11.379999999999995
+                    }
+                  },
+                  "minElevation": 350.92999999999995,
+                  "maxElevation": 542.4499999999999
+                },
+                "maxElevation": 542.4499999999999,
+                "minElevation": 350.92999999999995
+              }
+            },
+            "type": "Feature",
+            "geometry": {
+              "coordinates": [
+                [
+                  [
+                    -72.1853144,
+                    43.6048422
+                  ],
+                  [
+                    -72.18634789999996,
+                    43.60376590000001
+                  ],
+                  [
+                    -72.18620779999998,
+                    43.60016500000001
+                  ],
+                  [
+                    -72.18989849999997,
+                    43.59509910000001
+                  ],
+                  [
+                    -72.18872569999998,
+                    43.5935915
+                  ],
+                  [
+                    -72.18581479999997,
+                    43.592189900000015
+                  ],
+                  [
+                    -72.18171679999998,
+                    43.59307320000001
+                  ],
+                  [
+                    -72.17927699999997,
+                    43.59436870000001
+                  ],
+                  [
+                    -72.1770916,
+                    43.5977977
+                  ],
+                  [
+                    -72.17649999999998,
+                    43.59969870000001
+                  ],
+                  [
+                    -72.17678269999996,
+                    43.6014591
+                  ],
+                  [
+                    -72.1801931,
+                    43.6019206
+                  ],
+                  [
+                    -72.18276619999996,
+                    43.60281250000001
+                  ],
+                  [
+                    -72.1853144,
+                    43.6048422
+                  ]
+                ]
+              ],
+              "type": "Polygon"
+            }
+          }
+        ],
+        "sources": [
+          {
+            "type": "openstreetmap",
+            "id": "way/255618836"
+          }
+        ],
+        "location": null,
+        "websites": [],
+        "id": "75370913b15570dc785502e0c10ea779b4ff7c35"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -72.1824396,
+            43.60202010000001,
+            351.53
+          ],
+          [
+            -72.18291239999996,
+            43.6014603,
+            362.90999999999997
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "lift",
+        "liftType": "t-bar",
+        "status": "operating",
+        "name": "T-Bar",
+        "oneway": true,
+        "ref": null,
+        "description": null,
+        "occupancy": 2,
+        "capacity": null,
+        "duration": 210,
+        "bubble": null,
+        "heating": null,
+        "color": "hsl(0, 82%, 42%)",
+        "skiAreas": [
+          {
+            "properties": {
+              "activities": [
+                "downhill"
+              ],
+              "generated": false,
+              "id": "8896cde00150e73de1f1237320c88767c91ce099",
+              "location": {
+                "iso3166_1Alpha2": "US",
+                "iso3166_2": null,
+                "localized": {
+                  "en": {
+                    "country": "United States",
+                    "region": null,
+                    "locality": null
+                  }
+                }
+              },
+              "name": "Whaleback Mountain",
+              "runConvention": "north_america",
+              "sources": [
+                {
+                  "type": "openstreetmap",
+                  "id": "way/252782489"
+                },
+                {
+                  "type": "skimap.org",
+                  "id": 1078
+                }
+              ],
+              "status": "operating",
+              "type": "skiArea",
+              "websites": [
+                "http://www.whaleback.com/"
+              ],
+              "statistics": {
+                "runs": {
+                  "byActivity": {
+                    "downhill": {
+                      "byDifficulty": {
+                        "intermediate": {
+                          "count": 20,
+                          "lengthInKm": 3.789347958734279,
+                          "minElevation": 351.11,
+                          "maxElevation": 542.4499999999999,
+                          "combinedElevationChange": 734.4099999999997
+                        },
+                        "easy": {
+                          "count": 9,
+                          "lengthInKm": 3.55885886527459,
+                          "minElevation": 349.11,
+                          "maxElevation": 542.42,
+                          "combinedElevationChange": 505.61999999999995
+                        },
+                        "expert": {
+                          "count": 2,
+                          "lengthInKm": 0.6731526342202359,
+                          "minElevation": 349.11,
+                          "maxElevation": 498.46999999999997,
+                          "combinedElevationChange": 246.52999999999992
+                        },
+                        "advanced": {
+                          "count": 3,
+                          "lengthInKm": 0.45779400019225375,
+                          "minElevation": 350.92999999999995,
+                          "maxElevation": 434.62,
+                          "combinedElevationChange": 91.6400000000001
+                        }
+                      }
+                    }
+                  },
+                  "minElevation": 349.11,
+                  "maxElevation": 542.4499999999999
+                },
+                "lifts": {
+                  "byType": {
+                    "chair_lift": {
+                      "count": 1,
+                      "lengthInKm": 0.7273941693040148,
+                      "minElevation": 350.92999999999995,
+                      "maxElevation": 542.4499999999999,
+                      "combinedElevationChange": 191.49
+                    },
+                    "magic_carpet": {
+                      "count": 1,
+                      "lengthInKm": 0.024925487920308187,
+                      "minElevation": 352.92999999999995,
+                      "maxElevation": 358.31,
+                      "combinedElevationChange": 5.380000000000052
+                    },
+                    "t-bar": {
+                      "count": 1,
+                      "lengthInKm": 0.2373224496214283,
+                      "minElevation": 356.02,
+                      "maxElevation": 405.65000000000003,
+                      "combinedElevationChange": 49.63000000000005
+                    },
+                    "rope_tow": {
+                      "count": 1,
+                      "lengthInKm": 0.07296626871682102,
+                      "minElevation": 351.53,
+                      "maxElevation": 362.90999999999997,
+                      "combinedElevationChange": 11.379999999999995
+                    }
+                  },
+                  "minElevation": 350.92999999999995,
+                  "maxElevation": 542.4499999999999
+                },
+                "maxElevation": 542.4499999999999,
+                "minElevation": 350.92999999999995
+              }
+            },
+            "type": "Feature",
+            "geometry": {
+              "coordinates": [
+                [
+                  [
+                    -72.1853144,
+                    43.6048422
+                  ],
+                  [
+                    -72.18634789999996,
+                    43.60376590000001
+                  ],
+                  [
+                    -72.18620779999998,
+                    43.60016500000001
+                  ],
+                  [
+                    -72.18989849999997,
+                    43.59509910000001
+                  ],
+                  [
+                    -72.18872569999998,
+                    43.5935915
+                  ],
+                  [
+                    -72.18581479999997,
+                    43.592189900000015
+                  ],
+                  [
+                    -72.18171679999998,
+                    43.59307320000001
+                  ],
+                  [
+                    -72.17927699999997,
+                    43.59436870000001
+                  ],
+                  [
+                    -72.1770916,
+                    43.5977977
+                  ],
+                  [
+                    -72.17649999999998,
+                    43.59969870000001
+                  ],
+                  [
+                    -72.17678269999996,
+                    43.6014591
+                  ],
+                  [
+                    -72.1801931,
+                    43.6019206
+                  ],
+                  [
+                    -72.18276619999996,
+                    43.60281250000001
+                  ],
+                  [
+                    -72.1853144,
+                    43.6048422
+                  ]
+                ]
+              ],
+              "type": "Polygon"
+            }
+          }
+        ],
+        "sources": [
+          {
+            "type": "openstreetmap",
+            "id": "way/654539996"
+          }
+        ],
+        "location": null,
+        "websites": [],
+        "id": "4c53e569a9086308b6e757794d588ff04f2c658b"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -72.18220649999998,
+            43.6016538,
+            356.02
+          ],
+          [
+            -72.18244139999996,
+            43.6013476,
+            363.90999999999997
+          ],
+          [
+            -72.18276259999996,
+            43.6009656,
+            377.15000000000003
+          ],
+          [
+            -72.1830906,
+            43.60058530000001,
+            388.54
+          ],
+          [
+            -72.18340169999998,
+            43.6002084,
+            397.66
+          ],
+          [
+            -72.18357409999997,
+            43.59999920000001,
+            401.91999999999996
+          ],
+          [
+            -72.18373209999994,
+            43.59982830000001,
+            405.65000000000003
+          ]
+        ]
+      }
+    }
+  ]
+}

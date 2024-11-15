@@ -63,19 +63,28 @@ def download_openskimap_geojsons() -> None:
         download_openskimap_geojson(name)  # type: ignore [arg-type]
 
 
-@cache
-def load_runs_from_download() -> list[Any]:
-    runs_path = get_openskimap_path("runs")
-    logging.info(f"Loading runs from {runs_path}")
-    opener = lzma.open if runs_path.suffix == ".xz" else open
-    with opener(runs_path) as read_file:
+def load_openskimap_geojson(
+    name: Literal["runs", "ski_areas", "lifts"],
+) -> list[dict[str, Any]]:
+    path = get_openskimap_path(name)
+    logging.info(f"Loading {name} from {path}")
+    # polars cannot decompress xz: https://github.com/pola-rs/polars/pull/18536
+    opener = lzma.open if path.suffix == ".xz" else open
+    with opener(path) as read_file:
         data = json.load(read_file)
     assert data["type"] == "FeatureCollection"
-    runs = data["features"]
-    assert isinstance(runs, list)
-    geometry_types = Counter(run["geometry"]["type"] for run in runs)
-    logging.info(f"Loaded {len(runs):,} runs with geometry types {geometry_types}")
-    return runs
+    features = data["features"]
+    assert isinstance(features, list)
+    geometry_types = Counter(feature["geometry"]["type"] for feature in features)
+    logging.info(
+        f"Loaded {len(features):,} {name} with geometry types {geometry_types}"
+    )
+    return features
+
+
+@cache
+def load_runs_from_download() -> list[Any]:
+    return load_openskimap_geojson("runs")
 
 
 def _structure_coordinates(
@@ -124,22 +133,9 @@ def load_runs_from_download_pl() -> pl.DataFrame:
     return pl.DataFrame(rows, strict=False)
 
 
-def load_ski_areas_from_download() -> list[Any]:
-    ski_areas_path = get_openskimap_path("ski_areas")
-    # polars cannot decompress xz: https://github.com/pola-rs/polars/pull/18536
-    opener = lzma.open if ski_areas_path.suffix == ".xz" else open
-    with opener(ski_areas_path) as read_file:
-        data = json.load(read_file)
-    assert data["type"] == "FeatureCollection"
-    ski_areas = data["features"]
-    assert isinstance(ski_areas, list)
-    logging.info(f"Loaded {len(ski_areas):,} ski areas.")
-    return ski_areas
-
-
 def load_ski_areas_from_download_pl() -> pl.DataFrame:
     return pl.json_normalize(
-        data=[x["properties"] for x in load_ski_areas_from_download()],
+        data=[x["properties"] for x in load_openskimap_geojson("ski_areas")],
         separator="__",
         strict=False,
     ).rename(mapping={"id": "ski_area_id", "name": "ski_area_name"})
@@ -269,7 +265,7 @@ def generate_openskimap_test_data() -> None:
         "type": "FeatureCollection",
         "features": [
             x
-            for x in load_ski_areas_from_download()
+            for x in load_openskimap_geojson("ski_areas")
             if x["properties"]["id"] in test_ski_area_ids
         ],
     }

@@ -76,11 +76,14 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
             "locality",
             "latitude",
             "run_count_filtered",
-            # TODO: lift count
+            "lift_count",
             pl.col("combined_vertical").round(5),
             # FIXME: replace with cleaned run elevation values
-            pl.col("statistics__minElevation").alias("min_elevation"),
-            pl.col("statistics__maxElevation").alias("max_elevation"),
+            pl.col("statistics__minElevation").alias("elevation_base"),
+            pl.col("statistics__maxElevation").alias("elevation_peak"),
+            pl.sql_expr(
+                "statistics__maxElevation - statistics__minElevation AS vertical_drop"
+            ),
             "bearing_mean",
             "bearing_alignment",
             "poleward_affinity",
@@ -334,6 +337,12 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 filter_method=_min_value_filter,
             ),
             reactable.Column(
+                id="lift_count",
+                name="Lifts",
+                filterable=True,
+                filter_method=_min_value_filter,
+            ),
+            reactable.Column(
                 id="combined_vertical",
                 name="Vertical",
                 format=reactable.ColFormat(suffix="m", digits=0, separators=True),
@@ -341,15 +350,22 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 filter_method=_min_value_filter,
             ),
             reactable.Column(
-                id="min_elevation",
+                id="vertical_drop",
+                name="Drop",
+                format=reactable.ColFormat(suffix="m", digits=0, separators=True),
+                filterable=True,
+                show=True,
+            ),
+            reactable.Column(
+                id="elevation_base",
                 name="Base Elev",
                 format=reactable.ColFormat(suffix="m", digits=0, separators=True),
                 filterable=True,
                 filter_method=_min_value_filter,
             ),
             reactable.Column(
-                id="max_elevation",
-                name="Summit Elev",
+                id="elevation_peak",
+                name="Peak Elev",
                 format=reactable.ColFormat(suffix="m", digits=0, separators=True),
                 filterable=True,
                 filter_method=_min_value_filter,
@@ -431,9 +447,11 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Downhill Runs",
                 columns=[
                     "run_count_filtered",
+                    "lift_count",
                     "combined_vertical",
-                    "min_elevation",
-                    "max_elevation",
+                    "elevation_base",
+                    "elevation_peak",
+                    "vertical_drop",
                 ],
             ),
             reactable.ColGroup(

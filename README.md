@@ -75,7 +75,8 @@ List of related webpages:
 - https://en.wikipedia.org/wiki/Aspect_(geography)
 - https://gisgeography.com/aspect-map/
 - https://geoffboeing.com/2018/07/comparing-city-street-orientations/
-
+- https://verticalfeet.com/
+- https://en.wikipedia.org/wiki/Comparison_of_North_American_ski_resorts
 
 ## Wild Ideas
 

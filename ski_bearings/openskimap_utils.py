@@ -102,6 +102,11 @@ def _structure_coordinates(
 
 
 def load_runs_from_download_pl() -> pl.DataFrame:
+    """
+    Load OpenSkiMap runs from their geojson source into a polars DataFrame.
+    Filters for runs with a LineString geometry.
+    Rename columns for project nomenclature.
+    """
     runs = load_runs_from_download()
     rows = []
     for run in runs:
@@ -133,6 +138,32 @@ def load_runs_from_download_pl() -> pl.DataFrame:
     return pl.DataFrame(rows, strict=False)
 
 
+def load_lifts_from_download_pl() -> pl.DataFrame:
+    """
+    Load OpenSkiMap lifts from their geojson source into a polars DataFrame.
+    """
+    lifts = load_openskimap_geojson("lifts")
+    rows = []
+    for lift in lifts:
+        row = {}
+        lift_properties = lift["properties"]
+        row["lift_id"] = lift_properties["id"]
+        row["lift_name"] = lift_properties["name"]
+        # row["lift_uses"] = lift_properties["uses"]
+        row["lift_type"] = lift_properties["liftType"]
+        row["lift_status"] = lift_properties["status"]
+        row["ski_area_ids"] = sorted(
+            ski_area["properties"]["id"] for ski_area in lift_properties["skiAreas"]
+        )
+        row["lift_sources"] = sorted(
+            "{type}:{id}".format(**source) for source in lift_properties["sources"]
+        )
+        row["lift_geometry_type"] = lift["geometry"]["type"]
+        # row["lift_coordinates"] = lift["geometry"]["coordinates"]
+        rows.append(row)
+    return pl.DataFrame(rows, strict=False)
+
+
 def load_ski_areas_from_download_pl() -> pl.DataFrame:
     return pl.json_normalize(
         data=[x["properties"] for x in load_openskimap_geojson("ski_areas")],
@@ -143,6 +174,15 @@ def load_ski_areas_from_download_pl() -> pl.DataFrame:
 
 @cache
 def load_downhill_ski_areas_from_download_pl() -> pl.DataFrame:
+    lift_metrics = (
+        load_lifts_from_download_pl()
+        .explode("ski_area_ids")
+        .rename({"ski_area_ids": "ski_area_id"})
+        .filter(pl.col("ski_area_id").is_not_null())
+        .filter(pl.col("lift_status") == "operating")
+        .group_by("ski_area_id")
+        .agg(pl.col("lift_id").n_unique().alias("lift_count"))
+    )
     return (
         load_ski_areas_from_download_pl()
         .filter(pl.col("type") == "skiArea")
@@ -184,6 +224,7 @@ def load_downhill_ski_areas_from_download_pl() -> pl.DataFrame:
             "statistics__lifts__minElevation",
             "statistics__lifts__maxElevation",
         )
+        .join(lift_metrics, on="ski_area_id", how="left")
     )
 
 

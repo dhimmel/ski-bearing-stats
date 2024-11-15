@@ -136,6 +136,11 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         description="Number of downhill runs in the ski area with supported geometries.",
         ge=0,
     )
+    lift_count: int | None = Field(
+        default=0,
+        description="Number of operating lifts.",
+        ge=0,
+    )
     latitude: float | None = Field(
         description="Latitude of the ski area in decimal degrees.",
         ge=-90,

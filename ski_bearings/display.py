@@ -60,6 +60,9 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
     return (
         load_ski_areas_pl()
         .filter(*get_display_ski_area_filters())
+        .join(cardinal_direction_props, on="ski_area_id", how="left")
+        # inconveniently, order of selection here defines reactable column order
+        # https://github.com/glin/reactable/issues/172
         .select(
             "ski_area_id",
             "ski_area_name",
@@ -73,14 +76,18 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
             "locality",
             "latitude",
             "run_count_filtered",
+            # TODO: lift count
             pl.col("combined_vertical").round(5),
+            # FIXME: replace with cleaned run elevation values
+            pl.col("statistics__minElevation").alias("min_elevation"),
+            pl.col("statistics__maxElevation").alias("max_elevation"),
             "bearing_mean",
             "bearing_alignment",
             "poleward_affinity",
             "eastward_affinity",
+            pl.selectors.starts_with("bin_proportion_"),
             pl.format("""<img src="ski_areas/{}.svg">""", "ski_area_id").alias("rose"),
         )
-        .join(cardinal_direction_props, on="ski_area_id", how="left")
         .sort("ski_area_name")
     )
 
@@ -334,6 +341,20 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 filter_method=_min_value_filter,
             ),
             reactable.Column(
+                id="min_elevation",
+                name="Base Elev",
+                format=reactable.ColFormat(suffix="m", digits=0, separators=True),
+                filterable=True,
+                filter_method=_min_value_filter,
+            ),
+            reactable.Column(
+                id="max_elevation",
+                name="Summit Elev",
+                format=reactable.ColFormat(suffix="m", digits=0, separators=True),
+                filterable=True,
+                filter_method=_min_value_filter,
+            ),
+            reactable.Column(
                 id="bearing_mean",
                 name="Azimuth",
                 # format=reactable.ColFormat(suffix="°", digits=0),
@@ -389,6 +410,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="rose",
                 name="Rose",
                 html=True,
+                sortable=False,
                 # max_width=45,
             ),
         ],
@@ -407,7 +429,12 @@ def get_ski_area_reactable() -> reactable.Reactable:
             ),
             reactable.ColGroup(
                 name="Downhill Runs",
-                columns=["run_count_filtered", "combined_vertical"],
+                columns=[
+                    "run_count_filtered",
+                    "combined_vertical",
+                    "min_elevation",
+                    "max_elevation",
+                ],
             ),
             reactable.ColGroup(
                 name="Mean Bearing",

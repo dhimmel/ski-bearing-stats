@@ -21,9 +21,7 @@ pyarrow = "^17.0"
 typer = {extras = ["all"], version = "^0.12.0"}
 plotly = "^5.20.0"
 lets-plot = "^4.3.1"
-# installing from main until pinned polars version is released
-# https://github.com/JakobGM/patito/issues/105
-patito = {git = "https://github.com/JakobGM/patito.git", rev = "main"}
+patito = "^0.8.2"
 svgpath2mpl = "^1.0.0"
 itables = "^2.2.3"
 reactable = "^0.1.2"

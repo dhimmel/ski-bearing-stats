@@ -33,14 +33,20 @@ def add_spatial_metric_columns(
             .over(partition_by, order_by="index"),
         )
         .with_columns(
-            elevation_delta=pl.col("elevation_lag") - pl.col("elevation"),
+            distance_vertical=pl.col("elevation_lag") - pl.col("elevation"),
             _coord_struct=pl.struct(
-                "latitude_lag", "longitude_lag", "latitude", "longitude"
+                "latitude_lag",
+                "longitude_lag",
+                "latitude",
+                "longitude",
             ),
         )
         .with_columns(
-            vertical=pl.col("elevation_delta").clip(lower_bound=0),
-            distance=pl.col("_coord_struct").map_batches(
+            segment_hash=pl.when(pl.col("latitude_lag").is_not_null()).then(
+                pl.col("_coord_struct").hash(seed=0)
+            ),
+            distance_vertical_drop=pl.col("distance_vertical").clip(lower_bound=0),
+            distance_horizontal=pl.col("_coord_struct").map_batches(
                 lambda x: great_circle(
                     lat1=x.struct.field("latitude_lag"),
                     lon1=x.struct.field("longitude_lag"),
@@ -48,6 +54,11 @@ def add_spatial_metric_columns(
                     lon2=x.struct.field("longitude"),
                 )
             ),
+        )
+        .with_columns(
+            distance_3d=(
+                pl.col("distance_horizontal") ** 2 + pl.col("distance_vertical") ** 2
+            ).sqrt(),
             bearing=pl.col("_coord_struct").map_batches(
                 lambda x: calculate_bearing(
                     lat1=x.struct.field("latitude_lag"),
@@ -56,6 +67,12 @@ def add_spatial_metric_columns(
                     lon2=x.struct.field("longitude"),
                 )
             ),
+            gradient=pl.when(pl.col("distance_horizontal") > 0)
+            .then(pl.col("distance_vertical"))
+            .truediv("distance_horizontal"),
+        )
+        .with_columns(
+            slope=pl.col("gradient").arctan().degrees(),
         )
         .drop("latitude_lag", "longitude_lag", "elevation_lag", "_coord_struct")
     )

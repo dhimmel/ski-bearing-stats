@@ -7,6 +7,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from patito.exceptions import DataFrameValidationError
 
 from ski_bearings.bearing import (
+    add_spatial_metric_columns,
     get_bearing_distributions_df,
     get_bearing_summary_stats,
 )
@@ -35,7 +36,18 @@ def process_and_export_runs() -> None:
     """
     Process and export runs from OpenSkiMap.
     """
-    runs_df = load_runs_from_download_pl()
+    runs_df = load_runs_from_download_pl().lazy()
+    coords_df = (
+        runs_df.select("run_id", "run_coordinates_clean")
+        .explode("run_coordinates_clean")
+        .unnest("run_coordinates_clean")
+        .pipe(add_spatial_metric_columns, partition_by="run_id")
+        .group_by("run_id")
+        .agg(run_coordinates_clean=pl.struct(pl.exclude("run_id")))
+    )
+    runs_df = (
+        runs_df.drop("run_coordinates_clean").join(coords_df, on="run_id").collect()
+    )
     runs_path = get_runs_parquet_path()
     logging.info(f"Writing {len(runs_df):,} runs to {runs_path}")
     runs_df.write_parquet(runs_path)

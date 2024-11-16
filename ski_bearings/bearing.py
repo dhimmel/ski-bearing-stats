@@ -115,6 +115,77 @@ bearing_labels = {
 """Bearing labels for 32-wind compass rose."""
 
 
+def get_bearing_histogram_df(
+    bearings: npt.NDArray[np.float64],
+    weights: npt.NDArray[np.float64],
+) -> pl.DataFrame:
+    """
+    Get the bearing distribution of a graph as a DataFrame.
+    """
+    bins = [2, 4, 8, 32]
+    return pl.concat(
+        [
+            get_bearing_histogram(bearings=bearings, weights=weights, num_bins=num_bins)
+            for num_bins in bins
+        ],
+        how="vertical",
+    )
+
+
+def get_bearing_histogram(
+    bearings: npt.NDArray[np.float64],
+    weights: npt.NDArray[np.float64],
+    num_bins: int,
+) -> pl.DataFrame:
+    """
+    Modified from osmnx.bearing._bearings_distribution to accept non-graph input.
+    Compute distribution of bearings across evenly spaced bins.
+
+    Prevents bin-edge effects around common values like 0 degrees and 90
+    degrees by initially creating twice as many bins as desired, then merging
+    them in pairs. For example, if `num_bins=36` is provided, then each bin
+    will represent 10 degrees around the compass, with the first bin
+    representing 355 degrees to 5 degrees.
+    """
+    # Split bins in half to prevent bin-edge effects around common values.
+    # Bins will be merged in pairs after the histogram is computed. The last
+    # bin edge is the same as the first (i.e., 0 degrees = 360 degrees).
+    num_split_bins = num_bins * 2
+    split_bin_edges = np.arange(num_split_bins + 1) * 360 / num_split_bins
+
+    split_bin_counts, split_bin_edges = np.histogram(
+        bearings,
+        bins=split_bin_edges,
+        weights=weights,
+    )
+
+    # Move last bin to front, so eg 0.01 degrees and 359.99 degrees will be
+    # binned together. Then combine counts from pairs of split bins.
+    split_bin_counts = np.roll(split_bin_counts, 1)
+    bin_counts = split_bin_counts[::2] + split_bin_counts[1::2]
+
+    # Every other edge of the split bins is the center of a merged bin.
+    bin_centers = split_bin_edges[range(0, num_split_bins - 1, 2)]
+    return (
+        pl.DataFrame(
+            {
+                "bin_center": bin_centers,
+                "bin_count": bin_counts,
+            }
+        )
+        .with_columns(
+            bin_proportion=pl.col("bin_count") / pl.sum("bin_count").over(pl.lit(True))
+        )
+        .with_columns(pl.lit(num_bins).alias("num_bins"))
+        .with_columns(
+            pl.col("bin_center")
+            .replace_strict(bearing_labels, default=None)
+            .alias("bin_label")
+        )
+        .with_row_index(name="bin_index", offset=1)
+    )
+
+
 def get_bearing_distributions_df(graph: nx.MultiDiGraph) -> pl.DataFrame:
     """
     Get the bearing distribution of a graph as a DataFrame.

@@ -9,6 +9,7 @@ from patito.exceptions import DataFrameValidationError
 from ski_bearings.bearing import (
     add_spatial_metric_columns,
     get_bearing_distributions_df,
+    get_bearing_histogram_df,
     get_bearing_summary_stats,
 )
 from ski_bearings.models import BearingStatsModel, SkiAreaModel
@@ -89,6 +90,14 @@ def analyze_all_ski_areas_polars(skip_runs: bool = False) -> pl.LazyFrame:
                 pl.col("distance_vertical_drop").alias("bearing_magnitude_cum"),
                 "hemisphere",
             ).map_batches(_get_bearing_summary_stats_pl, returns_scalar=True),
+            # do we need to filter nulls?
+            bearings=pl.struct("bearing", "distance_vertical_drop").map_batches(
+                lambda x: get_bearing_histogram_df(
+                    bearings=x.struct.field("bearing").to_numpy(),
+                    weights=x.struct.field("distance_vertical_drop").to_numpy(),
+                ),
+                returns_scalar=True,
+            ),
         )
         .unnest("_bearing_stats")
     )

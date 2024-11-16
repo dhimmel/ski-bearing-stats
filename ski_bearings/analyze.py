@@ -53,6 +53,48 @@ def process_and_export_runs() -> None:
     runs_df.write_parquet(runs_path)
 
 
+def analyze_all_ski_areas_polars(skip_runs: bool = False) -> pl.LazyFrame:
+    if not skip_runs:
+        process_and_export_runs()
+    ski_area_df = load_downhill_ski_areas_from_download_pl().lazy()
+    ski_area_run_metrics_df = (
+        load_runs_pl()
+        .lazy()
+        .filter(pl.col("run_uses").list.contains("downhill"))
+        .explode("ski_area_ids")
+        .rename({"ski_area_ids": "ski_area_id"})
+        .filter(pl.col("ski_area_id").is_not_null())
+        .explode("run_coordinates_clean")
+        .unnest("run_coordinates_clean")
+        .with_columns(
+            hemisphere=pl.when(pl.col("latitude").gt(0))
+            .then(pl.lit("north"))
+            .otherwise(pl.lit("south")),
+        )
+        .group_by("ski_area_id")
+        .agg(
+            min_elevation=pl.col("elevation").min(),
+            max_elevation=pl.col("elevation").max(),
+            run_count_filtered=pl.col("run_id").n_unique(),
+            coordinate_count=pl.len(),
+            segment_count=pl.count("segment_hash"),
+            combined_vertical=pl.col("distance_vertical_drop").sum(),
+            combined_distance=pl.col("distance_3d").sum(),
+            latitude=pl.col("latitude").mean(),
+            longitude=pl.col("longitude").mean(),
+            hemisphere=pl.first("hemisphere"),
+            _bearing_stats=pl.struct(
+                "bearing",
+                pl.col("distance_vertical_drop").alias("bearing_magnitude_net"),
+                pl.col("distance_vertical_drop").alias("bearing_magnitude_cum"),
+                "hemisphere",
+            ).map_batches(_get_bearing_summary_stats_pl, returns_scalar=True),
+        )
+        .unnest("_bearing_stats")
+    )
+    return ski_area_df.join(ski_area_run_metrics_df, on="ski_area_id", how="left")
+
+
 def analyze_all_ski_areas(skip_runs: bool = False) -> None:
     """
     Analyze ski areas to create a table of ski areas and their metrics
@@ -65,7 +107,7 @@ def analyze_all_ski_areas(skip_runs: bool = False) -> None:
 
     ski_area_df = load_downhill_ski_areas_from_download_pl()
     ski_area_metadatas = {x["ski_area_id"]: x for x in ski_area_df.to_dicts()}
-    ski_area_to_runs = get_ski_area_to_runs(runs_pl=load_runs_pl())
+    ski_area_to_runs = get_ski_area_to_runs(runs_pl=load_runs_pl().collect())
     bearing_dist_dfs = []
     ski_area_metrics = []
     for ski_area_id, ski_area_metadata in ski_area_metadatas.items():
@@ -103,10 +145,10 @@ def analyze_all_ski_areas(skip_runs: bool = False) -> None:
     ski_area_metrics_df.write_parquet(ski_area_metrics_path)
 
 
-def load_runs_pl() -> pl.DataFrame:
+def load_runs_pl() -> pl.LazyFrame:
     path = get_runs_parquet_path()
     logging.info(f"Loading ski area metrics from {path}")
-    return pl.read_parquet(source=path)
+    return pl.scan_parquet(source=path)
 
 
 def load_ski_areas_pl(ski_area_filters: list[pl.Expr] | None = None) -> pl.DataFrame:
@@ -144,7 +186,7 @@ def _get_bearing_summary_stats_pl(struct_series: pl.Series) -> BearingStatsModel
     except ValueError:
         hemisphere = None
     return get_bearing_summary_stats(
-        bearings=df.get_column("bearing_mean").to_numpy(),
+        bearings=df.get_column("bearing").to_numpy(),
         net_magnitudes=df.get_column("bearing_magnitude_net").to_numpy(),
         cum_magnitudes=df.get_column("bearing_magnitude_cum").to_numpy(),
         hemisphere=hemisphere,
@@ -184,8 +226,7 @@ def aggregate_ski_areas_pl(
             longitude=pl.mean("longitude"),
             combined_vertical=pl.sum("combined_vertical"),
             _bearing_stats=pl.struct(
-                "bearing_mean",
-                "bearing_alignment",
+                pl.col("bearing_mean").alias("bearing"),
                 "bearing_magnitude_net",
                 "bearing_magnitude_cum",
                 "hemisphere",

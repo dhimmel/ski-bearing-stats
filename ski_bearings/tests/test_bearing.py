@@ -148,7 +148,7 @@ def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     analyze_all_ski_areas()
     # aggregate all runs at once
     # we cannot create networkx graph directly from all runs because get_ski_area_to_runs performs some filtering
-    ski_area_to_runs = get_ski_area_to_runs(runs_pl=load_runs_pl())
+    ski_area_to_runs = get_ski_area_to_runs(runs_pl=load_runs_pl().collect())
     all_runs_filtered = list(itertools.chain.from_iterable(ski_area_to_runs.values()))
     assert len(all_runs_filtered) > 0
     combined_graph = create_networkx_with_metadata(

@@ -5,8 +5,61 @@ import numpy as np
 import numpy.typing as npt
 import osmnx
 import polars as pl
+from osmnx.bearing import calculate_bearing
+from osmnx.distance import great_circle
 
 from ski_bearings.models import BearingStatsModel
+
+
+def add_spatial_metric_columns(
+    df: pl.DataFrame | pl.LazyFrame, partition_by: str | list[str]
+) -> pl.LazyFrame:
+    """
+    Add spatial metrics to a DataFrame of geographic coordinates.
+    """
+    for column in ["index", "latitude", "longitude", "elevation"]:
+        assert column in df
+    return (
+        df.lazy()
+        .with_columns(
+            latitude_lag=pl.col("latitude")
+            .shift(1)
+            .over(partition_by, order_by="index"),
+            longitude_lag=pl.col("longitude")
+            .shift(1)
+            .over(partition_by, order_by="index"),
+            elevation_lag=pl.col("elevation")
+            .shift(1)
+            .over(partition_by, order_by="index"),
+        )
+        .with_columns(
+            elevation_delta=pl.col("elevation_lag") - pl.col("elevation"),
+            _coord_struct=pl.struct(
+                "latitude_lag", "longitude_lag", "latitude", "longitude"
+            ),
+        )
+        .with_columns(
+            vertical=pl.col("elevation_delta").clip(lower_bound=0),
+            distance=pl.col("_coord_struct").map_batches(
+                lambda x: great_circle(
+                    lat1=x.struct.field("latitude_lag"),
+                    lon1=x.struct.field("longitude_lag"),
+                    lat2=x.struct.field("latitude"),
+                    lon2=x.struct.field("longitude"),
+                )
+            ),
+            bearing=pl.col("_coord_struct").map_batches(
+                lambda x: calculate_bearing(
+                    lat1=x.struct.field("latitude_lag"),
+                    lon1=x.struct.field("longitude_lag"),
+                    lat2=x.struct.field("latitude"),
+                    lon2=x.struct.field("longitude"),
+                )
+            ),
+        )
+        .drop("latitude_lag", "longitude_lag", "elevation_lag", "_coord_struct")
+    )
+
 
 bearing_labels = {
     0.0: "N",

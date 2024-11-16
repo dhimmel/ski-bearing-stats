@@ -31,6 +31,16 @@ def get_runs_parquet_path(testing: bool = False) -> Path:
     return get_data_directory(testing=testing).joinpath("runs.parquet")
 
 
+def process_and_export_runs() -> None:
+    """
+    Process and export runs from OpenSkiMap.
+    """
+    runs_df = load_runs_from_download_pl()
+    runs_path = get_runs_parquet_path()
+    logging.info(f"Writing {len(runs_df):,} runs to {runs_path}")
+    runs_df.write_parquet(runs_path)
+
+
 def analyze_all_ski_areas(skip_runs: bool = False) -> None:
     """
     Analyze ski areas to create a table of ski areas and their metrics
@@ -39,11 +49,7 @@ def analyze_all_ski_areas(skip_runs: bool = False) -> None:
     Write data as parquet.
     """
     if not skip_runs:
-        runs_df = load_runs_from_download_pl()
-        runs_path = get_runs_parquet_path()
-        logging.info(f"Writing {runs_path}")
-        runs_df.write_parquet(runs_path)
-        del runs_df
+        process_and_export_runs()
 
     ski_area_df = load_downhill_ski_areas_from_download_pl()
     ski_area_metadatas = {x["ski_area_id"]: x for x in ski_area_df.to_dicts()}

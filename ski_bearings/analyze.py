@@ -124,7 +124,7 @@ def analyze_all_ski_areas_polars(skip_runs: bool = False) -> None:
 
 def load_runs_pl() -> pl.LazyFrame:
     path = get_runs_parquet_path()
-    logging.info(f"Loading ski area metrics from {path}")
+    logging.info(f"Loading runs metrics from {path}")
     return pl.scan_parquet(source=path)
 
 
@@ -199,6 +199,9 @@ def aggregate_ski_areas_pl(
             ski_areas_count=pl.n_unique("ski_area_id"),
             country_count=pl.n_unique("country"),
             run_count=pl.sum("run_count"),
+            lift_count=pl.sum("lift_count"),
+            min_elevation=pl.min("min_elevation"),
+            max_elevation=pl.max("max_elevation"),
             latitude=pl.mean("latitude"),
             longitude=pl.mean("longitude"),
             combined_vertical=pl.sum("combined_vertical"),

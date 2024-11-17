@@ -17,6 +17,9 @@ poetry run ski_bearings download
 
 # extract ski area metadata and metrics
 poetry run ski_bearings analyze
+
+poetry run ski_bearings visualize
+poetry run ski_bearings display
 ```
 
 Commands that you will have to run less frequently:

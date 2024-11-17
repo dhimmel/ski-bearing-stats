@@ -76,8 +76,6 @@ def analyze_all_ski_areas_polars(skip_runs: bool = False) -> None:
         )
         .group_by("ski_area_id")
         .agg(
-            min_elevation=pl.col("elevation").min(),
-            max_elevation=pl.col("elevation").max(),
             run_count=pl.col("run_id").n_unique(),
             coordinate_count=pl.len(),
             segment_count=pl.count("segment_hash"),
@@ -85,6 +83,8 @@ def analyze_all_ski_areas_polars(skip_runs: bool = False) -> None:
             combined_distance=pl.col("distance_3d").sum(),
             latitude=pl.col("latitude").mean(),
             longitude=pl.col("longitude").mean(),
+            min_elevation=pl.col("elevation").min(),
+            max_elevation=pl.col("elevation").max(),
             hemisphere=pl.first("hemisphere"),
             _bearing_stats=pl.struct(
                 "bearing",
@@ -200,12 +200,15 @@ def aggregate_ski_areas_pl(
             ski_areas_count=pl.n_unique("ski_area_id"),
             country_count=pl.n_unique("country"),
             run_count=pl.sum("run_count"),
+            coordinate_count=pl.sum("coordinate_count"),
+            segment_count=pl.sum("segment_count"),
             lift_count=pl.sum("lift_count"),
+            combined_vertical=pl.sum("combined_vertical"),
+            combined_distance=pl.sum("combined_distance"),
             min_elevation=pl.min("min_elevation"),
             max_elevation=pl.max("max_elevation"),
             latitude=pl.mean("latitude"),
             longitude=pl.mean("longitude"),
-            combined_vertical=pl.sum("combined_vertical"),
             _bearing_stats=pl.struct(
                 pl.col("bearing_mean").alias("bearing"),
                 "bearing_magnitude_net",
@@ -226,6 +229,7 @@ def aggregate_ski_area_bearing_dists_pl(
     return (
         load_ski_areas_pl(ski_area_filters=ski_area_filters)
         .explode("bearings")
+        .filter(pl.col("bearings").is_not_null())
         .unnest("bearings")
         .group_by(*group_by, "num_bins", "bin_index")
         .agg(
@@ -234,9 +238,16 @@ def aggregate_ski_area_bearing_dists_pl(
             bin_label=pl.first("bin_label"),
         )
         .with_columns(
-            bin_proportion=pl.col("bin_count")
-            / pl.sum("bin_count").over(*group_by, "num_bins"),
+            bin_count_total=pl.sum("bin_count").over(*group_by, "num_bins"),
         )
+        # nan values are not helpful here when bin_count_total is 0
+        # Instead, set bin_proportion to 0, although setting to null could also make sense
+        .with_columns(
+            bin_proportion=pl.when(pl.col("bin_count_total") > 0)
+            .then(pl.col("bin_count").truediv("bin_count_total"))
+            .otherwise(0.0)
+        )
+        .drop("bin_count_total")
         .sort(*group_by, "num_bins", "bin_center")
     )
 

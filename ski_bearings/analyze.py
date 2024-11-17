@@ -8,18 +8,13 @@ from patito.exceptions import DataFrameValidationError
 
 from ski_bearings.bearing import (
     add_spatial_metric_columns,
-    get_bearing_distributions_df,
-    get_bearing_histogram_df,
+    get_bearing_histograms,
     get_bearing_summary_stats,
 )
 from ski_bearings.models import BearingStatsModel, SkiAreaModel
 from ski_bearings.openskimap_utils import (
-    get_ski_area_to_runs,
     load_downhill_ski_areas_from_download_pl,
     load_runs_from_download_pl,
-)
-from ski_bearings.osmnx_utils import (
-    create_networkx_with_metadata,
 )
 from ski_bearings.plot import plot_orientation, subplot_orientations
 from ski_bearings.utils import get_data_directory
@@ -99,7 +94,7 @@ def analyze_all_ski_areas_polars(skip_runs: bool = False) -> None:
             ).map_batches(_get_bearing_summary_stats_pl, returns_scalar=True),
             # do we need to filter nulls?
             bearings=pl.struct("bearing", "distance_vertical_drop").map_batches(
-                lambda x: get_bearing_histogram_df(
+                lambda x: get_bearing_histograms(
                     bearings=x.struct.field("bearing"),
                     weights=x.struct.field("distance_vertical_drop"),
                 ).to_struct(),
@@ -117,56 +112,6 @@ def analyze_all_ski_areas_polars(skip_runs: bool = False) -> None:
             ]
         )
         .collect()
-    )
-    try:
-        SkiAreaModel.validate(ski_area_metrics_df, allow_superfluous_columns=True)
-    except DataFrameValidationError as exc:
-        logging.error(f"SkiAreaModel.validate failed with {exc}")
-    ski_area_metrics_path = get_ski_area_metrics_path()
-    logging.info(f"Writing {ski_area_metrics_path}")
-    ski_area_metrics_df.write_parquet(ski_area_metrics_path)
-
-
-def analyze_all_ski_areas(skip_runs: bool = False) -> None:
-    """
-    Analyze ski areas to create a table of ski areas and their metrics
-    including bearing distributions.
-    Keyed on ski_area_id.
-    Write data as parquet.
-    """
-    if not skip_runs:
-        process_and_export_runs()
-
-    ski_area_df = load_downhill_ski_areas_from_download_pl()
-    ski_area_metadatas = {x["ski_area_id"]: x for x in ski_area_df.to_dicts()}
-    ski_area_to_runs = get_ski_area_to_runs(runs_pl=load_runs_pl().collect())
-    bearing_dist_dfs = []
-    ski_area_metrics = []
-    for ski_area_id, ski_area_metadata in ski_area_metadatas.items():
-        logging.info(
-            f"Analyzing {ski_area_id} named {ski_area_metadata['ski_area_name']}"
-        )
-        ski_area_runs = ski_area_to_runs.get(ski_area_id, [])
-        ski_area_metadata = ski_area_metadatas[ski_area_id]
-        graph = create_networkx_with_metadata(
-            runs=ski_area_runs, ski_area_metadata=ski_area_metadata
-        )
-        ski_area_metrics.append(graph.graph)
-        bearing_dist_df = get_bearing_distributions_df(graph).select(
-            pl.lit(ski_area_id).alias("ski_area_id"),
-            pl.all(),
-        )
-        bearing_dist_dfs.append(bearing_dist_df)
-    logging.info("Creating ski area metrics dataframe with bearing distributions.")
-    bearing_dist_df = (
-        pl.concat(bearing_dist_dfs, how="vertical_relaxed")
-        .group_by("ski_area_id")
-        .agg(pl.struct(pl.exclude("ski_area_id")).alias("bearings"))
-    )
-    ski_area_metrics_df = (
-        pl.DataFrame(data=ski_area_metrics)
-        .with_columns(websites=pl.col("websites").list.drop_nulls())
-        .join(bearing_dist_df, on="ski_area_id", how="left")
     )
     try:
         SkiAreaModel.validate(ski_area_metrics_df, allow_superfluous_columns=True)

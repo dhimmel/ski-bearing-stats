@@ -1,9 +1,7 @@
 from typing import Literal
 
-import networkx as nx
 import numpy as np
 import numpy.typing as npt
-import osmnx
 import polars as pl
 from osmnx.bearing import calculate_bearing
 from osmnx.distance import great_circle
@@ -115,14 +113,15 @@ bearing_labels = {
 """Bearing labels for 32-wind compass rose."""
 
 
-def get_bearing_histogram_df(
+def get_bearing_histograms(
     bearings: npt.NDArray[np.float64],
     weights: npt.NDArray[np.float64],
 ) -> pl.DataFrame:
     """
-    Get the bearing distribution of a graph as a DataFrame.
+    Get the bearing distributions of a graph as a pl.DataFrame.
+    Returns multiple bearing histograms, one for each value in the the `num_bins` column.
     """
-    bins = [2, 4, 8, 32]
+    bins = [2, 4, 8, 16, 32]
     return pl.concat(
         [
             get_bearing_histogram(bearings=bearings, weights=weights, num_bins=num_bins)
@@ -139,6 +138,7 @@ def get_bearing_histogram(
 ) -> pl.DataFrame:
     """
     Modified from osmnx.bearing._bearings_distribution to accept non-graph input.
+    Source at https://github.com/gboeing/osmnx/blob/v2.0.0rc2/osmnx/bearing.py#L240-L296.
     Compute distribution of bearings across evenly spaced bins.
 
     Prevents bin-edge effects around common values like 0 degrees and 90
@@ -166,51 +166,6 @@ def get_bearing_histogram(
 
     # Every other edge of the split bins is the center of a merged bin.
     bin_centers = split_bin_edges[range(0, num_split_bins - 1, 2)]
-    return (
-        pl.DataFrame(
-            {
-                "bin_center": bin_centers,
-                "bin_count": bin_counts,
-            }
-        )
-        .with_columns(
-            bin_proportion=pl.col("bin_count") / pl.sum("bin_count").over(pl.lit(True))
-        )
-        .with_columns(pl.lit(num_bins).alias("num_bins"))
-        .with_columns(
-            pl.col("bin_center")
-            .replace_strict(bearing_labels, default=None)
-            .alias("bin_label")
-        )
-        .with_row_index(name="bin_index", offset=1)
-    )
-
-
-def get_bearing_distributions_df(graph: nx.MultiDiGraph) -> pl.DataFrame:
-    """
-    Get the bearing distribution of a graph as a DataFrame.
-    """
-    bins = [2, 4, 8, 32]
-    return pl.concat(
-        [get_bearing_distribution_df(graph, num_bins=num_bins) for num_bins in bins],
-        how="vertical",
-    )
-
-
-def get_bearing_distribution_df(graph: nx.MultiDiGraph, num_bins: int) -> pl.DataFrame:
-    """
-    Get the bearing distribution of a graph as a DataFrame.
-    """
-    from ski_bearings.osmnx_utils import suppress_user_warning
-
-    with suppress_user_warning():
-        bin_counts, bin_centers = osmnx.bearing._bearings_distribution(
-            graph,
-            num_bins=num_bins,
-            min_length=0,
-            weight="vertical",
-        )
-    # polars make dataframe from bin_counts, and bin_centers
     return (
         pl.DataFrame(
             {

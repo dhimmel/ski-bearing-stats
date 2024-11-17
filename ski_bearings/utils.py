@@ -6,6 +6,10 @@ test_data_directory = Path(__file__).parent.joinpath("tests", "data")
 
 
 def get_data_directory(testing: bool = False) -> Path:
-    if testing or "PYTEST_CURRENT_TEST" in os.environ:
-        return test_data_directory
-    return data_directory
+    directory = (
+        test_data_directory
+        if testing or "PYTEST_CURRENT_TEST" in os.environ
+        else data_directory
+    )
+    directory.mkdir(exist_ok=True)
+    return directory

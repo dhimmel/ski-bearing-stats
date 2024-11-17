@@ -12,7 +12,7 @@ import polars as pl
 import requests
 
 from ski_bearings.models import RunCoordinateModel
-from ski_bearings.utils import data_directory, test_data_directory
+from ski_bearings.utils import get_data_directory
 
 
 class SkiRunDifficulty(StrEnum):
@@ -29,17 +29,21 @@ class SkiRunDifficulty(StrEnum):
 def get_openskimap_path(
     name: Literal["runs", "ski_areas", "lifts"], testing: bool = False
 ) -> Path:
-    if testing or "PYTEST_CURRENT_TEST" in os.environ:
-        return test_data_directory.joinpath(f"{name}.geojson")
-    return data_directory.joinpath(f"{name}.geojson.xz")
+    directory = get_data_directory().joinpath("openskimap")
+    directory.mkdir(exist_ok=True)
+    filename = (
+        f"{name}.geojson"
+        if testing or "PYTEST_CURRENT_TEST" in os.environ
+        else f"{name}.geojson.xz"
+    )
+    return directory.joinpath(filename)
 
 
 def download_openskimap_geojson(name: Literal["runs", "ski_areas", "lifts"]) -> None:
     """Download a single geojson file from OpenSkiMap and save it to disk with compression."""
-    if not data_directory.exists():
-        data_directory.mkdir()
     url = f"https://tiles.openskimap.org/geojson/{name}.geojson"
     path = get_openskimap_path(name)
+    path.parent.mkdir(exist_ok=True)
     logging.info(f"Downloading {url} to {path}")
     headers = {
         "From": "https://github.com/dhimmel/ski-bearing-stats",

@@ -195,6 +195,36 @@ def _mpl_add_polar_margin_text(
     )
 
 
+def _generate_margin_text(group_info: dict[str, Any]) -> dict[MarginTextLocation, str]:
+    # ideas for margin text
+    # top-left: ski areas, country, trail, lift count
+    # top-right: total skiable vertical
+    # bottom-left: poleward affinity/tendency, polar affinity
+    # bottom-right: total trail length and average pitch or max elevation
+    margin_text = {}
+    if {"ski_areas_count", "run_count_filtered"}.issubset(group_info):
+        margin_text[MarginTextLocation.top_left] = (
+            f"{group_info["ski_areas_count"]:,} ski areas,\n{group_info["run_count_filtered"]:,} runs"
+        )
+    elif {"run_count_filtered", "lift_count"}.issubset(group_info):
+        margin_text[MarginTextLocation.top_left] = (
+            f"{group_info["run_count_filtered"]:,} runs,\n{group_info["lift_count"]:,} lifts"
+        )
+    if "combined_vertical" in group_info:
+        margin_text[MarginTextLocation.top_right] = (
+            f"{group_info["combined_vertical"]:,.0f}m\nskiable\nvert"
+        )
+    if {"poleward_affinity", "eastward_affinity"}.issubset(group_info):
+        margin_text[MarginTextLocation.bottom_left] = (
+            f"affinity:\n{group_info['poleward_affinity']:.0%} poleward\n{group_info['eastward_affinity']:.0%} eastward"
+        )
+    if {"min_elevation", "max_elevation"}.issubset(group_info):
+        margin_text[MarginTextLocation.bottom_right] = (
+            f"elevation:\n{group_info['min_elevation']:,.0f}m base\n{group_info['max_elevation']:,.0f}m peak"
+        )
+    return margin_text
+
+
 def subplot_orientations(
     groups_pl: pl.DataFrame,
     grouping_col: str,
@@ -251,24 +281,7 @@ def subplot_orientations(
         group_info = groups_pl.row(
             by_predicate=pl.col(grouping_col) == name, named=True
         )
-        # ideas for margin text
-        # top-left: ski areas, country, trail, lift count
-        # top-right: total skiable vertical
-        # bottom-left: poleward affinity/tendency, polar affinity
-        # bottom-right: total trail length and average pitch or max elevation
-        margin_text = {}
-        if {"ski_areas_count", "run_count_filtered"}.issubset(group_info):
-            margin_text[MarginTextLocation.top_left] = (
-                f"{group_info["ski_areas_count"]:,} ski areas,\n{group_info["run_count_filtered"]:,} runs"
-            )
-        if "combined_vertical" in group_info:
-            margin_text[MarginTextLocation.top_right] = (
-                f"{group_info["combined_vertical"]:,.0f}m\nskiable\nvert"
-            )
-        if {"poleward_affinity", "eastward_affinity"}.issubset(group_info):
-            margin_text[MarginTextLocation.bottom_left] = (
-                f"affinity:\n{group_info['poleward_affinity']:.0%} poleward\n{group_info['eastward_affinity']:.0%} eastward"
-            )
+        margin_text = _generate_margin_text(group_info)
         group_dist_pl = dists_pl.filter(pl.col(grouping_col) == name)
         fig, ax = plot_orientation(
             bin_counts=group_dist_pl.get_column("bin_count").to_numpy(),

@@ -140,13 +140,12 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         description="ISO 3166-2 code for principal subdivision (e.g., province or state) of the country.",
         examples=["US-NH", "JP-01", "FR-ARA"],
     )
-    # Validation fails on an empty list https://github.com/JakobGM/patito/issues/103
-    ski_area_websites: list[str | None] = Field(
+    ski_area_websites: list[str] | None = Field(
         description="List of URLs for the ski area.",
         examples=["https://www.blackmt.com/"],
     )
     ski_area_sources: Annotated[
-        list[str | None],
+        list[str] | None,
         Field(
             description="List of sources for the ski area from OpenSkiMap.",
             examples=["openstreetmap:relation/2873910", "skimap.org:17533"],
@@ -178,11 +177,9 @@ class SkiAreaModel(Model):  # type: ignore [misc]
     combined_vertical: float | None = Field(
         description="Total vertical drop of the ski area in meters.",
     )
-    # https://github.com/pydantic/pydantic/issues/1010#issuecomment-1009747056
     for field_name in BearingStatsModel.model_fields:
         __annotations__[field_name] = BearingStatsModel.__annotations__[field_name]
     del field_name
-    # https://github.com/JakobGM/patito/issues/104
-    # bearings: list[SkiAreaBearingDistributionModel] = Field(
-    #     description="Bearing distribution of the ski area.",
-    # )
+    bearings: list[SkiAreaBearingDistributionModel] | None = Field(
+        description="Bearing histogram/distribution of the ski area.",
+    )

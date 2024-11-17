@@ -66,7 +66,7 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
         .select(
             "ski_area_id",
             "ski_area_name",
-            "status",
+            "osm_status",
             pl.col("country_code")
             .map_elements(country_code_to_emoji, return_dtype=pl.String)
             .alias("country_emoji"),
@@ -75,15 +75,13 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
             "region",
             "locality",
             "latitude",
-            "run_count_filtered",
+            "run_count",
             "lift_count",
             pl.col("combined_vertical").round(5),
             # FIXME: replace with cleaned run elevation values
-            pl.col("statistics__minElevation").alias("elevation_base"),
-            pl.col("statistics__maxElevation").alias("elevation_peak"),
-            pl.sql_expr(
-                "statistics__maxElevation - statistics__minElevation AS vertical_drop"
-            ),
+            pl.col("min_elevation").alias("elevation_base"),
+            pl.col("max_elevation").alias("elevation_peak"),
+            pl.sql_expr("max_elevation - min_elevation AS vertical_drop"),
             "bearing_mean",
             "bearing_alignment",
             "poleward_affinity",
@@ -292,7 +290,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 sticky="left",  # makes entire group sticky
             ),
             reactable.Column(
-                id="status",
+                id="osm_status",
                 name="Status",
                 show=False,
             ),
@@ -331,7 +329,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 filterable=True,
             ),
             reactable.Column(
-                id="run_count_filtered",
+                id="run_count",
                 name="Runs",
                 filterable=True,
                 filter_method=_min_value_filter,
@@ -431,7 +429,9 @@ def get_ski_area_reactable() -> reactable.Reactable:
             ),
         ],
         column_groups=[
-            reactable.ColGroup(name="Ski Area", columns=["ski_area_hyper", "status"]),
+            reactable.ColGroup(
+                name="Ski Area", columns=["ski_area_hyper", "osm_status"]
+            ),
             reactable.ColGroup(
                 name="Location",
                 columns=[
@@ -446,7 +446,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.ColGroup(
                 name="Downhill Runs",
                 columns=[
-                    "run_count_filtered",
+                    "run_count",
                     "lift_count",
                     "combined_vertical",
                     "elevation_base",

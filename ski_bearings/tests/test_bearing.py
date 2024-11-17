@@ -7,7 +7,7 @@ import pytest
 
 from ski_bearings.analyze import (
     aggregate_ski_areas_pl,
-    analyze_all_ski_areas,
+    analyze_all_ski_areas_polars,
     load_runs_pl,
 )
 from ski_bearings.bearing import get_bearing_summary_stats
@@ -145,7 +145,7 @@ def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     """
     https://github.com/dhimmel/ski-bearing-stats/issues/1
     """
-    analyze_all_ski_areas()
+    analyze_all_ski_areas_polars()
     # aggregate all runs at once
     # we cannot create networkx graph directly from all runs because get_ski_area_to_runs performs some filtering
     ski_area_to_runs = get_ski_area_to_runs(runs_pl=load_runs_pl().collect())

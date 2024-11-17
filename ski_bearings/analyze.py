@@ -54,9 +54,16 @@ def process_and_export_runs() -> None:
     runs_df.write_parquet(runs_path)
 
 
-def analyze_all_ski_areas_polars(skip_runs: bool = False) -> pl.LazyFrame:
+def analyze_all_ski_areas_polars(skip_runs: bool = False) -> None:
+    """
+    Analyze ski areas to create a table of ski areas and their metrics
+    including bearing distributions.
+    Keyed on ski_area_id.
+    Write data as parquet.
+    """
     if not skip_runs:
         process_and_export_runs()
+    logging.info("Creating ski area metrics dataframe with bearing distributions.")
     ski_area_df = load_downhill_ski_areas_from_download_pl().lazy()
     ski_area_run_metrics_df = (
         load_runs_pl()
@@ -93,15 +100,31 @@ def analyze_all_ski_areas_polars(skip_runs: bool = False) -> pl.LazyFrame:
             # do we need to filter nulls?
             bearings=pl.struct("bearing", "distance_vertical_drop").map_batches(
                 lambda x: get_bearing_histogram_df(
-                    bearings=x.struct.field("bearing").to_numpy(),
-                    weights=x.struct.field("distance_vertical_drop").to_numpy(),
-                ),
+                    bearings=x.struct.field("bearing"),
+                    weights=x.struct.field("distance_vertical_drop"),
+                ).to_struct(),
                 returns_scalar=True,
             ),
         )
         .unnest("_bearing_stats")
     )
-    return ski_area_df.join(ski_area_run_metrics_df, on="ski_area_id", how="left")
+    ski_area_metrics_df = (
+        ski_area_df.join(ski_area_run_metrics_df, on="ski_area_id", how="left")
+        .with_columns(
+            *[
+                pl.col(col).fill_null(pl.lit(fill_value))
+                for col, fill_value in SkiAreaModel.defaults.items()
+            ]
+        )
+        .collect()
+    )
+    try:
+        SkiAreaModel.validate(ski_area_metrics_df, allow_superfluous_columns=True)
+    except DataFrameValidationError as exc:
+        logging.error(f"SkiAreaModel.validate failed with {exc}")
+    ski_area_metrics_path = get_ski_area_metrics_path()
+    logging.info(f"Writing {ski_area_metrics_path}")
+    ski_area_metrics_df.write_parquet(ski_area_metrics_path)
 
 
 def analyze_all_ski_areas(skip_runs: bool = False) -> None:

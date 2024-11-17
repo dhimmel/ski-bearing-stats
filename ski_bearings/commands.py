@@ -4,7 +4,7 @@ from typing import Annotated
 import typer
 
 from ski_bearings.analyze import (
-    analyze_all_ski_areas,
+    analyze_all_ski_areas_polars,
     create_ski_area_roses,
     load_ski_areas_pl,
     ski_rose_the_world,
@@ -32,7 +32,7 @@ class Commands:
         skip_runs: Annotated[bool, typer.Option("--skip-runs")] = False,
     ) -> None:
         """Extract ski area metadata and metrics."""
-        analyze_all_ski_areas(skip_runs=skip_runs)
+        analyze_all_ski_areas_polars(skip_runs=skip_runs)
 
     @staticmethod
     @cli.command(name="validate")  # type: ignore [misc]

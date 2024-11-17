@@ -134,11 +134,12 @@ class SkiAreaModel(Model):  # type: ignore [misc]
     )
     run_count_filtered: int = Field(
         description="Number of downhill runs in the ski area with supported geometries.",
+        default=0,
         ge=0,
     )
-    lift_count: int | None = Field(
-        default=0,
+    lift_count: int = Field(
         description="Number of operating lifts.",
+        default=0,
         ge=0,
     )
     latitude: float | None = Field(

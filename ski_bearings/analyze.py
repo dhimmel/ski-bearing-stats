@@ -147,6 +147,7 @@ def load_bearing_distribution_pl(
         load_ski_areas_pl(ski_area_filters=ski_area_filters)
         .select("ski_area_id", "bearings")
         .explode("bearings")
+        .filter(pl.col("bearings").is_not_null())
         .unnest("bearings")
     )
 

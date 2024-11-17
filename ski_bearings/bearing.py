@@ -173,9 +173,15 @@ def get_bearing_histogram(
                 "bin_count": bin_counts,
             }
         )
+        .with_columns(bin_count_total=pl.sum("bin_count").over(pl.lit(True)))
+        # nan values are not helpful here when bin_count_total is 0
+        # Instead, set bin_proportion to 0, although setting to null could also make sense
         .with_columns(
-            bin_proportion=pl.col("bin_count") / pl.sum("bin_count").over(pl.lit(True))
+            bin_proportion=pl.when(pl.col("bin_count_total") > 0)
+            .then(pl.col("bin_count").truediv("bin_count_total"))
+            .otherwise(0.0)
         )
+        .drop("bin_count_total")
         .with_columns(pl.lit(num_bins).alias("num_bins"))
         .with_columns(
             pl.col("bin_center")

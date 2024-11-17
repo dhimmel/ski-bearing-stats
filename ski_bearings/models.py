@@ -86,11 +86,26 @@ class SkiAreaBearingDistributionModel(Model):  # type: ignore [misc]
         # multi-column primary key / uniqueness constraint
         # https://github.com/JakobGM/patito/issues/14
         # constraints=[pl.struct("num_bins", "bin_index").is_unique()],
+        ge=0,
     )
-    bin_index: int = Field(description="Index of the bearing bin starting at 1.")
-    bin_center: float = Field(description="Center of the bearing bin in degrees.")
-    bin_count: int = Field(description="Count of bearings in the bin.")
-    bin_proportion: float = Field(description="Proportion of bearings in the bin.")
+    bin_index: int = Field(
+        description="Index of the bearing bin starting at 1.",
+        ge=1,
+    )
+    bin_center: float = Field(
+        description="Center of the bearing bin in degrees.",
+        ge=0,
+        lt=360,
+    )
+    bin_count: float = Field(
+        description="Weighted count of bearings in the bin.",
+        ge=0,
+    )
+    bin_proportion: float = Field(
+        description="Weighted proportion of bearings in the bin.",
+        ge=0,
+        le=1,
+    )
     bin_label: str | None = Field(
         description="Human readable short label of the bearing bin.",
         examples=["N", "NE", "NEbE", "ENE"],

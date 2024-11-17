@@ -27,15 +27,13 @@ class SkiRunDifficulty(StrEnum):
 
 
 def get_openskimap_path(
-    name: Literal["runs", "ski_areas", "lifts"], testing: bool = False
+    name: Literal["runs", "ski_areas", "lifts"],
+    testing: bool = False,
 ) -> Path:
-    directory = get_data_directory().joinpath("openskimap")
+    testing = testing or "PYTEST_CURRENT_TEST" in os.environ
+    directory = get_data_directory(testing=testing).joinpath("openskimap")
     directory.mkdir(exist_ok=True)
-    filename = (
-        f"{name}.geojson"
-        if testing or "PYTEST_CURRENT_TEST" in os.environ
-        else f"{name}.geojson.xz"
-    )
+    filename = f"{name}.geojson" if testing else f"{name}.geojson.xz"
     return directory.joinpath(filename)
 
 
@@ -311,12 +309,11 @@ def generate_openskimap_test_data() -> None:
         "type": "FeatureCollection",
         "features": filter_by_ski_areas_property(load_openskimap_geojson("lifts")),
     }
-    get_openskimap_path("ski_areas", testing=True).write_text(
-        json.dumps(test_ski_areas, indent=2, ensure_ascii=False)
-    )
-    get_openskimap_path("runs", testing=True).write_text(
-        json.dumps(test_runs, indent=2, ensure_ascii=False)
-    )
-    get_openskimap_path("lifts", testing=True).write_text(
-        json.dumps(test_lifts, indent=2, ensure_ascii=False)
-    )
+    for name, data in [
+        ("ski_areas", test_ski_areas),
+        ("runs", test_runs),
+        ("lifts", test_lifts),
+    ]:
+        path = get_openskimap_path(name, testing=True)  # type: ignore [arg-type]
+        logging.info(f"Writing {len(data['features']):,} {name} to {path}.")
+        path.write_text(json.dumps(data, indent=2, ensure_ascii=False))

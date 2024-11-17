@@ -10,12 +10,12 @@
         "id": "8896cde00150e73de1f1237320c88767c91ce099",
         "location": {
           "iso3166_1Alpha2": "US",
-          "iso3166_2": null,
+          "iso3166_2": "US-NH",
           "localized": {
             "en": {
               "country": "United States",
-              "region": null,
-              "locality": null
+              "region": "New Hampshire",
+              "locality": "Enfield"
             }
           }
         },
@@ -187,12 +187,12 @@
         "id": "dc24f332f3117625dc09479b5d10cbb31a592be4",
         "location": {
           "iso3166_1Alpha2": "US",
-          "iso3166_2": null,
+          "iso3166_2": "US-NH",
           "localized": {
             "en": {
               "country": "United States",
-              "region": null,
-              "locality": null
+              "region": "New Hampshire",
+              "locality": "Lebanon"
             }
           }
         },

@@ -190,15 +190,15 @@ def load_downhill_ski_areas_from_download_pl() -> pl.DataFrame:
         .select(
             "ski_area_id",
             "ski_area_name",
-            "generated",
-            "runConvention",
-            "status",
+            pl.col("generated").alias("osm_is_generated"),
+            pl.col("runConvention").alias("osm_run_convention"),
+            pl.col("status").alias("osm_status"),
             pl.col("location__localized__en__country").alias("country"),
             pl.col("location__localized__en__region").alias("region"),
             pl.col("location__localized__en__locality").alias("locality"),
             pl.col("location__iso3166_1Alpha2").alias("country_code"),
             pl.col("location__iso3166_2").alias("country_subdiv_code"),
-            "websites",
+            pl.col("websites").alias("ski_area_websites"),
             # sources can have inconsistently typed nested column 'id' as string or int
             pl.col("sources")
             .list.eval(
@@ -208,21 +208,7 @@ def load_downhill_ski_areas_from_download_pl() -> pl.DataFrame:
                     separator=":",
                 )
             )
-            .alias("sources"),
-            "statistics__minElevation",
-            "statistics__maxElevation",
-            "statistics__runs__minElevation",
-            "statistics__runs__maxElevation",
-            # *itertools.chain.from_iterable(
-            #     [
-            #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__count",
-            #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__lengthInKm",
-            #         f"statistics__runs__byActivity__downhill__byDifficulty__{difficulty}__combinedElevationChange",
-            #     ]
-            #     for difficulty in SkiRunDifficulty
-            # ),
-            "statistics__lifts__minElevation",
-            "statistics__lifts__maxElevation",
+            .alias("ski_area_sources"),
         )
         .join(lift_metrics, on="ski_area_id", how="left")
     )

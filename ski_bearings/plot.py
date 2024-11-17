@@ -202,13 +202,13 @@ def _generate_margin_text(group_info: dict[str, Any]) -> dict[MarginTextLocation
     # bottom-left: poleward affinity/tendency, polar affinity
     # bottom-right: total trail length and average pitch or max elevation
     margin_text = {}
-    if {"ski_areas_count", "run_count_filtered"}.issubset(group_info):
+    if {"ski_areas_count", "run_count"}.issubset(group_info):
         margin_text[MarginTextLocation.top_left] = (
-            f"{group_info["ski_areas_count"]:,} ski areas,\n{group_info["run_count_filtered"]:,} runs"
+            f"{group_info["ski_areas_count"]:,} ski areas,\n{group_info["run_count"]:,} runs"
         )
-    elif {"run_count_filtered", "lift_count"}.issubset(group_info):
+    elif {"run_count", "lift_count"}.issubset(group_info):
         margin_text[MarginTextLocation.top_left] = (
-            f"{group_info["run_count_filtered"]:,} runs,\n{group_info["lift_count"]:,} lifts"
+            f"{group_info["run_count"]:,} runs,\n{group_info["lift_count"]:,} lifts"
         )
     if "combined_vertical" in group_info:
         margin_text[MarginTextLocation.top_right] = (

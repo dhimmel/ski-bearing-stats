@@ -161,7 +161,7 @@ def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     hemisphere_pl = aggregate_ski_areas_pl(group_by=["hemisphere"])
     double_pass = hemisphere_pl.row(by_predicate=pl.lit(True), named=True)
     for key in [
-        "run_count_filtered",
+        "run_count",
         "bearing_mean",
         "bearing_alignment",
         "bearing_magnitude_net",

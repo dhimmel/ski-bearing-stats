@@ -29,7 +29,7 @@ def create_networkx(
     Convert run coordinates to a newtorkx MultiDiGraph compatible with OSMnx.
     """
     graph = nx.MultiDiGraph(crs="EPSG:4326")  # https://epsg.io/4326
-    graph.graph["run_count_filtered"] = len(runs)
+    graph.graph["run_count"] = len(runs)
     for lon, lat, elevation in itertools.chain.from_iterable(runs):
         graph.add_node((lon, lat), x=lon, y=lat, elevation=elevation)
     for coordinates in runs:

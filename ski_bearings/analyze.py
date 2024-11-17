@@ -78,7 +78,7 @@ def analyze_all_ski_areas_polars(skip_runs: bool = False) -> None:
         .agg(
             min_elevation=pl.col("elevation").min(),
             max_elevation=pl.col("elevation").max(),
-            run_count_filtered=pl.col("run_id").n_unique(),
+            run_count=pl.col("run_id").n_unique(),
             coordinate_count=pl.len(),
             segment_count=pl.count("segment_hash"),
             combined_vertical=pl.col("distance_vertical_drop").sum(),
@@ -198,7 +198,7 @@ def aggregate_ski_areas_pl(
         .agg(
             ski_areas_count=pl.n_unique("ski_area_id"),
             country_count=pl.n_unique("country"),
-            run_count_filtered=pl.sum("run_count_filtered"),
+            run_count=pl.sum("run_count"),
             latitude=pl.mean("latitude"),
             longitude=pl.mean("longitude"),
             combined_vertical=pl.sum("combined_vertical"),
@@ -243,7 +243,7 @@ def bearing_dists_by_us_state() -> pl.DataFrame:
         ski_area_filters=[
             pl.col("country") == "United States",
             pl.col("region").is_not_null(),
-            pl.col("status") == "operating",
+            pl.col("osm_status") == "operating",
             pl.col("ski_area_name").is_not_null(),
         ],
     )
@@ -254,7 +254,7 @@ def bearing_dists_by_hemisphere() -> pl.DataFrame:
         group_by=["hemisphere"],
         ski_area_filters=[
             pl.col("hemisphere").is_not_null(),
-            pl.col("status") == "operating",
+            pl.col("osm_status") == "operating",
             pl.col("ski_area_name").is_not_null(),
         ],
     )
@@ -266,15 +266,15 @@ def bearing_dists_by_status() -> pl.DataFrame:
     Only includes ski areas in the northern hemisphere because there were no abandoned ski areas in the southern hemisphere at ToW.
     """
     return aggregate_ski_areas_pl(
-        group_by=["hemisphere", "status"],
+        group_by=["hemisphere", "osm_status"],
         ski_area_filters=[
             pl.col("hemisphere") == "north",
-            pl.col("status").is_in(["abandoned", "operating"]),
+            pl.col("osm_status").is_in(["abandoned", "operating"]),
         ],
     ).with_columns(
         group_name=pl.format(
             "{} in {} Hem.",
-            pl.col("status").str.to_titlecase(),
+            pl.col("osm_status").str.to_titlecase(),
             pl.col("hemisphere").str.to_titlecase(),
         )
     )
@@ -285,7 +285,7 @@ def bearing_dists_by_country() -> pl.DataFrame:
         group_by=["country"],
         ski_area_filters=[
             pl.col("country").is_not_null(),
-            pl.col("status") == "operating",
+            pl.col("osm_status") == "operating",
             pl.col("ski_area_name").is_not_null(),
         ],
     )
@@ -334,7 +334,7 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
 def get_display_ski_area_filters() -> list[pl.Expr]:
     """Ski area filters to produce a subset of ski areas for display."""
     return [
-        pl.col("run_count_filtered") >= 3,
+        pl.col("run_count") >= 3,
         pl.col("combined_vertical") >= 50,
         pl.col("ski_area_name").is_not_null(),
     ]

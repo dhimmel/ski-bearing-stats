@@ -14,6 +14,7 @@ from ski_bearings.analyze import (
     load_bearing_distribution_pl,
     load_ski_areas_pl,
 )
+from ski_bearings.models import SkiAreaModel
 from ski_bearings.plot import NARROW_SPACE
 from ski_bearings.utils import get_data_directory
 
@@ -246,6 +247,36 @@ function(cellInfo) {
 }
 """)
 
+columns_descriptions = {
+    # pre-populate descriptions from SkiAreaModel
+    **{name: field.description for name, field in SkiAreaModel.model_fields.items()},
+    # add custom descriptions including overwriting SkiAreaModel descriptions
+    "latitude": "Hemisphere where the ski area is located, either ℕ for north or 𝕊 for south, "
+    "as well as the latitude (φ) in decimal degrees.",
+    "bin_proportion_N": "Proportion of vertical-weighted run segments oriented with a northern cardinal direction.",
+    "bin_proportion_E": "Proportion of vertical-weighted run segments oriented with an eastern cardinal direction.",
+    "bin_proportion_S": "Proportion of vertical-weighted run segments oriented with a southern cardinal direction.",
+    "bin_proportion_W": "Proportion of vertical-weighted run segments oriented with a western cardinal direction.",
+}
+
+
+def _format_header(ci: reactable.HeaderCellInfo) -> htmltools.Tag | str:
+    """
+    Format header cell with tooltip provided by an <abbr> tag.
+    FIXME: The title attribute is inaccessible to most keyboard, mobile, and screen reader users,
+    so creating tooltips like this is generally discouraged.
+
+    References for tooltip headers:
+    https://machow.github.io/reactable-py/get-started/format-header-footer.html#headers
+    https://glin.github.io/reactable/articles/cookbook/cookbook.html#tooltips
+    https://github.com/glin/reactable/issues/220
+    """
+    column_id = ci.name
+    column_name = ci.value
+    if description := columns_descriptions.get(column_id):
+        return htmltools.tags.abbr(column_name, title=description)
+    return column_name
+
 
 def get_ski_area_reactable() -> reactable.Reactable:
     data_pl = get_ski_area_frontend_table()
@@ -285,6 +316,9 @@ def get_ski_area_reactable() -> reactable.Reactable:
         searchable=False,
         highlight=True,
         full_width=True,
+        default_col_def=reactable.Column(
+            header=_format_header,
+        ),
         columns=[
             reactable.Column(
                 id="ski_area_id",

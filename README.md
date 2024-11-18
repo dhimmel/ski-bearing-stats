@@ -1,6 +1,6 @@
 # OpenSkiStats: Shredding Data Like Powder
 
-[![Test Suite CI Status](https://github.com/dhimmel/openskistats/actions/workflows/tests.yaml/badge.svg?branch=main&event=push)](https://github.com/dhimmel/openskistats/actions/workflows/tests.yaml)
+[![GitHub Actions CI Tests Status](https://img.shields.io/github/actions/workflow/status/dhimmel/openskistats/tests.yaml?branch=main&label=actions&style=for-the-badge&logo=github&logoColor=white)](https://github.com/dhimmel/openskistats/actions/workflows/tests.yaml)
 
 > [!IMPORTANT]
 > This project is currently under heavy development and is not yet ready for public consumption.

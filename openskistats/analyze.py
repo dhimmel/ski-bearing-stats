@@ -6,18 +6,18 @@ import polars as pl
 from matplotlib.backends.backend_pdf import PdfPages
 from patito.exceptions import DataFrameValidationError
 
-from ski_bearings.bearing import (
+from openskistats.bearing import (
     add_spatial_metric_columns,
     get_bearing_histograms,
     get_bearing_summary_stats,
 )
-from ski_bearings.models import BearingStatsModel, SkiAreaModel
-from ski_bearings.openskimap_utils import (
+from openskistats.models import BearingStatsModel, SkiAreaModel
+from openskistats.openskimap_utils import (
     load_downhill_ski_areas_from_download_pl,
     load_runs_from_download_pl,
 )
-from ski_bearings.plot import plot_orientation, subplot_orientations
-from ski_bearings.utils import get_data_directory
+from openskistats.plot import plot_orientation, subplot_orientations
+from openskistats.utils import get_data_directory
 
 
 def get_ski_area_metrics_path(testing: bool = False) -> Path:

@@ -1,4 +1,4 @@
-from ski_bearings.display import country_code_to_emoji
+from openskistats.display import country_code_to_emoji
 
 
 def test_country_code_to_emoji() -> None:

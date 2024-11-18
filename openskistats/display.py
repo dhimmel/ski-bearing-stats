@@ -9,14 +9,14 @@ import polars as pl
 import reactable
 from mizani.palettes import gradient_n_pal
 
-from ski_bearings.analyze import (
+from openskistats.analyze import (
     get_display_ski_area_filters,
     load_bearing_distribution_pl,
     load_ski_areas_pl,
 )
-from ski_bearings.models import SkiAreaModel
-from ski_bearings.plot import NARROW_SPACE
-from ski_bearings.utils import get_data_directory
+from openskistats.models import SkiAreaModel
+from openskistats.plot import NARROW_SPACE
+from openskistats.utils import get_data_directory
 
 
 def export_display_notebook() -> None:

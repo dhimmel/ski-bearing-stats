@@ -1,4 +1,4 @@
-from ski_bearings.openskimap_utils import load_runs_from_download
+from openskistats.openskimap_utils import load_runs_from_download
 
 
 def test_load_runs() -> None:

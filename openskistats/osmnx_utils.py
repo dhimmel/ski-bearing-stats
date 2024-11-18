@@ -10,7 +10,7 @@ import osmnx
 from osmnx.bearing import add_edge_bearings
 from osmnx.distance import add_edge_lengths
 
-from ski_bearings.bearing import get_bearing_summary_stats
+from openskistats.bearing import get_bearing_summary_stats
 
 
 @contextlib.contextmanager

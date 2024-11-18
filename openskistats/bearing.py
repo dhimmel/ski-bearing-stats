@@ -6,7 +6,7 @@ import polars as pl
 from osmnx.bearing import calculate_bearing
 from osmnx.distance import great_circle
 
-from ski_bearings.models import BearingStatsModel
+from openskistats.models import BearingStatsModel
 
 
 def add_spatial_metric_columns(

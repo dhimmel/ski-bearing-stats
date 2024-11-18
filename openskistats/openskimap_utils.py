@@ -11,8 +11,8 @@ from typing import Any, Literal
 import polars as pl
 import requests
 
-from ski_bearings.models import RunCoordinateModel
-from ski_bearings.utils import get_data_directory
+from openskistats.models import RunCoordinateModel
+from openskistats.utils import get_data_directory
 
 
 class SkiRunDifficulty(StrEnum):

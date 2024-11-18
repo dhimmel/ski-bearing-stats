@@ -14,13 +14,13 @@ The first application is the creation of roses showing the compass orientations 
 
 ```shell
 # download latest OpenSkiMap data
-poetry run ski_bearings download
+poetry run openskistats download
 
 # extract ski area metadata and metrics
-poetry run ski_bearings analyze
+poetry run openskistats analyze
 
-poetry run ski_bearings visualize
-poetry run ski_bearings display
+poetry run openskistats visualize
+poetry run openskistats display
 ```
 
 Commands that you will have to run less frequently:

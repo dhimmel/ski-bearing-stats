@@ -3,15 +3,15 @@ from typing import Annotated
 
 import typer
 
-from ski_bearings.analyze import (
+from openskistats.analyze import (
     analyze_all_ski_areas_polars,
     create_ski_area_roses,
     load_ski_areas_pl,
     ski_rose_the_world,
 )
-from ski_bearings.display import export_display_notebook
-from ski_bearings.models import SkiAreaModel
-from ski_bearings.openskimap_utils import (
+from openskistats.display import export_display_notebook
+from openskistats.models import SkiAreaModel
+from openskistats.openskimap_utils import (
     download_openskimap_geojsons,
     generate_openskimap_test_data,
 )

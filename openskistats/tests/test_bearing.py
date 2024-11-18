@@ -5,14 +5,14 @@ from typing import Literal
 import polars as pl
 import pytest
 
-from ski_bearings.analyze import (
+from openskistats.analyze import (
     aggregate_ski_areas_pl,
     analyze_all_ski_areas_polars,
     load_runs_pl,
 )
-from ski_bearings.bearing import get_bearing_summary_stats
-from ski_bearings.openskimap_utils import get_ski_area_to_runs
-from ski_bearings.osmnx_utils import create_networkx_with_metadata
+from openskistats.bearing import get_bearing_summary_stats
+from openskistats.openskimap_utils import get_ski_area_to_runs
+from openskistats.osmnx_utils import create_networkx_with_metadata
 
 
 @dataclass

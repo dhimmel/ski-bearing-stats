@@ -1,4 +1,4 @@
-from ski_bearings.analyze import (
+from openskistats.analyze import (
     analyze_all_ski_areas_polars,
     load_ski_areas_pl,
     ski_rose_the_world,

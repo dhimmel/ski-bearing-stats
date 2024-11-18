@@ -16,11 +16,11 @@ jobs:
       shell: bash
     - name: Analysis
       run: |
-        poetry run ski_bearings download
-        poetry run ski_bearings analyze
-        poetry run ski_bearings validate
-        poetry run ski_bearings visualize
-        poetry run ski_bearings display
+        poetry run openskistats download
+        poetry run openskistats analyze
+        poetry run openskistats validate
+        poetry run openskistats visualize
+        poetry run openskistats display
       shell: bash
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4

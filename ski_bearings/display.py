@@ -14,6 +14,7 @@ from ski_bearings.analyze import (
     load_bearing_distribution_pl,
     load_ski_areas_pl,
 )
+from ski_bearings.plot import NARROW_SPACE
 from ski_bearings.utils import get_data_directory
 
 
@@ -269,7 +270,15 @@ def get_ski_area_reactable() -> reactable.Reactable:
         "filter_method": _min_percent_filter,
         "style": _percent_sequential_style,
     }
-
+    meters_column_kwargs = {
+        "format": reactable.ColFormat(
+            suffix=f"{NARROW_SPACE}m",
+            digits=0,
+            separators=True,
+        ),
+        "filterable": True,
+        "filter_method": _min_value_filter,
+    }
     return reactable.Reactable(
         data=data_pl,
         striped=True,
@@ -296,7 +305,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
             ),
             reactable.Column(
                 id="latitude",
-                name="ℍφ",
+                name=f"ℍ{NARROW_SPACE}φ",
                 cell=_latitude_cell,
                 filterable=True,
                 filter_method=_latitude_filter,
@@ -343,30 +352,22 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.Column(
                 id="combined_vertical",
                 name="Vertical",
-                format=reactable.ColFormat(suffix="m", digits=0, separators=True),
-                filterable=True,
-                filter_method=_min_value_filter,
+                **meters_column_kwargs,
             ),
             reactable.Column(
                 id="vertical_drop",
                 name="Drop",
-                format=reactable.ColFormat(suffix="m", digits=0, separators=True),
-                filterable=True,
-                show=True,
+                **meters_column_kwargs,
             ),
             reactable.Column(
                 id="elevation_base",
                 name="Base Elev",
-                format=reactable.ColFormat(suffix="m", digits=0, separators=True),
-                filterable=True,
-                filter_method=_min_value_filter,
+                **meters_column_kwargs,
             ),
             reactable.Column(
                 id="elevation_peak",
                 name="Peak Elev",
-                format=reactable.ColFormat(suffix="m", digits=0, separators=True),
-                filterable=True,
-                filter_method=_min_value_filter,
+                **meters_column_kwargs,
             ),
             reactable.Column(
                 id="bearing_mean",

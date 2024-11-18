@@ -19,6 +19,8 @@ from osmnx.plot import _get_fig_ax
 SUBPLOT_FIGSIZE = 4.0
 """Size in inches for each subplot in a grid."""
 
+NARROW_SPACE = "\u202f"  # NARROW NO-BREAK SPACE"
+
 
 class MarginTextLocation(IntEnum):
     """Enum to map margin text locations to their degree x-values."""
@@ -164,7 +166,7 @@ def plot_orientation(
 
     if margin_text is None:
         margin_text = {
-            MarginTextLocation.top_right: f"{bin_counts.sum():,.0f}m\nskiable\nvert",
+            MarginTextLocation.top_right: f"{bin_counts.sum():,.0f}{NARROW_SPACE}m\nskiable\nvert",
         }
     for location, text in margin_text.items():
         if not text:
@@ -212,7 +214,7 @@ def _generate_margin_text(group_info: dict[str, Any]) -> dict[MarginTextLocation
         )
     if "combined_vertical" in group_info:
         margin_text[MarginTextLocation.top_right] = (
-            f"{group_info["combined_vertical"]:,.0f}m\nskiable\nvert"
+            f"{group_info["combined_vertical"]:,.0f}{NARROW_SPACE}m\nskiable\nvert"
         )
     if {"poleward_affinity", "eastward_affinity"}.issubset(group_info):
         margin_text[MarginTextLocation.bottom_left] = (
@@ -220,7 +222,7 @@ def _generate_margin_text(group_info: dict[str, Any]) -> dict[MarginTextLocation
         )
     if {"min_elevation", "max_elevation"}.issubset(group_info):
         margin_text[MarginTextLocation.bottom_right] = (
-            f"elevation:\n{group_info['min_elevation']:,.0f}m base\n{group_info['max_elevation']:,.0f}m peak"
+            f"elevation:\n{group_info['min_elevation']:,.0f}{NARROW_SPACE}m base\n{group_info['max_elevation']:,.0f}{NARROW_SPACE}m peak"
         )
     return margin_text
 
@@ -424,7 +426,7 @@ def subplot_orientations_lets_plot(
         + lp.geom_bar(
             stat="identity",
             tooltips=lp.layer_tooltips()
-            .format(field="^y", format="{,.0f}m")
+            .format(field="^y", format="{,.0f}{NARROW_SPACE}m")
             .format(field="^x", format="{}°"),
             width=0.7,
             size=0.5,

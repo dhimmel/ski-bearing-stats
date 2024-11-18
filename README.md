@@ -1,13 +1,14 @@
-# Ski Run Bearings / Trail Orientation / Aspect
+# OpenSkiStats: Shredding Data Like Powder
 
-[![Test Suite CI Status](https://github.com/dhimmel/ski-bearing-stats/actions/workflows/tests.yaml/badge.svg?branch=main&event=push)](https://github.com/dhimmel/ski-bearing-stats/actions/workflows/tests.yaml)
+[![Test Suite CI Status](https://github.com/dhimmel/openskistats/actions/workflows/tests.yaml/badge.svg?branch=main&event=push)](https://github.com/dhimmel/openskistats/actions/workflows/tests.yaml)
 
 > [!IMPORTANT]
 > This project is currently under heavy development and is not yet ready for public consumption.
 > If you happen to locate the results of the analyses in the meantime,
 > please do not disseminate them before contacting the authors.
 
-WIP Ski Roses
+This project generates statistics on downhill ski slopes and areas from around the globe powered by the underlying OpenSkiMap/OpenStreetMap data.
+The first application is the creation of roses showing the compass orientations of ski areas.
 
 ## Development
 
@@ -80,6 +81,7 @@ List of related webpages:
 - https://geoffboeing.com/2018/07/comparing-city-street-orientations/
 - https://verticalfeet.com/
 - https://en.wikipedia.org/wiki/Comparison_of_North_American_ski_resorts
+- https://www.nsaa.org/NSAA/Media/Industry_Stats.aspx
 
 ## Wild Ideas
 

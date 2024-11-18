@@ -143,7 +143,7 @@ def test_get_bearing_summary_stats(param: BearingSummaryStatsPytestParam) -> Non
 
 def test_get_bearing_summary_stats_repeated_aggregation() -> None:
     """
-    https://github.com/dhimmel/ski-bearing-stats/issues/1
+    https://github.com/dhimmel/openskistats/issues/1
     """
     analyze_all_ski_areas_polars()
     # aggregate all runs at once

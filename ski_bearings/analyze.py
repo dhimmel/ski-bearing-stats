@@ -314,7 +314,7 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
         filename=path,
         metadata={
             "Title": "Ski Roses of the World: Downhill Ski Trail Orientations",
-            "Author": "https://github.com/dhimmel/ski-bearing-stats",
+            "Author": "https://github.com/dhimmel/openskistats",
         },
     )
     grouping_col_to_stats = {
@@ -397,7 +397,7 @@ def create_ski_area_roses(overwrite: bool = False) -> None:
             transparent=True,
             metadata={
                 "Title": "Ski Roses of the World: Downhill Ski Trail Orientations",
-                "Creator": "https://github.com/dhimmel/ski-bearing-stats",
+                "Creator": "https://github.com/dhimmel/openskistats",
             },
         )
         matplotlib.pyplot.close(fig)

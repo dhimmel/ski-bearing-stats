@@ -44,7 +44,7 @@ def download_openskimap_geojson(name: Literal["runs", "ski_areas", "lifts"]) -> 
     path.parent.mkdir(exist_ok=True)
     logging.info(f"Downloading {url} to {path}")
     headers = {
-        "From": "https://github.com/dhimmel/ski-bearing-stats",
+        "From": "https://github.com/dhimmel/openskistats",
         "Referer": "https://openskimap.org/",
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
         "sec-ch-ua": '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',

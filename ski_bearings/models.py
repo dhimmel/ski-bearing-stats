@@ -176,22 +176,76 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         default=0,
         ge=0,
     )
+    coordinate_count: Annotated[
+        int,
+        Field(
+            description="Number of coordinates in the ski area's runs. "
+            "Each coordinate is a point along a run.",
+            default=0,
+            ge=0,
+        ),
+    ]
+    segment_count: Annotated[
+        int,
+        Field(
+            description="Number of segments in the ski area's runs. "
+            "Each segment is a line between two coordinates. "
+            "A run with N coordinates has N-1 segments.",
+            default=0,
+            ge=0,
+        ),
+    ]
+    combined_vertical: float | None = Field(
+        description="Total combined vertical drop of the ski area in meters. "
+        "If you skied every run in the ski area exactly once, this is the total vertical drop you would accumulate.",
+        default=0,
+        ge=0,
+    )
+    combined_distance: Annotated[
+        float | None,
+        Field(
+            description="Total distance of the ski area's runs in meters. "
+            "If you skied every run in the ski area exactly once, this is the total distance you would accumulate.",
+            default=0,
+            ge=0,
+        ),
+    ]
+    vertical_drop: Annotated[
+        float | None,
+        Field(
+            description="Vertical drop of the ski area in meters. "
+            "Vertical drop is the difference in elevation between the highest and lowest points of the ski area's runs.",
+            default=0,
+            ge=0,
+        ),
+    ]
     latitude: float | None = Field(
-        description="Latitude of the ski area in decimal degrees.",
+        description="Latitude of the ski area in decimal degrees. "
+        "Latitude measures the distance north (positive values) or south (negative values) of the equator.",
         ge=-90,
         le=90,
     )
     longitude: float | None = Field(
-        description="Longitude of the ski area in decimal degrees.",
+        description="Longitude of the ski area in decimal degrees. "
+        "Longitude measures the distance east (positive values) or west (negative values) of the prime meridian.",
         ge=-180,
         le=180,
     )
     hemisphere: Literal["north", "south"] | None = Field(
         description="Hemisphere of the ski area.",
     )
-    combined_vertical: float | None = Field(
-        description="Total vertical drop of the ski area in meters.",
-    )
+    min_elevation: Annotated[
+        float | None,
+        Field(
+            description="Base elevation of the ski area in meters computed as the lowest elevation along all runs.",
+        ),
+    ]
+    max_elevation: Annotated[
+        float | None,
+        Field(
+            description="Peak elevation of the ski area in meters computed as the highest elevation along all runs.",
+        ),
+    ]
     for field_name in BearingStatsModel.model_fields:
         __annotations__[field_name] = BearingStatsModel.__annotations__[field_name]
     del field_name

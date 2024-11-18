@@ -85,6 +85,7 @@ def analyze_all_ski_areas_polars(skip_runs: bool = False) -> None:
             longitude=pl.col("longitude").mean(),
             min_elevation=pl.col("elevation").min(),
             max_elevation=pl.col("elevation").max(),
+            vertical_drop=pl.max("elevation") - pl.min("elevation"),
             hemisphere=pl.first("hemisphere"),
             _bearing_stats=pl.struct(
                 "bearing",
@@ -207,6 +208,7 @@ def aggregate_ski_areas_pl(
             combined_distance=pl.sum("combined_distance"),
             min_elevation=pl.min("min_elevation"),
             max_elevation=pl.max("max_elevation"),
+            vertical_drop=pl.max("max_elevation") - pl.min("min_elevation"),
             latitude=pl.mean("latitude"),
             longitude=pl.mean("longitude"),
             _bearing_stats=pl.struct(

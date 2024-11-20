@@ -1,0 +1,43 @@
+.number {
+    font-family: "Fira Mono", Consolas, Monaco, monospace;
+    font-size: 0.84375rem;
+    white-space: pre;
+  }
+  
+  .bar-chart {
+    flex-grow: 1;
+    margin-left: 0.375rem;
+    height: 0.875rem;
+  }
+  
+  .bar {
+    height: 100%;
+  }
+  
+  .tooltip-container {
+      position: relative;
+      display: inline-block;
+  }
+  
+  .tooltip-image {
+      position: fixed; /* Ensures the tooltip is free from table constraints */
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      z-index: 1000;
+      pointer-events: none;
+  }
+  
+  .tooltip-container:hover .tooltip-image {
+      visibility: visible;
+      opacity: 1;
+  }
+  
+  .tooltip-image img {
+      max-width: 300px; /* Adjust for full-size image */
+      border: 2px solid #ccc; /* Adds a visible outline */
+      border-radius: 8px; /* Curves the corners */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds shadow for better visibility */
+      background-color: #fff; /* Optional: Background for the image */
+  }
+  

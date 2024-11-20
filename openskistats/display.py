@@ -35,6 +35,17 @@ def export_display_notebook() -> None:
 
 
 def embed_reactable_html() -> None:
+    webapp_source_dir = Path(__file__).parent.joinpath("webapp")
+    html_script = f"""
+    <script>
+    {webapp_source_dir.joinpath("webapp.js").read_text()}
+    </script>
+    """
+    html_style = f"""
+    <style>
+    {webapp_source_dir.joinpath("webapp.css").read_text()}
+    </style>
+    """
     for html_ in html_style, html_script:
         IPython.display.display(IPython.display.HTML(html_))
     reactable.embed_css()
@@ -536,128 +547,3 @@ def get_ski_area_reactable() -> reactable.Reactable:
             ),
         ],
     )
-
-
-html_script = r"""
-<script>
-function matchesNumericFilter(value, filterValue) {
-    filterValue = filterValue.trim();
-    let match;
-
-    // Handle "-" and "-0" as shorthand for <= 0
-    if (filterValue === "-" || filterValue === "-0") {
-        return value <= 0;
-    }
-
-    // Handle basic numbers (>= for positive, <= for negative)
-    if ((match = filterValue.match(/^(-?\d+)$/))) {
-        const threshold = parseFloat(match[1]);
-        return threshold >= 0 ? value >= threshold : value <= threshold;
-    }
-
-    // Handle explicit ranges with brackets (inclusive) or parentheses (exclusive)
-    if ((match = filterValue.match(/^([\[\(])\s*(-?\d+)?\s*,\s*(-?\d+)?\s*([\]\)])$/))) {
-        const lower = match[2] !== undefined ? parseFloat(match[2]) : -Infinity;
-        const upper = match[3] !== undefined ? parseFloat(match[3]) : Infinity;
-        const lowerInclusive = match[1] === '['; // True if inclusive lower
-        const upperInclusive = match[4] === ']'; // True if inclusive upper
-
-        return (
-            (lowerInclusive ? value >= lower : value > lower) &&
-            (upperInclusive ? value <= upper : value < upper)
-        );
-    }
-
-    // Default: invalid filterValue returns true
-    return true;
-}
-
-function showTooltip(event) {
-    const tooltip = event.currentTarget.querySelector('.tooltip-image');
-    const rect = event.currentTarget.getBoundingClientRect();
-    const tooltipWidth = 300; // Assume tooltip image has a fixed width
-    const tooltipHeight = 300; // Assume tooltip image has a fixed height
-    const previewHeight = rect.height; // Height of the preview image
-
-    // Position to the left of the preview image
-    let left = rect.left - tooltipWidth - 10; // Add a small gap of 10px
-
-    // Center vertically on the preview image
-    let top = rect.top + (previewHeight / 2) - (tooltipHeight / 2);
-
-    // Check if the tooltip overflows the left edge of the viewport
-    if (left < 0) {
-        left = 10; // Adjust to prevent overflow with padding
-    }
-
-    // Check if the tooltip overflows the top edge of the viewport
-    if (top < 0) {
-        top = 10; // Adjust to prevent overflow with padding
-    }
-
-    // Check if the tooltip overflows the bottom edge of the viewport
-    if (top + tooltipHeight > window.innerHeight) {
-        top = window.innerHeight - tooltipHeight - 10; // Adjust to prevent overflow
-    }
-
-    tooltip.style.left = `${left}px`;
-    tooltip.style.top = `${top}px`;
-    tooltip.style.visibility = 'visible';
-    tooltip.style.opacity = '1';
-}
-
-
-function hideTooltip(event) {
-    const tooltip = event.currentTarget.querySelector('.tooltip-image');
-    tooltip.style.visibility = 'hidden';
-    tooltip.style.opacity = '0';
-}
-</script>
-"""
-
-html_style = """
-<style>
-.number {
-  font-family: "Fira Mono", Consolas, Monaco, monospace;
-  font-size: 0.84375rem;
-  white-space: pre;
-}
-
-.bar-chart {
-  flex-grow: 1;
-  margin-left: 0.375rem;
-  height: 0.875rem;
-}
-
-.bar {
-  height: 100%;
-}
-
-.tooltip-container {
-    position: relative;
-    display: inline-block;
-}
-
-.tooltip-image {
-    position: fixed; /* Ensures the tooltip is free from table constraints */
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-    z-index: 1000;
-    pointer-events: none;
-}
-
-.tooltip-container:hover .tooltip-image {
-    visibility: visible;
-    opacity: 1;
-}
-
-.tooltip-image img {
-    max-width: 300px; /* Adjust for full-size image */
-    border: 2px solid #ccc; /* Adds a visible outline */
-    border-radius: 8px; /* Curves the corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds shadow for better visibility */
-    background-color: #fff; /* Optional: Background for the image */
-}
-</style>
-"""

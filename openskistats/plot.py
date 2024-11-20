@@ -56,6 +56,7 @@ def plot_orientation(
     linewidth: float = 0.5,
     alpha: float = 0.7,
     title: str | None = None,
+    title_wrap: int | None = 40,
     title_y: float = 1.05,
     title_font: dict[str, Any] | None = None,
     disable_xticks: bool = False,
@@ -104,6 +105,8 @@ def plot_orientation(
     fig, ax
     """
     num_bins = len(bin_centers)
+    if title and title_wrap is not None:
+        title = "\n".join(textwrap.wrap(title, width=30))
     if title_font is None:
         title_font = {"family": "DejaVu Sans", "size": 18, "weight": "bold"}
     if xtick_font is None:
@@ -227,6 +230,24 @@ def _generate_margin_text(group_info: dict[str, Any]) -> dict[MarginTextLocation
     return margin_text
 
 
+def _plot_mean_bearing_as_snowflake(
+    ax: PolarAxes,
+    bearing: float,
+    alignment: float,
+) -> None:
+    ax.scatter(
+        x=np.radians(bearing),
+        y=alignment * ax.get_ylim()[1],
+        color="blue",
+        label="Mean Bearing",
+        zorder=2,
+        marker=get_snowflake_marker(),
+        linewidths=0,
+        s=1000,  # marker size
+        alpha=0.7,
+    )
+
+
 def subplot_orientations(
     groups_pl: pl.DataFrame,
     grouping_col: str,
@@ -298,16 +319,10 @@ def subplot_orientations(
         ax.title.set_size(18)
         ax.yaxis.grid(False)
         if free_y and "bearing_mean" in group_info:
-            ax.scatter(
-                x=np.radians(group_info["bearing_mean"]),
-                y=group_info["bearing_alignment"] * ax.get_ylim()[1],
-                color="blue",
-                label="Mean Bearing",
-                zorder=2,
-                marker=get_snowflake_marker(),
-                linewidths=0,
-                s=1000,  # marker size
-                alpha=0.7,
+            _plot_mean_bearing_as_snowflake(
+                ax=ax,
+                bearing=group_info["bearing_mean"],
+                alignment=group_info["bearing_alignment"],
             )
 
     # hide axes for unused subplots

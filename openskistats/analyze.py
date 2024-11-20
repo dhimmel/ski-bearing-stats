@@ -18,6 +18,7 @@ from openskistats.openskimap_utils import (
 )
 from openskistats.plot import (
     _generate_margin_text,
+    _plot_mean_bearing_as_snowflake,
     plot_orientation,
     subplot_orientations,
 )
@@ -428,6 +429,9 @@ def create_ski_area_roses(overwrite: bool = False) -> None:
             margin_text=_generate_margin_text(info),
             figsize=(4, 4),
             alpha=1.0,
+        )
+        _plot_mean_bearing_as_snowflake(
+            ax=ax, bearing=info["bearing_mean"], alignment=info["bearing_alignment"]
         )
         logging.info(f"Writing {path}")
         fig.savefig(

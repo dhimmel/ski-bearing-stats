@@ -35,7 +35,8 @@ def export_display_notebook() -> None:
 
 
 def embed_reactable_html() -> None:
-    IPython.display.display(IPython.display.HTML(html_style))
+    for html_ in html_style, html_script:
+        IPython.display.display(IPython.display.HTML(html_))
     reactable.embed_css()
 
 
@@ -168,23 +169,15 @@ function(rows, columnId, filterValue) {
 }
 """)
 
-_min_value_filter = reactable.JS("""
+_numeric_filter = reactable.JS("""
 function(rows, columnId, filterValue) {
-    return rows.filter(function(row) {
-        return (
-            row.values[columnId] >= filterValue
-        );
-    });
+    return rows.filter(row => matchesNumericFilter(row.values[columnId], filterValue));
 }
 """)
 
 _min_percent_filter = reactable.JS("""
 function(rows, columnId, filterValue) {
-    return rows.filter(function(row) {
-        return (
-            100 * row.values[columnId] >= filterValue
-        );
-    });
+    return rows.filter(row => matchesNumericFilter(row.values[columnId] * 100, filterValue));
 }
 """)
 
@@ -307,7 +300,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
             separators=True,
         ),
         "filterable": True,
-        "filter_method": _min_value_filter,
+        "filter_method": _numeric_filter,
     }
     return reactable.Reactable(
         data=data_pl,
@@ -318,6 +311,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
         default_col_def=reactable.Column(
             header=_format_header,
         ),
+        show_page_size_options=True,
         columns=[
             reactable.Column(
                 id="ski_area_id",
@@ -374,13 +368,13 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="run_count",
                 name="Runs",
                 filterable=True,
-                filter_method=_min_value_filter,
+                filter_method=_numeric_filter,
             ),
             reactable.Column(
                 id="lift_count",
                 name="Lifts",
                 filterable=True,
-                filter_method=_min_value_filter,
+                filter_method=_numeric_filter,
             ),
             reactable.Column(
                 id="combined_vertical",
@@ -509,6 +503,36 @@ def get_ski_area_reactable() -> reactable.Reactable:
         ],
     )
 
+
+html_script = r"""
+<script>
+function matchesNumericFilter(value, filterValue) {
+    let match;
+
+    // Handle basic numbers (>= for positive, <= for negative)
+    if ((match = filterValue.match(/^(-?\d+)$/))) {
+        const threshold = parseFloat(match[1]);
+        return threshold >= 0 ? value >= threshold : value <= threshold;
+    }
+
+    // Handle explicit ranges with brackets (inclusive) or parentheses (exclusive)
+    if ((match = filterValue.match(/^([\[\(])\s*(-?\d+)?\s*,\s*(-?\d+)?\s*([\]\)])$/))) {
+        const lower = match[2] !== undefined ? parseFloat(match[2]) : -Infinity;
+        const upper = match[3] !== undefined ? parseFloat(match[3]) : Infinity;
+        const lowerInclusive = match[1] === '['; // True if inclusive lower
+        const upperInclusive = match[4] === ']'; // True if inclusive upper
+
+        return (
+            (lowerInclusive ? value >= lower : value > lower) &&
+            (upperInclusive ? value <= upper : value < upper)
+        );
+    }
+
+    // Default: invalid filterValue returns false
+    return false;
+}
+</script>
+"""
 
 html_style = """
 <style>

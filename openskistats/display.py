@@ -281,9 +281,16 @@ def _format_header(ci: reactable.HeaderCellInfo) -> htmltools.Tag | str:
 _rose_cell = reactable.JS("""
 function(cellInfo) {
     return `
-    <a href="ski-areas/roses-full/${cellInfo.value}.svg" target="_blank">
-        <img src="ski-areas/roses-preview/${cellInfo.value}.svg" alt="Preview Rose">
-    </a>
+    <div class="tooltip-container"
+         onmouseover="showTooltip(event)"
+         onmouseout="hideTooltip(event)">
+        <a href="ski-areas/roses-full/${cellInfo.value}.svg" target="_blank">
+            <img src="ski-areas/roses-preview/${cellInfo.value}.svg" alt="Preview Rose" class="hover-preview">
+        </a>
+        <div class="tooltip-image">
+            <img src="ski-areas/roses-full/${cellInfo.value}.svg" alt="Full Rose">
+        </div>
+    </div>
     `;
 }
 """)
@@ -564,6 +571,47 @@ function matchesNumericFilter(value, filterValue) {
     // Default: invalid filterValue returns true
     return true;
 }
+
+function showTooltip(event) {
+    const tooltip = event.currentTarget.querySelector('.tooltip-image');
+    const rect = event.currentTarget.getBoundingClientRect();
+    const tooltipWidth = 300; // Assume tooltip image has a fixed width
+    const tooltipHeight = 300; // Assume tooltip image has a fixed height
+    const previewHeight = rect.height; // Height of the preview image
+
+    // Position to the left of the preview image
+    let left = rect.left - tooltipWidth - 10; // Add a small gap of 10px
+
+    // Center vertically on the preview image
+    let top = rect.top + (previewHeight / 2) - (tooltipHeight / 2);
+
+    // Check if the tooltip overflows the left edge of the viewport
+    if (left < 0) {
+        left = 10; // Adjust to prevent overflow with padding
+    }
+
+    // Check if the tooltip overflows the top edge of the viewport
+    if (top < 0) {
+        top = 10; // Adjust to prevent overflow with padding
+    }
+
+    // Check if the tooltip overflows the bottom edge of the viewport
+    if (top + tooltipHeight > window.innerHeight) {
+        top = window.innerHeight - tooltipHeight - 10; // Adjust to prevent overflow
+    }
+
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+    tooltip.style.visibility = 'visible';
+    tooltip.style.opacity = '1';
+}
+
+
+function hideTooltip(event) {
+    const tooltip = event.currentTarget.querySelector('.tooltip-image');
+    tooltip.style.visibility = 'hidden';
+    tooltip.style.opacity = '0';
+}
 </script>
 """
 
@@ -583,6 +631,33 @@ html_style = """
 
 .bar {
   height: 100%;
+}
+
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-image {
+    position: fixed; /* Ensures the tooltip is free from table constraints */
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.tooltip-container:hover .tooltip-image {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip-image img {
+    max-width: 300px; /* Adjust for full-size image */
+    border: 2px solid #ccc; /* Adds a visible outline */
+    border-radius: 8px; /* Curves the corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds shadow for better visibility */
+    background-color: #fff; /* Optional: Background for the image */
 }
 </style>
 """

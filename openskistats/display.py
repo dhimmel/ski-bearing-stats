@@ -89,7 +89,8 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
             "poleward_affinity",
             "eastward_affinity",
             pl.selectors.starts_with("bin_proportion_"),
-            pl.format("""<img src="ski_areas/{}.svg">""", "ski_area_id").alias("rose"),
+            pl.col("ski_area_id").alias("rose"),
+            # pl.format("""<img src="ski-areas/roses-preview/{}.svg">""", "ski_area_id").alias("rose"),
         )
         .sort("ski_area_name")
     )
@@ -272,6 +273,17 @@ def _format_header(ci: reactable.HeaderCellInfo) -> htmltools.Tag | str:
     if description := columns_descriptions.get(column_id):
         return htmltools.tags.abbr(column_name, title=description)
     return column_name
+
+
+def _rose_cell(ci: reactable.CellInfo) -> htmltools.Tag:
+    return htmltools.a(
+        htmltools.img(
+            src=f"ski-areas/roses-preview/{ci.value}.svg", alt="Preview Rose"
+        ),
+        href=f"ski-areas/roses-full/{ci.value}.svg",
+        target="blank_",
+        class_="hover-preview",
+    )
 
 
 def get_ski_area_reactable() -> reactable.Reactable:
@@ -464,6 +476,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Rose",
                 html=True,
                 sortable=False,
+                cell=_rose_cell,
                 # max_width=45,
             ),
         ],

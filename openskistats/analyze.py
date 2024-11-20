@@ -16,7 +16,11 @@ from openskistats.openskimap_utils import (
     load_downhill_ski_areas_from_download_pl,
     load_runs_from_download_pl,
 )
-from openskistats.plot import plot_orientation, subplot_orientations
+from openskistats.plot import (
+    _generate_margin_text,
+    plot_orientation,
+    subplot_orientations,
+)
 from openskistats.utils import get_data_directory
 
 
@@ -361,23 +365,34 @@ def create_ski_area_roses(overwrite: bool = False) -> None:
     """
     Export ski area roses to SVG for display.
     """
-    directory = get_data_directory().joinpath("ski_areas")
-    directory.mkdir(exist_ok=True)
-    partitions = (
-        load_bearing_distribution_pl(ski_area_filters=get_display_ski_area_filters())
-        .filter(pl.col("num_bins") == 8)
-        .partition_by("ski_area_id", as_dict=True)
+    directory = get_data_directory().joinpath("ski-areas")
+    directory_preview = directory.joinpath("roses-preview")
+    directory_full = directory.joinpath("roses-full")
+    for _directory in directory, directory_preview, directory_full:
+        _directory.mkdir(exist_ok=True)
+    ski_areas_pl = load_ski_areas_pl(
+        ski_area_filters=get_display_ski_area_filters()
+    ).drop("bearings")
+    bearings_pl = load_bearing_distribution_pl(
+        ski_area_filters=get_display_ski_area_filters()
     )
     logging.info(
-        f"Creating ski area roses for {len(partitions)} ski areas in {directory}."
+        f"Creating ski area preview roses for {len(ski_areas_pl):,} ski areas in {directory} with {overwrite=}."
     )
-    for (ski_area_id,), bearing_pl in partitions.items():
-        path = directory.joinpath(f"{ski_area_id}.svg")
+    for info in ski_areas_pl.iter_rows(named=True):
+        ski_area_id = info["ski_area_id"]
+        ski_area_name = info["ski_area_name"]
+        bearing_pl = bearings_pl.filter(pl.col("ski_area_id") == ski_area_id)
+
+        # plot and save preview rose
+        path = directory_preview.joinpath(f"{ski_area_id}.svg")
         if not overwrite and path.exists():
             continue
+
+        bearing_preview_pl = bearing_pl.filter(pl.col("num_bins") == 8)
         fig, ax = plot_orientation(
-            bin_counts=bearing_pl.get_column("bin_count").to_numpy(),
-            bin_centers=bearing_pl.get_column("bin_center").to_numpy(),
+            bin_counts=bearing_preview_pl.get_column("bin_count").to_numpy(),
+            bin_centers=bearing_preview_pl.get_column("bin_center").to_numpy(),
             margin_text={},
             figsize=(1, 1),
             alpha=1.0,
@@ -396,7 +411,35 @@ def create_ski_area_roses(overwrite: bool = False) -> None:
             pad_inches=0.02,
             transparent=True,
             metadata={
-                "Title": "Ski Roses of the World: Downhill Ski Trail Orientations",
+                "Title": f"Preview Ski Rose for {ski_area_name}",
+                "Description": f"An 8-bin histogram of downhill ski trail orientations generated from <https://openskimap.org/?obj={ski_area_id}>.",
+                "Creator": "https://github.com/dhimmel/openskistats",
+            },
+        )
+        matplotlib.pyplot.close(fig)
+
+        # plot and save full rose
+        path = directory_full.joinpath(f"{ski_area_id}.svg")
+        bearing_full_pl = bearing_pl.filter(pl.col("num_bins") == 32)
+        fig, ax = plot_orientation(
+            bin_counts=bearing_full_pl.get_column("bin_count").to_numpy(),
+            bin_centers=bearing_full_pl.get_column("bin_center").to_numpy(),
+            title=ski_area_name,
+            margin_text=_generate_margin_text(info),
+            figsize=(4, 4),
+            alpha=1.0,
+        )
+        logging.info(f"Writing {path}")
+        fig.savefig(
+            path,
+            format="svg",
+            bbox_inches="tight",
+            # pad_inches=0.02,
+            facecolor="#FFFFFF",
+            transparent=False,
+            metadata={
+                "Title": f"Ski Rose for {ski_area_name}",
+                "Description": f"A 32-bin histogram of downhill ski trail orientations generated from <https://openskimap.org/?obj={ski_area_id}>.",
                 "Creator": "https://github.com/dhimmel/openskistats",
             },
         )

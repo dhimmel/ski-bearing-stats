@@ -58,7 +58,7 @@ def plot_orientation(
     title: str | None = None,
     title_wrap: int | None = 40,
     title_y: float = 1.05,
-    title_font: dict[str, Any] | None = None,
+    title_font_size: float = 22,
     disable_xticks: bool = False,
     xtick_font: dict[str, Any] | None = None,
     margin_text: dict[MarginTextLocation, str] | None = None,
@@ -95,8 +95,6 @@ def plot_orientation(
         The figure's title.
     title_y
         The y position to place `title`.
-    title_font
-        The title's `fontdict` to pass to matplotlib.
     xtick_font
         The xtick labels' `fontdict` to pass to matplotlib.
 
@@ -107,13 +105,12 @@ def plot_orientation(
     num_bins = len(bin_centers)
     if title and title_wrap is not None:
         title = "\n".join(textwrap.wrap(title, width=30))
-    if title_font is None:
-        title_font = {
-            # fallback font families for more character support https://matplotlib.org/stable/users/explain/text/fonts.html
-            "family": ["DejaVu Sans", "Noto Sans CJK JP"],
-            "size": 24,
-            "weight": "bold",
-        }
+    title_font = {
+        # fallback font families for more character support https://matplotlib.org/stable/users/explain/text/fonts.html
+        "family": ["DejaVu Sans", "Noto Sans CJK JP"],
+        "size": title_font_size,
+        "weight": "bold",
+    }
 
     if xtick_font is None:
         xtick_font = {

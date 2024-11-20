@@ -426,6 +426,7 @@ def create_ski_area_roses(overwrite: bool = False) -> None:
             bin_counts=bearing_full_pl.get_column("bin_count").to_numpy(),
             bin_centers=bearing_full_pl.get_column("bin_center").to_numpy(),
             title=ski_area_name,
+            title_font_size=16,
             margin_text=_generate_margin_text(info),
             figsize=(4, 4),
             alpha=1.0,

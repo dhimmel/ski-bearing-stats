@@ -108,7 +108,13 @@ def plot_orientation(
     if title and title_wrap is not None:
         title = "\n".join(textwrap.wrap(title, width=30))
     if title_font is None:
-        title_font = {"family": "DejaVu Sans", "size": 18, "weight": "bold"}
+        title_font = {
+            # fallback font families for more character support https://matplotlib.org/stable/users/explain/text/fonts.html
+            "family": ["DejaVu Sans", "Noto Sans CJK JP"],
+            "size": 24,
+            "weight": "bold",
+        }
+
     if xtick_font is None:
         xtick_font = {
             "family": "DejaVu Sans",

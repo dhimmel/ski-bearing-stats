@@ -267,6 +267,8 @@ columns_descriptions = {
     "bin_proportion_E": "Proportion of vertical-weighted run segments oriented with an eastern cardinal direction.",
     "bin_proportion_S": "Proportion of vertical-weighted run segments oriented with a southern cardinal direction.",
     "bin_proportion_W": "Proportion of vertical-weighted run segments oriented with a western cardinal direction.",
+    "rose": "Compass rose histogram of run segment orientations. "
+    "Hover over or click on the 8-bin preview rose to view the full 32-bin rose.",
 }
 
 

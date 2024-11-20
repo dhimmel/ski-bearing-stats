@@ -388,12 +388,12 @@ def create_ski_area_roses(overwrite: bool = False) -> None:
         # make the polar frame less prominent
         ax.spines["polar"].set_linewidth(0.4)
         ax.spines["polar"].set_color("#6b6b6b")
-        # TODO: reduce margins around svg
         logging.info(f"Writing {path}")
         fig.savefig(
             path,
             format="svg",
             bbox_inches="tight",
+            pad_inches=0.02,
             transparent=True,
             metadata={
                 "Title": "Ski Roses of the World: Downhill Ski Trail Orientations",

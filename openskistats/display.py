@@ -148,23 +148,27 @@ def _latitude_cell(ci: reactable.CellInfo) -> htmltools.Tag:
     )
 
 
-_latitude_filter = reactable.JS("""
+_latitude_filter = reactable.JS(r"""
 function(rows, columnId, filterValue) {
     return rows.filter(function(row) {
         const latitude = row.values["latitude"];
         const hemisphere = latitude > 0 ? "north" : "south";
-        const numericFilter = parseFloat(filterValue);
-        return (
-            // Handle "-" as a filter for Southern Hemisphere
-            (filterValue === "-" && latitude <= 0) ||
-            // Handle numeric filter values
-            (!isNaN(numericFilter) && (
-                (numericFilter > 0 && latitude >= numericFilter) ||
-                (numericFilter < 0 && latitude <= numericFilter)
-            )) ||
-            // Handle string filter values for "north" or "south"
-            (typeof filterValue === "string" && hemisphere.includes(filterValue.toLowerCase()))
-        );
+
+        // Check if filterValue is entirely alphabetic
+        const isAlphabetic = /^[a-zA-Z]+$/.test(filterValue);
+
+        // Use matchesNumericFilter for numeric filter values
+        if (!isAlphabetic) {
+            return matchesNumericFilter(latitude, filterValue);
+        }
+
+        // Handle string filter values for "north" or "south"
+        if (typeof filterValue === "string") {
+            return hemisphere.includes(filterValue.toLowerCase());
+        }
+
+        // Default: include all rows if filterValue is invalid
+        return true;
     });
 }
 """)
@@ -175,7 +179,7 @@ function(rows, columnId, filterValue) {
 }
 """)
 
-_min_percent_filter = reactable.JS("""
+_percent_filter = reactable.JS("""
 function(rows, columnId, filterValue) {
     return rows.filter(row => matchesNumericFilter(row.values[columnId] * 100, filterValue));
 }
@@ -290,7 +294,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
         "format": reactable.ColFormat(percent=True, digits=0),
         "max_width": 45,
         "filterable": True,
-        "filter_method": _min_percent_filter,
+        "filter_method": _percent_filter,
         "style": _percent_sequential_style,
     }
     meters_column_kwargs = {
@@ -410,14 +414,14 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 cell=_percent_with_bar_cell,
                 html=True,
                 filterable=True,
-                filter_method=_min_percent_filter,
+                filter_method=_percent_filter,
             ),
             reactable.Column(
                 id="poleward_affinity",
                 name="Poleward",
                 format=reactable.ColFormat(percent=True, digits=0),
                 filterable=True,
-                filter_method=_min_percent_filter,
+                filter_method=_percent_filter,
                 style=_percent_diverging_style,
             ),
             reactable.Column(
@@ -425,7 +429,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Eastward",
                 format=reactable.ColFormat(percent=True, digits=0),
                 filterable=True,
-                filter_method=_min_percent_filter,
+                filter_method=_percent_filter,
                 style=_percent_diverging_style,
             ),
             reactable.Column(
@@ -507,7 +511,13 @@ def get_ski_area_reactable() -> reactable.Reactable:
 html_script = r"""
 <script>
 function matchesNumericFilter(value, filterValue) {
+    filterValue = filterValue.trim();
     let match;
+
+    // Handle "-" and "-0" as shorthand for <= 0
+    if (filterValue === "-" || filterValue === "-0") {
+        return value <= 0;
+    }
 
     // Handle basic numbers (>= for positive, <= for negative)
     if ((match = filterValue.match(/^(-?\d+)$/))) {
@@ -528,8 +538,8 @@ function matchesNumericFilter(value, filterValue) {
         );
     }
 
-    // Default: invalid filterValue returns false
-    return false;
+    // Default: invalid filterValue returns true
+    return true;
 }
 </script>
 """

@@ -406,6 +406,8 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 # format=reactable.ColFormat(suffix="°", digits=0),
                 cell=_azimuth_cell,
                 html=True,
+                filterable=True,
+                filter_method=_numeric_filter,
             ),
             reactable.Column(
                 id="bearing_alignment",

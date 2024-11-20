@@ -92,6 +92,8 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
             pl.col("ski_area_id").alias("rose"),
             # pl.format("""<img src="ski-areas/roses-preview/{}.svg">""", "ski_area_id").alias("rose"),
         )
+        # reduce size of HTML output by rounding floats
+        .with_columns(pl.selectors.by_dtype(pl.Float64).round(4))
         .sort("ski_area_name")
     )
 
@@ -275,15 +277,16 @@ def _format_header(ci: reactable.HeaderCellInfo) -> htmltools.Tag | str:
     return column_name
 
 
-def _rose_cell(ci: reactable.CellInfo) -> htmltools.Tag:
-    return htmltools.a(
-        htmltools.img(
-            src=f"ski-areas/roses-preview/{ci.value}.svg", alt="Preview Rose"
-        ),
-        href=f"ski-areas/roses-full/{ci.value}.svg",
-        target="blank_",
-        class_="hover-preview",
-    )
+# reactable.JS cells reduce output HTML size compared to htmltools.Tag cells, which get repeated for every cell
+_rose_cell = reactable.JS("""
+function(cellInfo) {
+    return `
+    <a href="ski-areas/roses-full/${cellInfo.value}.svg" target="_blank">
+        <img src="ski-areas/roses-preview/${cellInfo.value}.svg" alt="Preview Rose">
+    </a>
+    `;
+}
+""")
 
 
 def get_ski_area_reactable() -> reactable.Reactable:

@@ -87,9 +87,6 @@ List of related webpages:
 
 - Table of all OpenStreetMap users that have contributed to ski areas, i.e. top skiers
 - Display table webpage background of falling snowflakes ([examples](https://freefrontend.com/css-snow-effects/))
-- Display table base / summit elevation and vertical. Number of lifts
-- Display table [custom filters](https://glin.github.io/reactable/articles/custom-filtering.html)
-- Table column descriptions in title/tooltips
 - Max slope v difficulty by region
 - Cleanup unused dependencies
 - How many ski areas in the world, comparing to the Vanat report
@@ -109,6 +106,7 @@ List of related webpages:
 - [patito/issues/103](https://github.com/JakobGM/patito/issues/103): Validation fails on an empty list
 - [patito/issues/104](https://github.com/JakobGM/patito/issues/104): Optional list field with nested model fails to validate
 - [polars/issues/19771](https://github.com/pola-rs/polars/issues/19771): A no-op filter errors when the dataframe has an all null column
+- [reactable-py/issues/25](https://github.com/machow/reactable-py/issues/25): Column default sort order does not override global default
 
 ## License
 

@@ -315,6 +315,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
         default_col_def=reactable.Column(
             header=_format_header,
         ),
+        default_sort_order="desc",
         show_page_size_options=True,
         columns=[
             reactable.Column(
@@ -328,19 +329,12 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 min_width=250,
                 filterable=True,
                 sticky="left",  # makes entire group sticky
+                default_sort_order="asc",
             ),
             reactable.Column(
                 id="osm_status",
                 name="Status",
                 show=False,
-            ),
-            reactable.Column(
-                id="latitude",
-                name=f"ℍ{NARROW_SPACE}φ",
-                cell=_latitude_cell,
-                filterable=True,
-                filter_method=_latitude_filter,
-                max_width=60,
             ),
             reactable.Column(
                 id="country",
@@ -349,6 +343,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 html=True,
                 filter_method=_country_filter,
                 filterable=True,
+                default_sort_order="asc",
             ),
             reactable.Column(
                 id="country_emoji",
@@ -362,11 +357,21 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="region",
                 name="Region",
                 filterable=True,
+                default_sort_order="asc",
             ),
             reactable.Column(
                 id="locality",
                 name="Locality",
                 filterable=True,
+                default_sort_order="asc",
+            ),
+            reactable.Column(
+                id="latitude",
+                name=f"ℍ{NARROW_SPACE}φ",
+                cell=_latitude_cell,
+                filterable=True,
+                filter_method=_latitude_filter,
+                max_width=60,
             ),
             reactable.Column(
                 id="run_count",

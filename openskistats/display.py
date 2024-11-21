@@ -123,27 +123,43 @@ function(rows, columnId, filterValue) {
 """)
 
 
-def _latitude_cell(ci: reactable.CellInfo) -> htmltools.Tag:
-    latitude = ci.value
-    background_color = _latitude_palette(abs(latitude) / 90)
-    hemisphere_symbol = "ℕ" if latitude > 0 else "𝕊"
+_latitude_cell = reactable.JS("""
+function(cellInfo) {
+    const latitude = cellInfo.value;
+    const hemisphereSymbol = latitude > 0 ? "ℕ" : "𝕊";
 
-    return htmltools.span(
+    // Dynamic background color calculation
+    const normalizedLatitude = Math.abs(latitude) / 90;
+    const backgroundColor = `rgb(
+        ${255 - Math.round(normalizedLatitude * 255)},
+        ${255 - Math.round(normalizedLatitude * 255)},
+        ${255 - Math.round(normalizedLatitude * 255)}
+    )`;
+
+    // Construct the cell's HTML
+    return React.createElement(
+        "span",
+        {
+            className: "badge",
+            style: {
+                "--badge-bg-color": backgroundColor,
+            }
+        },
         [
-            htmltools.span(
-                hemisphere_symbol,
-                class_="hemisphere-symbol",
+            React.createElement(
+                "span",
+                { className: "hemisphere-symbol" },
+                hemisphereSymbol
             ),
-            htmltools.span(
-                f"{latitude:.1f}°",
-                class_="latitude-value",
-            ),
-        ],
-        class_="badge",
-        # Custom variable for the badge's background color
-        style=htmltools.css(badge_bg_color=background_color),
-    )
-
+            React.createElement(
+                "span",
+                { className: "latitude-value" },
+                `${latitude.toFixed(1)}°`
+            )
+        ]
+    );
+}
+""")
 
 _latitude_filter = reactable.JS(r"""
 function(rows, columnId, filterValue) {
@@ -184,7 +200,6 @@ function(rows, columnId, filterValue) {
 
 _sequential_percent_palette = gradient_n_pal(["#ffffff", "#a100bf"])
 _diverging_percent_palette = gradient_n_pal(["#e89200", "#ffffff", "#007dbf"])
-_latitude_palette = gradient_n_pal(["#ffffff", "#000000"])
 
 
 def _percent_sequential_style(ci: reactable.CellInfo) -> dict[str, Any] | None:

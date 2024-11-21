@@ -332,8 +332,8 @@ def get_ski_area_reactable() -> reactable.Reactable:
         full_width=True,
         default_col_def=reactable.Column(
             header=_format_header,
+            default_sort_order="desc",
         ),
-        default_sort_order="desc",
         show_page_size_options=True,
         columns=[
             reactable.Column(

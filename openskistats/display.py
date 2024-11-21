@@ -348,6 +348,8 @@ def get_ski_area_reactable() -> reactable.Reactable:
         default_col_def=reactable.Column(
             header=_format_header,
             default_sort_order="desc",
+            align="center",
+            v_align="center",
         ),
         show_page_size_options=True,
         columns=[
@@ -359,7 +361,9 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="ski_area_name",
                 name="Ski Area",
                 cell=_ski_area_cell,
-                min_width=250,
+                min_width=150,
+                max_width=250,
+                align="left",
                 filterable=True,
                 sticky="left",  # makes entire group sticky
                 default_sort_order="asc",
@@ -411,12 +415,14 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Runs",
                 filterable=True,
                 filter_method=_numeric_filter,
+                max_width=60,
             ),
             reactable.Column(
                 id="lift_count",
                 name="Lifts",
                 filterable=True,
                 filter_method=_numeric_filter,
+                max_width=60,
             ),
             reactable.Column(
                 id="combined_vertical",

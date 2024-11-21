@@ -132,33 +132,16 @@ def _latitude_cell(ci: reactable.CellInfo) -> htmltools.Tag:
         [
             htmltools.span(
                 hemisphere_symbol,
-                style=htmltools.css(
-                    font_size="1em",  # Font size for the hemisphere symbol
-                    line_height="1em",  # Adjust line height for better spacing
-                ),
+                class_="hemisphere-symbol",
             ),
             htmltools.span(
                 f"{latitude:.1f}°",
-                style=htmltools.css(
-                    font_size="0.7em",  # Smaller font for latitude
-                    line_height="1em",  # Adjust line height for proper spacing
-                    margin_top="0.2em",  # Adds vertical distance between lines
-                ),
+                class_="latitude-value",
             ),
         ],
         class_="badge",
-        style=htmltools.css(
-            background_color=background_color,
-            color="white",
-            width="3em",  # Set equal width and height for a circle
-            height="3em",
-            border_radius="50%",  # Maximum border radius for a circle
-            display="inline-flex",  # Use flexbox for layout
-            flex_direction="column",  # Stack items vertically
-            align_items="center",  # Center items horizontally
-            justify_content="center",  # Center items vertically
-            text_align="center",  # Center text within each line
-        ),
+        # Custom variable for the badge's background color
+        style=htmltools.css(badge_bg_color=background_color),
     )
 
 

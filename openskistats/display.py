@@ -324,7 +324,6 @@ def get_ski_area_reactable() -> reactable.Reactable:
     bin_proportion_column_kwargs = {
         "format": reactable.ColFormat(percent=True, digits=0),
         "max_width": 45,
-        "filterable": True,
         "filter_method": _percent_filter,
         "style": _percent_sequential_style,
     }
@@ -334,8 +333,8 @@ def get_ski_area_reactable() -> reactable.Reactable:
             digits=0,
             separators=True,
         ),
-        "filterable": True,
         "filter_method": _numeric_filter,
+        "min_width": 80,
     }
     return reactable.Reactable(
         data=data_pl,
@@ -346,6 +345,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
         default_col_def=reactable.Column(
             header=_format_header,
             default_sort_order="desc",
+            filterable=True,
             align="center",
             v_align="center",
         ),
@@ -362,7 +362,6 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 min_width=150,
                 max_width=250,
                 align="left",
-                filterable=True,
                 sticky="left",  # makes entire group sticky
                 default_sort_order="asc",
             ),
@@ -377,7 +376,6 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 cell=_country_cell,
                 html=True,
                 filter_method=_country_filter,
-                filterable=True,
                 default_sort_order="asc",
             ),
             reactable.Column(
@@ -391,34 +389,29 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.Column(
                 id="region",
                 name="Region",
-                filterable=True,
                 default_sort_order="asc",
             ),
             reactable.Column(
                 id="locality",
                 name="Locality",
-                filterable=True,
                 default_sort_order="asc",
             ),
             reactable.Column(
                 id="latitude",
                 name=f"ℍ{NARROW_SPACE}φ",
                 cell=_latitude_cell,
-                filterable=True,
                 filter_method=_latitude_filter,
                 max_width=60,
             ),
             reactable.Column(
                 id="run_count",
                 name="Runs",
-                filterable=True,
                 filter_method=_numeric_filter,
                 max_width=60,
             ),
             reactable.Column(
                 id="lift_count",
                 name="Lifts",
-                filterable=True,
                 filter_method=_numeric_filter,
                 max_width=60,
             ),
@@ -448,7 +441,6 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 # format=reactable.ColFormat(suffix="°", digits=0),
                 cell=_azimuth_cell,
                 html=True,
-                filterable=True,
                 filter_method=_numeric_filter,
             ),
             reactable.Column(
@@ -457,14 +449,12 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 # format=reactable.ColFormat(percent=True, digits=0),
                 cell=_percent_with_bar_cell,
                 html=True,
-                filterable=True,
                 filter_method=_percent_filter,
             ),
             reactable.Column(
                 id="poleward_affinity",
                 name="Poleward",
                 format=reactable.ColFormat(percent=True, digits=0),
-                filterable=True,
                 filter_method=_percent_filter,
                 style=_percent_diverging_style,
             ),
@@ -472,7 +462,6 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="eastward_affinity",
                 name="Eastward",
                 format=reactable.ColFormat(percent=True, digits=0),
-                filterable=True,
                 filter_method=_percent_filter,
                 style=_percent_diverging_style,
             ),
@@ -501,6 +490,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Rose",
                 html=True,
                 sortable=False,
+                filterable=False,
                 cell=_rose_cell,
                 # max_width=45,
             ),

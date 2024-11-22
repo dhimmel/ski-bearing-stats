@@ -141,9 +141,7 @@ function(cellInfo) {
         "span",
         {
             className: "badge",
-            style: {
-                "--badge-bg-color": backgroundColor,
-            }
+            style: { "--badge-bg-color": backgroundColor }
         },
         [
             React.createElement(
@@ -228,7 +226,7 @@ function(cellInfo) {
     // Render bar chart
     return `
     <div class="bar-cell">
-        <span class="number">${value}</span>
+        <span>${value}</span>
         <div class="bar-chart" style="background-color: #e1e1e1">
         <div class="bar" style="width: ${pct}; background-color: #fc5185"></div>
         </div>
@@ -534,7 +532,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 ],
             ),
             reactable.ColGroup(
-                name="Mean Bearing",
+                name="Mean Orientation",
                 columns=[
                     "bearing_mean",
                     "bearing_alignment",

@@ -1,0 +1,31 @@
+---
+title: "OpenSkiStats Ski Area Browser"
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+Explore statistics on all named ski areas in the world with at least 3 runs and 50 meters of cumulative vertical drop across their runs.
+The underlying data is provided by [OpenSkiMap](https://openskimap.org) and [OpenStreetMap](https://www.openstreetmap.org) with statistics computed by <https://github.com/dhimmel/openskistats>.
+
+This project is currently under heavy development and is not yet ready for public consumption.
+
+```{python}
+from openskistats.display import embed_reactable_html, get_ski_area_reactable
+
+embed_reactable_html()
+get_ski_area_reactable()
+```
+
+
+### Table usage
+
+Numeric columns support the filtering filters:
+
+- `15` for value ≥ 15
+- `-20` for value ≤ 20
+- `[10, 20]` for 10 ≤ value ≤ 20
+- `(10, 20)` for 10 < value < 20
+- `(, 5]` for value ≤ 5
+- `80` (not 0.8) for a percent value ≥ 80%.

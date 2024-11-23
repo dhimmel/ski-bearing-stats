@@ -21,6 +21,9 @@ uv run openskistats analyze
 
 uv run openskistats visualize
 uv run openskistats display
+
+# webserver for viewing http://localhost:8000/display.html
+python -m http.server --directory=data
 ```
 
 Commands that you will have to run less frequently:

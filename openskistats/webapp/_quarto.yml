@@ -3,6 +3,7 @@ project:
 
 website:
   title: "OpenSkiStats Browser"
+  search: false
   navbar:
     left:
       - href: index.qmd

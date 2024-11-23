@@ -27,7 +27,7 @@ Commands that you will have to run less frequently:
 
 ```shell
 # install the uv environment in uv.lock
-uv sync
+uv sync --extra=dev
 
 # install the pre-commit git hooks
 pre-commit install

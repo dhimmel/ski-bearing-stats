@@ -108,6 +108,7 @@ List of related webpages:
 - [patito/issues/104](https://github.com/JakobGM/patito/issues/104): Optional list field with nested model fails to validate
 - [polars/issues/19771](https://github.com/pola-rs/polars/issues/19771): A no-op filter errors when the dataframe has an all null column
 - [reactable-py/issues/25](https://github.com/machow/reactable-py/issues/25): Column default sort order does not override global default
+- [reactable-py/issues/28](https://github.com/machow/reactable-py/issues/28): Column class_ argument only sets the dev class for the first row
 
 ## License
 

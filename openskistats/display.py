@@ -338,7 +338,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
     }
     return reactable.Reactable(
         data=data_pl,
-        striped=True,
+        # striped=True,
         searchable=False,
         highlight=True,
         full_width=True,
@@ -377,6 +377,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 html=True,
                 filter_method=_country_filter,
                 default_sort_order="asc",
+                class_=["border-left"],
             ),
             reactable.Column(
                 id="country_emoji",
@@ -402,6 +403,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 cell=_latitude_cell,
                 filter_method=_latitude_filter,
                 max_width=60,
+                class_=["border-left"],
             ),
             reactable.Column(
                 id="run_count",
@@ -442,6 +444,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 cell=_azimuth_cell,
                 html=True,
                 filter_method=_numeric_filter,
+                class_=["border-left"],
             ),
             reactable.Column(
                 id="bearing_alignment",
@@ -469,6 +472,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="bin_proportion_N",
                 name="N",
                 **bin_proportion_column_kwargs,
+                class_=["border-left"],
             ),
             reactable.Column(
                 id="bin_proportion_E",
@@ -493,6 +497,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 filterable=False,
                 cell=_rose_cell,
                 # max_width=45,
+                class_=["border-left"],
             ),
         ],
         column_groups=[

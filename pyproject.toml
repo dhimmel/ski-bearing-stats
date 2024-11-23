@@ -24,7 +24,7 @@ lets-plot = "^4.3.1"
 patito = "^0.8.2"
 svgpath2mpl = "^1.0.0"
 itables = "^2.2.3"
-reactable = "^0.1.2"
+reactable = "^0.1.4"
 great-tables = "^0.13.0"
 
 [tool.poetry.group.dev.dependencies]

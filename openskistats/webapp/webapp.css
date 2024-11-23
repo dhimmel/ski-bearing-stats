@@ -65,3 +65,7 @@
   line-height: 1em;
   margin-top: 0.2em;
 }
+
+.border-left-dormant {
+  border-left: 2px solid #191818;
+}

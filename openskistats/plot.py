@@ -59,7 +59,7 @@ def plot_orientation(
     linewidth: float = 0.5,
     alpha: float = 0.7,
     title: str | None = None,
-    title_wrap: int | None = 40,
+    title_wrap: int | None = 30,
     title_y: float = 1.05,
     title_font_size: float = 22,
     disable_xticks: bool = False,
@@ -107,14 +107,7 @@ def plot_orientation(
     """
     num_bins = len(bin_centers)
     if title and title_wrap is not None:
-        title = "\n".join(textwrap.wrap(title, width=30))
-    title_font = {
-        # fallback font families for more character support https://matplotlib.org/stable/users/explain/text/fonts.html
-        "family": ["DejaVu Sans", "Noto Sans CJK JP"],
-        "size": title_font_size,
-        "weight": "bold",
-    }
-
+        title = "\n".join(textwrap.wrap(title, width=title_wrap))
     if xtick_font is None:
         xtick_font = {
             "family": "DejaVu Sans",
@@ -183,8 +176,17 @@ def plot_orientation(
         _mpl_add_polar_margin_text(ax=ax, ylim=ylim, location=location, text=text)
 
     if title:
-        ax.set_title(title, y=title_y, fontdict=title_font)
-    fig.tight_layout()
+        ax.set_title(
+            title,
+            y=title_y,
+            fontdict={
+                # fallback font families for more character support https://matplotlib.org/stable/users/explain/text/fonts.html
+                "family": ["DejaVu Sans", "Noto Sans CJK JP"],
+                "size": title_font_size,
+                "weight": "bold",
+            },
+            pad=13,
+        )
     return fig, ax
 
 
@@ -215,11 +217,11 @@ def _generate_margin_text(group_info: dict[str, Any]) -> dict[MarginTextLocation
     margin_text = {}
     if {"ski_areas_count", "run_count", "lift_count"}.issubset(group_info):
         margin_text[MarginTextLocation.top_left] = (
-            f"{group_info["ski_areas_count"]:,} ski areas,\n{group_info["run_count"]:,} runs,\n{group_info["lift_count"]:,} lifts"
+            f"{group_info["ski_areas_count"]:,} ski areas\n{group_info["run_count"]:,} runs\n{group_info["lift_count"]:,} lifts"
         )
     elif {"run_count", "lift_count"}.issubset(group_info):
         margin_text[MarginTextLocation.top_left] = (
-            f"{group_info["run_count"]:,} runs,\n{group_info["lift_count"]:,} lifts"
+            f"{group_info["run_count"]:,} runs\n{group_info["lift_count"]:,} lifts"
         )
     if "combined_vertical" in group_info:
         margin_text[MarginTextLocation.top_right] = (
@@ -290,7 +292,8 @@ def subplot_orientations(
     if n_cols is None:
         n_cols = math.ceil(n_subplots**0.5)
     n_rows = math.ceil(n_subplots / n_cols)
-    figsize = (n_cols * SUBPLOT_FIGSIZE, n_rows * SUBPLOT_FIGSIZE)
+    # adjusts the height of the figure to accommodate subplot titles
+    figsize = (n_cols * SUBPLOT_FIGSIZE, n_rows * (SUBPLOT_FIGSIZE + 0.37))
     fig, axes = plt.subplots(
         nrows=n_rows,
         ncols=n_cols,
@@ -338,7 +341,7 @@ def subplot_orientations(
         # FIXME: spacing is inconsistent based on number of subplot rows
         fig.suptitle(t=suptitle, y=0.99, fontsize=13, verticalalignment="bottom")
     fig.tight_layout()
-    fig.subplots_adjust(hspace=0.24)
+    fig.subplots_adjust(hspace=0.31)
     # fig.savefig("images/street-orientations.png", facecolor="w", dpi=100, bbox_inches="tight")
     plt.close()
     return fig

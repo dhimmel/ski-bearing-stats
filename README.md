@@ -94,8 +94,8 @@ List of related webpages:
 - Table of all OpenStreetMap users that have contributed to ski areas, i.e. top skiers
 - Display table webpage background of falling snowflakes ([examples](https://freefrontend.com/css-snow-effects/))
 - Max slope v difficulty by region
-- Cleanup unused dependencies
 - fix matplotlib super title spacing
+- ski area table: donut for alignment percent ([example](https://glin.github.io/reactable/articles/popular-movies/popular-movies.html))
 - How many ski areas in the world, comparing to the Vanat report
 - Total combined vert of ski areas by rank of ski area (how much do big resorts drive the aggregated metrics)
 
@@ -122,5 +122,5 @@ List of related webpages:
 The code in this repository is released under a [BSD-2-Clause Plus Patent License](LICENSE.md).
 
 This project is built on data from [OpenSkiMap](https://openskimap.org/), which is based on [OpenStreetMap](https://www.openstreetmap.org/).
-This data is released under the [Open Data Commons Open Database License](https://opendatacommons.org/licenses/odbl/).
+OpenStreetMap and OpenSkiMap data are released under the [Open Data Commons Open Database License](https://opendatacommons.org/licenses/odbl/).
 Learn more at <https://www.openstreetmap.org/copyright>.

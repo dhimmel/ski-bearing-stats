@@ -1,0 +1,21 @@
+project:
+  type: website
+
+website:
+  title: "OpenSkiStats Browser"
+  navbar:
+    left:
+      - href: index.qmd
+        text: About
+      - href: ski-areas.qmd
+        text: Ski areas
+    right:
+      - icon: github
+        href: https://github.com/dhimmel/openskistats
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true
+jupyter: python3

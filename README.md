@@ -14,20 +14,20 @@ The first application is the creation of roses showing the compass orientations 
 
 ```shell
 # download latest OpenSkiMap data
-poetry run openskistats download
+uv run openskistats download
 
 # extract ski area metadata and metrics
-poetry run openskistats analyze
+uv run openskistats analyze
 
-poetry run openskistats visualize
-poetry run openskistats display
+uv run openskistats visualize
+uv run openskistats display
 ```
 
 Commands that you will have to run less frequently:
 
 ```shell
-# install the poetry environment in poetry.lock
-poetry install
+# install the uv environment in uv.lock
+uv sync
 
 # install the pre-commit git hooks
 pre-commit install
@@ -109,6 +109,7 @@ List of related webpages:
 - [polars/issues/19771](https://github.com/pola-rs/polars/issues/19771): A no-op filter errors when the dataframe has an all null column
 - [reactable-py/issues/25](https://github.com/machow/reactable-py/issues/25): Column default sort order does not override global default
 - [reactable-py/issues/28](https://github.com/machow/reactable-py/issues/28): Column class_ argument only sets the dev class for the first row
+- [reactable-py/issues/29](https://github.com/machow/reactable-py/issues/29): Should great_tables be a dependency (currently dev dependency)
 
 ## License
 

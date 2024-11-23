@@ -70,7 +70,7 @@ class Commands:
     @staticmethod
     def command() -> None:
         """
-        Run like `poetry run ski_bearings`
+        Run like `uv run ski_bearings`
         """
         logging.basicConfig()
         logging.getLogger().setLevel(logging.INFO)

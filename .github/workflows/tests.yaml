@@ -11,7 +11,7 @@ jobs:
       with:
         python-version: "3.12"
     - uses: pre-commit/action@v3.0.1
-    - uses: snok/install-poetry@v1
-    - run: poetry install --ansi --no-interaction
+    - uses: astral-sh/setup-uv@v3
+    - run: uv sync --extra=dev
       shell: bash
-    - run: poetry run pytest --color=yes
+    - run: uv run pytest --color=yes

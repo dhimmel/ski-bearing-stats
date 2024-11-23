@@ -366,11 +366,11 @@ def create_ski_area_roses(overwrite: bool = False) -> None:
     """
     Export ski area roses to SVG for display.
     """
-    directory = get_data_directory().joinpath("ski-areas")
+    directory = get_data_directory().joinpath("webapp", "ski-areas")
     directory_preview = directory.joinpath("roses-preview")
     directory_full = directory.joinpath("roses-full")
-    for _directory in directory, directory_preview, directory_full:
-        _directory.mkdir(exist_ok=True)
+    for _directory in directory_preview, directory_full:
+        _directory.mkdir(exist_ok=True, parents=True)
     ski_areas_pl = load_ski_areas_pl(
         ski_area_filters=get_display_ski_area_filters()
     ).drop("bearings")

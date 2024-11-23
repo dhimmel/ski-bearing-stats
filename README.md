@@ -22,8 +22,11 @@ uv run openskistats analyze
 uv run openskistats visualize
 uv run openskistats display
 
-# webserver for viewing http://localhost:8000/display.html
-python -m http.server --directory=data
+# quarto display
+quarto render openskistats/webapp/index.qmd --output-dir="$(pwd)/data/webapp"
+
+# webserver for viewing http://localhost:8000
+python -m http.server --directory=data/webapp
 ```
 
 Commands that you will have to run less frequently:

@@ -101,7 +101,6 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
             "eastward_affinity",
             pl.selectors.starts_with("bin_proportion_"),
             pl.col("ski_area_id").alias("rose"),
-            # pl.format("""<img src="ski-areas/roses-preview/{}.svg">""", "ski_area_id").alias("rose"),
         )
         # reduce size of HTML output by rounding floats
         .with_columns(pl.selectors.by_dtype(pl.Float64).round(4))
@@ -319,7 +318,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
 
     def _country_cell(ci: reactable.CellInfo) -> str:
         country_emoji = data_pl.item(row=ci.row_index, column="country_emoji")
-        return f"{country_emoji}<br>{ci.value}"
+        return f"{country_emoji}<br>{ci.value}" if ci.value else ""
 
     bin_proportion_column_kwargs = {
         "format": reactable.ColFormat(percent=True, digits=0),

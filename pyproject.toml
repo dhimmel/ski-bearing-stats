@@ -1,39 +1,41 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
 name = "openskistats"
 version = "0.1.0"
 description = "OpenSkiStats: Shredding Data Like Powder"
-authors = ["Daniel Himmelstein"]
+authors = [
+    {name = "Daniel Himmelstein"},
+    {name = "Trang Le"},
+]
 readme = "README.md"
+license = {file = "LICENSE.md"}
 repository = "https://github.com/dhimmel/openskistats"
+requires-python = ">= 3.12"
+dependencies = [
+    "great-tables >= 0.13.0",
+    "jupyter >= 1.1.1",
+    "lets-plot >= 4.5.1",
+    "osmnx >= 2.0.0rc2",
+    "patito >= 0.8.2",
+    "plotly >= 5.24.1",
+    "plotnine >= 0.13.6",
+    "polars >= 1.13.1",
+    "pyarrow >= 17.0.0",
+    "reactable >= 0.1.4",
+    "typer >= 0.12.5",
+]
 
-[tool.poetry.scripts]
+[project.optional-dependencies]
+dev = [
+    "pre-commit >= 3.8.0",
+    "pytest >= 7.4.4",
+]
+
+[project.scripts]
 openskistats = "openskistats.commands:Commands.command"
-
-[tool.poetry.dependencies]
-python = "^3.12"
-geojson = "^3.1.0"
-plotnine = "^0.13.0"
-jupyter = "^1.0.0"
-polars = "^1.10"
-osmnx = "^2.0.0rc2"
-geopandas = "^1.0"
-pyarrow = "^17.0"
-typer = {extras = ["all"], version = "^0.12.0"}
-plotly = "^5.20.0"
-lets-plot = "^4.3.1"
-patito = "^0.8.2"
-svgpath2mpl = "^1.0.0"
-itables = "^2.2.3"
-reactable = "^0.1.4"
-great-tables = "^0.13.0"
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.0.4"
-pytest = "^7.2.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 target-version = "py312"

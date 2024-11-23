@@ -4,17 +4,20 @@ from enum import IntEnum
 from functools import cache
 from typing import Any
 
-import lets_plot as lp
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 import polars as pl
-from lets_plot.plot.core import PlotSpec as LetsPlotSpec
 from matplotlib.figure import Figure
 from matplotlib.path import Path as MplPath
 from matplotlib.projections.polar import PolarAxes
 from matplotlib.text import Text as MplText
 from osmnx.plot import _get_fig_ax
+
+try:
+    from lets_plot.plot.core import PlotSpec as LetsPlotSpec
+except ImportError:
+    LetsPlotSpec = Any
 
 SUBPLOT_FIGSIZE = 4.0
 """Size in inches for each subplot in a grid."""
@@ -432,6 +435,8 @@ def subplot_orientations_lets_plot(
     Plot orientations from multiple graphs in a grid
     using Let's Plot. This is exploratory with much broken.
     """
+    import lets_plot as lp
+
     return (
         lp.ggplot(
             data=(

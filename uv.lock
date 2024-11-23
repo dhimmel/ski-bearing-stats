@@ -1299,6 +1299,10 @@ dependencies = [
     { name = "great-tables" },
     { name = "jupyter" },
     { name = "lets-plot" },
+    { name = "matplotlib" },
+    { name = "mizani" },
+    { name = "networkx" },
+    { name = "numpy" },
     { name = "osmnx" },
     { name = "patito" },
     { name = "plotly" },
@@ -1306,6 +1310,7 @@ dependencies = [
     { name = "polars" },
     { name = "pyarrow" },
     { name = "reactable" },
+    { name = "requests" },
     { name = "typer" },
 ]
 
@@ -1320,6 +1325,10 @@ requires-dist = [
     { name = "great-tables", specifier = ">=0.13.0" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "lets-plot", specifier = ">=4.5.1" },
+    { name = "matplotlib", specifier = ">=3.9.2" },
+    { name = "mizani", specifier = ">=0.13.0" },
+    { name = "networkx", specifier = ">=3.4.2" },
+    { name = "numpy", specifier = ">=2.1.3" },
     { name = "osmnx", specifier = ">=2.0.0rc2" },
     { name = "patito", specifier = ">=0.8.2" },
     { name = "plotly", specifier = ">=5.24.1" },
@@ -1329,6 +1338,7 @@ requires-dist = [
     { name = "pyarrow", specifier = ">=17.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.4" },
     { name = "reactable", specifier = ">=0.1.4" },
+    { name = "requests", specifier = ">=2.32.3" },
     { name = "typer", specifier = ">=0.12.5" },
 ]
 

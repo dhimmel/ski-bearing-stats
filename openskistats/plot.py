@@ -251,7 +251,7 @@ def _plot_mean_bearing_as_snowflake(
         zorder=2,
         marker=get_snowflake_marker(),
         linewidths=0,
-        s=500,  # marker size
+        s=230,  # marker size
         alpha=0.7,
     )
 
@@ -556,5 +556,6 @@ def get_snowflake_marker() -> MplPath:
     # fmt: on
     # normalize path to have its center at (0, 0)
     return MplPath(
-        vertices=path.vertices - np.mean(path.vertices, axis=0), codes=path.codes
+        vertices=path.vertices - np.mean(path.vertices, axis=0),
+        codes=path.codes,
     )

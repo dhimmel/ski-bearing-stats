@@ -14,6 +14,8 @@ jobs:
     - uses: astral-sh/setup-uv@v3
     - run: uv sync
     - uses: quarto-dev/quarto-actions/setup@v2
+    - name: install fonts
+      run: sudo apt-get install --yes fonts-dejavu-core fonts-noto-cjk
     - name: Analysis
       run: |
         uv run openskistats download

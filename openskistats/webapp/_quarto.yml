@@ -4,6 +4,7 @@ project:
 website:
   title: "OpenSkiStats"
   search: false
+  site-url: https://openskistats.org
   navbar:
     left:
       - href: index.qmd
@@ -13,10 +14,14 @@ website:
     right:
       - icon: github
         href: https://github.com/dhimmel/openskistats
+  page-footer:
+    left:
+      This website is released under a [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/).
 
 format:
   html:
     theme: cosmo
     toc: true
     code-fold: true
+
 jupyter: python3

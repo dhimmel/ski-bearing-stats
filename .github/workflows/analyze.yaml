@@ -13,18 +13,20 @@ jobs:
         python-version: "3.12"
     - uses: astral-sh/setup-uv@v3
     - run: uv sync
+    - uses: quarto-dev/quarto-actions/setup@v2
     - name: Analysis
       run: |
         uv run openskistats download
         uv run openskistats analyze
         uv run openskistats validate
         uv run openskistats visualize
-        uv run openskistats display
+        uv run quarto render openskistats/webapp --output-dir="$(pwd)/data/webapp"
       shell: bash
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./data
+        publish_dir: ./data/webapp
         exclude_assets: "**.xz,**.parquet"
         force_orphan: true
+        cname: openskistats.org

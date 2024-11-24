@@ -1,5 +1,8 @@
 import logging
+import multiprocessing
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from typing import Any
 
 import matplotlib.pyplot
 import polars as pl
@@ -378,74 +381,96 @@ def create_ski_area_roses(overwrite: bool = False) -> None:
         ski_area_filters=get_display_ski_area_filters()
     )
     logging.info(
-        f"Creating ski area preview roses for {len(ski_areas_pl):,} ski areas in {directory} with {overwrite=}."
+        f"Filtered to {len(ski_areas_pl):,} ski areas. Rose plotting {overwrite=}."
     )
-    for info in ski_areas_pl.iter_rows(named=True):
+    tasks = []
+    for info in ski_areas_pl.rows(named=True):
         ski_area_id = info["ski_area_id"]
-        ski_area_name = info["ski_area_name"]
-        bearing_pl = bearings_pl.filter(pl.col("ski_area_id") == ski_area_id)
-
-        # plot and save preview rose
-        path = directory_preview.joinpath(f"{ski_area_id}.svg")
-        if not overwrite and path.exists():
+        preview_path = directory_preview.joinpath(f"{ski_area_id}.svg")
+        full_path = directory_full.joinpath(f"{ski_area_id}.svg")
+        if not overwrite and full_path.exists():
             continue
+        tasks.append(
+            {
+                "info": info,
+                "bearing_pl": bearings_pl.filter(pl.col("ski_area_id") == ski_area_id),
+                "preview_path": preview_path,
+                "full_path": full_path,
+            }
+        )
+    logging.info(f"Creating roses for {len(tasks):,} ski areas concurrently...")
+    # use spawn instead of fork until Python 3.14 as per https://docs.pola.rs/user-guide/misc/multiprocessing/
+    mp_context = multiprocessing.get_context("spawn")
+    with ProcessPoolExecutor(mp_context=mp_context) as executor:
+        executor.map(
+            lambda kwargs: _create_ski_area_rose(**kwargs),
+            tasks,
+        )
 
-        bearing_preview_pl = bearing_pl.filter(pl.col("num_bins") == 8)
-        fig, ax = plot_orientation(
-            bin_counts=bearing_preview_pl.get_column("bin_count").to_numpy(),
-            bin_centers=bearing_preview_pl.get_column("bin_center").to_numpy(),
-            margin_text={},
-            figsize=(1, 1),
-            alpha=1.0,
-            edgecolor="#6b6b6b",
-            linewidth=0.4,
-            disable_xticks=True,
-        )
-        # make the polar frame less prominent
-        ax.spines["polar"].set_linewidth(0.4)
-        ax.spines["polar"].set_color("#6b6b6b")
-        logging.info(f"Writing {path}")
-        fig.savefig(
-            path,
-            format="svg",
-            bbox_inches="tight",
-            pad_inches=0.02,
-            transparent=True,
-            metadata={
-                "Title": f"Preview Ski Rose for {ski_area_name}",
-                "Description": f"An 8-bin histogram of downhill ski trail orientations generated from <https://openskimap.org/?obj={ski_area_id}>.",
-                "Creator": "https://github.com/dhimmel/openskistats",
-            },
-        )
-        matplotlib.pyplot.close(fig)
 
-        # plot and save full rose
-        path = directory_full.joinpath(f"{ski_area_id}.svg")
-        bearing_full_pl = bearing_pl.filter(pl.col("num_bins") == 32)
-        fig, ax = plot_orientation(
-            bin_counts=bearing_full_pl.get_column("bin_count").to_numpy(),
-            bin_centers=bearing_full_pl.get_column("bin_center").to_numpy(),
-            title=ski_area_name,
-            title_font_size=16,
-            margin_text=_generate_margin_text(info),
-            figsize=(4, 4),
-            alpha=1.0,
-        )
-        _plot_mean_bearing_as_snowflake(
-            ax=ax, bearing=info["bearing_mean"], alignment=info["bearing_alignment"]
-        )
-        logging.info(f"Writing {path}")
-        fig.savefig(
-            path,
-            format="svg",
-            bbox_inches="tight",
-            # pad_inches=0.02,
-            facecolor="#FFFFFF",
-            transparent=False,
-            metadata={
-                "Title": f"Ski Rose for {ski_area_name}",
-                "Description": f"A 32-bin histogram of downhill ski trail orientations generated from <https://openskimap.org/?obj={ski_area_id}>.",
-                "Creator": "https://github.com/dhimmel/openskistats",
-            },
-        )
-        matplotlib.pyplot.close(fig)
+def _create_ski_area_rose(
+    info: dict[str, Any], bearing_pl: pl.DataFrame, preview_path: Path, full_path: Path
+) -> None:
+    """Create a preview and a full rose for a ski area."""
+    ski_area_id = info["ski_area_id"]
+    ski_area_name = info["ski_area_name"]
+
+    # plot and save preview rose
+    bearing_preview_pl = bearing_pl.filter(pl.col("num_bins") == 8)
+    fig, ax = plot_orientation(
+        bin_counts=bearing_preview_pl.get_column("bin_count").to_numpy(),
+        bin_centers=bearing_preview_pl.get_column("bin_center").to_numpy(),
+        margin_text={},
+        figsize=(1, 1),
+        alpha=1.0,
+        edgecolor="#6b6b6b",
+        linewidth=0.4,
+        disable_xticks=True,
+    )
+    # make the polar frame less prominent
+    ax.spines["polar"].set_linewidth(0.4)
+    ax.spines["polar"].set_color("#6b6b6b")
+    logging.info(f"Writing {preview_path}")
+    fig.savefig(
+        preview_path,
+        format="svg",
+        bbox_inches="tight",
+        pad_inches=0.02,
+        transparent=True,
+        metadata={
+            "Title": f"Preview Ski Rose for {ski_area_name}",
+            "Description": f"An 8-bin histogram of downhill ski trail orientations generated from <https://openskimap.org/?obj={ski_area_id}>.",
+            "Creator": "https://github.com/dhimmel/openskistats",
+        },
+    )
+    matplotlib.pyplot.close(fig)
+
+    # plot and save full rose
+    bearing_full_pl = bearing_pl.filter(pl.col("num_bins") == 32)
+    fig, ax = plot_orientation(
+        bin_counts=bearing_full_pl.get_column("bin_count").to_numpy(),
+        bin_centers=bearing_full_pl.get_column("bin_center").to_numpy(),
+        title=ski_area_name,
+        title_font_size=16,
+        margin_text=_generate_margin_text(info),
+        figsize=(4, 4),
+        alpha=1.0,
+    )
+    _plot_mean_bearing_as_snowflake(
+        ax=ax, bearing=info["bearing_mean"], alignment=info["bearing_alignment"]
+    )
+    logging.info(f"Writing {full_path}")
+    fig.savefig(
+        full_path,
+        format="svg",
+        bbox_inches="tight",
+        # pad_inches=0.02,
+        facecolor="#FFFFFF",
+        transparent=False,
+        metadata={
+            "Title": f"Ski Rose for {ski_area_name}",
+            "Description": f"A 32-bin histogram of downhill ski trail orientations generated from <https://openskimap.org/?obj={ski_area_id}>.",
+            "Creator": "https://github.com/dhimmel/openskistats",
+        },
+    )
+    matplotlib.pyplot.close(fig)

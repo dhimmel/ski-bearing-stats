@@ -3,9 +3,21 @@ See some OpenSkiMap schemas at
 https://github.com/russellporter/openskidata-format
 """
 
+from enum import StrEnum
 from typing import Annotated, Literal
 
 from patito import Field, Model
+
+
+class SkiRunDifficulty(StrEnum):
+    novice = "novice"
+    easy = "easy"
+    intermediate = "intermediate"
+    advanced = "advanced"
+    expert = "expert"
+    extreme = "extreme"
+    freeride = "freeride"
+    other = "other"
 
 
 class RunCoordinateModel(Model):  # type: ignore [misc]

@@ -1,9 +1,12 @@
+import hashlib
 import json
 import logging
 import lzma
 import os
 from collections import Counter
-from enum import StrEnum
+from dataclasses import asdict as dataclass_to_dict
+from dataclasses import dataclass
+from email.utils import parsedate_to_datetime
 from functools import cache
 from pathlib import Path
 from typing import Any, Literal
@@ -12,32 +15,50 @@ import polars as pl
 import requests
 
 from openskistats.models import RunCoordinateModel
-from openskistats.utils import get_data_directory
-
-
-class SkiRunDifficulty(StrEnum):
-    novice = "novice"
-    easy = "easy"
-    intermediate = "intermediate"
-    advanced = "advanced"
-    expert = "expert"
-    extreme = "extreme"
-    freeride = "freeride"
-    other = "other"
+from openskistats.utils import get_data_directory, repo_directory
 
 
 def get_openskimap_path(
-    name: Literal["runs", "ski_areas", "lifts"],
+    name: Literal["runs", "ski_areas", "lifts", "info"],
     testing: bool = False,
 ) -> Path:
     testing = testing or "PYTEST_CURRENT_TEST" in os.environ
     directory = get_data_directory(testing=testing).joinpath("openskimap")
     directory.mkdir(exist_ok=True)
-    filename = f"{name}.geojson" if testing else f"{name}.geojson.xz"
+    if name == "info":
+        filename = "info.json"
+    elif testing:
+        filename = f"{name}.geojson"
+    else:
+        filename = f"{name}.geojson.xz"
     return directory.joinpath(filename)
 
 
-def download_openskimap_geojson(name: Literal["runs", "ski_areas", "lifts"]) -> None:
+@dataclass
+class OsmDownloadInfo:
+    url: str
+    relative_path: str
+    last_modified: str
+    downloaded: str
+    content_size_mb: float
+    compressed_size_mb: float
+    checksum_sha256: str
+
+    def __str__(self) -> str:
+        return (
+            f"  URL: {self.url}\n"
+            f"  Repo-Relative Path: {self.relative_path}\n"
+            f"  Last Modified: {self.last_modified}\n"
+            f"  Downloaded: {self.downloaded}\n"
+            f"  Content Size (MB): {self.content_size_mb:.2f}\n"
+            f"  Compressed Size (MB): {self.compressed_size_mb:.2f}\n"
+            f"  Checksum (SHA-256): {self.checksum_sha256}"
+        )
+
+
+def download_openskimap_geojson(
+    name: Literal["runs", "ski_areas", "lifts"],
+) -> OsmDownloadInfo:
     """Download a single geojson file from OpenSkiMap and save it to disk with compression."""
     url = f"https://tiles.openskimap.org/geojson/{name}.geojson"
     path = get_openskimap_path(name)
@@ -45,24 +66,34 @@ def download_openskimap_geojson(name: Literal["runs", "ski_areas", "lifts"]) -> 
     logging.info(f"Downloading {url} to {path}")
     headers = {
         "From": "https://github.com/dhimmel/openskistats",
-        "Referer": "https://openskimap.org/",
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-        "sec-ch-ua": '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"Linux"',
     }
     response = requests.get(url, allow_redirects=True, headers=headers)
     response.raise_for_status()
     with lzma.open(path, "wb") as write_file:
         write_file.write(response.content)
-    compressed_size_mb = path.stat().st_size / 1024**2
-    logging.info(f"compressed size of {path.name} is {compressed_size_mb:.2f} MB")
+    info = OsmDownloadInfo(
+        url=url,
+        relative_path=path.relative_to(repo_directory).as_posix(),
+        last_modified=parsedate_to_datetime(
+            response.headers["last-modified"]
+        ).isoformat(),
+        downloaded=parsedate_to_datetime(response.headers["date"]).isoformat(),
+        content_size_mb=len(response.content) / 1024**2,
+        compressed_size_mb=path.stat().st_size / 1024**2,
+        checksum_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+    )
+    logging.info(f"Download complete:\n{info}")
+    return info
 
 
 def download_openskimap_geojsons() -> None:
     """Download all OpenSkiMap geojson files."""
-    for name in ["runs", "ski_areas", "lifts"]:
-        download_openskimap_geojson(name)  # type: ignore [arg-type]
+    download_infos = []
+    for name in ["lifts", "ski_areas", "runs"]:
+        info = download_openskimap_geojson(name)  # type: ignore [arg-type]
+        download_infos.append(dataclass_to_dict(info))
+    # write download info to disk
+    get_openskimap_path("info").write_text(json.dumps(download_infos, indent=2))
 
 
 def load_openskimap_geojson(

@@ -3,6 +3,7 @@ import json
 import logging
 import lzma
 import os
+import shutil
 from collections import Counter
 from dataclasses import asdict as dataclass_to_dict
 from dataclasses import dataclass
@@ -113,6 +114,11 @@ def load_openskimap_geojson(
         f"Loaded {len(features):,} {name} with geometry types {geometry_types}"
     )
     return features
+
+
+def load_openskimap_download_info() -> list[OsmDownloadInfo]:
+    download_infos = json.loads(get_openskimap_path("info").read_text())
+    return [OsmDownloadInfo(**info_dict) for info_dict in download_infos]
 
 
 @cache
@@ -348,3 +354,8 @@ def generate_openskimap_test_data() -> None:
         path = get_openskimap_path(name, testing=True)  # type: ignore [arg-type]
         logging.info(f"Writing {len(data['features']):,} {name} to {path}.")
         path.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+
+    # copy info.json to testing directory (checksums and sizes will still refer to unfiltered data)
+    shutil.copy(
+        src=get_openskimap_path("info"), dst=get_openskimap_path("info", testing=True)
+    )

@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-repo_directory = Path(__file__).parent.parent.parent
-data_directory = Path(__file__).parent.parent.joinpath("data")
+repo_directory = Path(__file__).parent.parent
+data_directory = repo_directory.joinpath("data")
 test_data_directory = Path(__file__).parent.joinpath("tests", "data")
 
 

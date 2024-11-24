@@ -12,9 +12,10 @@ The underlying data is provided by [OpenSkiMap](https://openskimap.org) and [Ope
 This project is currently under heavy development and is not yet ready for public consumption.
 :::
 
-::: {.column-page}
+::: {.column-screen-inset}
 ```{python}
 #| echo: false
+#| output: asis
 from openskistats.display import embed_reactable_html, get_ski_area_reactable
 
 embed_reactable_html()

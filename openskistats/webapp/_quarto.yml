@@ -2,14 +2,14 @@ project:
   type: website
 
 website:
-  title: "OpenSkiStats Browser"
+  title: "OpenSkiStats"
   search: false
   navbar:
     left:
       - href: index.qmd
         text: About
       - href: ski-areas.qmd
-        text: Ski areas
+        text: Ski Areas
     right:
       - icon: github
         href: https://github.com/dhimmel/openskistats

@@ -303,6 +303,26 @@ function(cellInfo) {
 }
 """)
 
+_column_kwargs_location_str = {
+    "default_sort_order": "asc",
+    "min_width": 90,
+}
+_column_kwargs_meters = {
+    "format": reactable.ColFormat(
+        suffix=f"{NARROW_SPACE}m",
+        digits=0,
+        separators=True,
+    ),
+    "filter_method": _numeric_filter,
+    "min_width": 80,
+}
+_column_kwargs_bin_proportion = {
+    "format": reactable.ColFormat(percent=True, digits=0),
+    "min_width": 50,
+    "filter_method": _percent_filter,
+    "style": _percent_sequential_style,
+}
+
 
 def get_ski_area_reactable() -> reactable.Reactable:
     data_pl = get_ski_area_frontend_table()
@@ -320,21 +340,6 @@ def get_ski_area_reactable() -> reactable.Reactable:
         country_emoji = data_pl.item(row=ci.row_index, column="country_emoji")
         return f"{country_emoji}<br>{ci.value}" if ci.value else ""
 
-    bin_proportion_column_kwargs = {
-        "format": reactable.ColFormat(percent=True, digits=0),
-        "max_width": 45,
-        "filter_method": _percent_filter,
-        "style": _percent_sequential_style,
-    }
-    meters_column_kwargs = {
-        "format": reactable.ColFormat(
-            suffix=f"{NARROW_SPACE}m",
-            digits=0,
-            separators=True,
-        ),
-        "filter_method": _numeric_filter,
-        "min_width": 80,
-    }
     return reactable.Reactable(
         data=data_pl,
         # striped=True,
@@ -347,8 +352,12 @@ def get_ski_area_reactable() -> reactable.Reactable:
             filterable=True,
             align="center",
             v_align="center",
+            sort_na_last=True,
         ),
         show_page_size_options=True,
+        default_sorted={
+            "combined_vertical": "desc",
+        },
         columns=[
             reactable.Column(
                 id="ski_area_id",
@@ -375,8 +384,8 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 cell=_country_cell,
                 html=True,
                 filter_method=_country_filter,
-                default_sort_order="asc",
                 class_=["border-left"],
+                **_column_kwargs_location_str,
             ),
             reactable.Column(
                 id="country_emoji",
@@ -389,52 +398,52 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.Column(
                 id="region",
                 name="Region",
-                default_sort_order="asc",
+                **_column_kwargs_location_str,
             ),
             reactable.Column(
                 id="locality",
                 name="Locality",
-                default_sort_order="asc",
+                **_column_kwargs_location_str,
             ),
             reactable.Column(
                 id="latitude",
                 name=f"ℍ{NARROW_SPACE}φ",
                 cell=_latitude_cell,
                 filter_method=_latitude_filter,
-                max_width=60,
+                min_width=60,
                 class_=["border-left"],
             ),
             reactable.Column(
                 id="run_count",
                 name="Runs",
                 filter_method=_numeric_filter,
-                max_width=60,
+                min_width=60,
             ),
             reactable.Column(
                 id="lift_count",
                 name="Lifts",
                 filter_method=_numeric_filter,
-                max_width=60,
+                min_width=60,
             ),
             reactable.Column(
                 id="combined_vertical",
                 name="Vertical",
-                **meters_column_kwargs,
+                **_column_kwargs_meters,
             ),
             reactable.Column(
                 id="vertical_drop",
                 name="Drop",
-                **meters_column_kwargs,
+                **_column_kwargs_meters,
             ),
             reactable.Column(
                 id="min_elevation",
                 name="Base Elev",
-                **meters_column_kwargs,
+                **_column_kwargs_meters,
             ),
             reactable.Column(
                 id="max_elevation",
                 name="Peak Elev",
-                **meters_column_kwargs,
+                **_column_kwargs_meters,
             ),
             reactable.Column(
                 id="bearing_mean",
@@ -444,6 +453,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 html=True,
                 filter_method=_numeric_filter,
                 class_=["border-left"],
+                min_width=60,
             ),
             reactable.Column(
                 id="bearing_alignment",
@@ -470,23 +480,23 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.Column(
                 id="bin_proportion_N",
                 name="N",
-                **bin_proportion_column_kwargs,
+                **_column_kwargs_bin_proportion,
                 class_=["border-left"],
             ),
             reactable.Column(
                 id="bin_proportion_E",
                 name="E",
-                **bin_proportion_column_kwargs,
+                **_column_kwargs_bin_proportion,
             ),
             reactable.Column(
                 id="bin_proportion_S",
                 name="S",
-                **bin_proportion_column_kwargs,
+                **_column_kwargs_bin_proportion,
             ),
             reactable.Column(
                 id="bin_proportion_W",
                 name="W",
-                **bin_proportion_column_kwargs,
+                **_column_kwargs_bin_proportion,
             ),
             reactable.Column(
                 id="rose",

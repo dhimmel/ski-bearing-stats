@@ -215,22 +215,9 @@ def _percent_diverging_style(ci: reactable.CellInfo) -> dict[str, Any] | None:
     return {"background": color}
 
 
-# derived from example https://machow.github.io/reactable-py/demos/twitter-followers.html
-_percent_with_bar_cell = reactable.JS("""
+_percent_with_donut_cell = reactable.JS("""
 function(cellInfo) {
-    // Format as percentage
-    const pct = (cellInfo.value * 100).toFixed(0) + "%"
-    // Pad single-digit numbers
-    let value = pct.padStart(4)
-    // Render bar chart
-    return `
-    <div class="bar-cell">
-        <span>${value}</span>
-        <div class="bar-chart" style="background-color: #e1e1e1">
-        <div class="bar" style="width: ${pct}; background-color: #fc5185"></div>
-        </div>
-    </div>
-    `
+  return donutChart(cellInfo.value)
 }
 """)
 
@@ -458,8 +445,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.Column(
                 id="bearing_alignment",
                 name="Alignment",
-                # format=reactable.ColFormat(percent=True, digits=0),
-                cell=_percent_with_bar_cell,
+                cell=_percent_with_donut_cell,
                 html=True,
                 filter_method=_percent_filter,
             ),

@@ -70,3 +70,36 @@ function hideTooltip(event) {
     tooltip.style.visibility = 'hidden';
     tooltip.style.opacity = '0';
 }
+
+// Generates HTML for a donut chart given a percentage value (out of 1) and color
+// Modified from <https://glin.github.io/reactable/articles/popular-movies/popular-movies.html>
+function donutChart(value, color = '#a100bf') {
+    // Format as percentage
+    const pct = (value * 100).toFixed(0)
+    // All units are in rem for relative scaling
+    const radius = 1.5
+    const diameter = 3.75
+    const center = diameter / 2
+    const width = 0.25
+    const sliceLength = 2 * Math.PI * radius
+    const sliceOffset = sliceLength * (1 - value)
+    const donutChart = `
+      <svg width="${diameter}rem" height="${diameter}rem" style="transform: rotate(-90deg)" focusable="false">
+        <circle cx="${center}rem" cy="${center}rem" r="${radius}rem" fill="none" stroke-width="${width}rem" stroke="rgba(0,0,0,0.1)"></circle>
+        <circle cx="${center}rem" cy="${center}rem" r="${radius}rem" fill="none" stroke-width="${width}rem" stroke="${color}"
+         stroke-dasharray="${sliceLength}rem" stroke-dashoffset="${sliceOffset}rem"></circle>
+      </svg>
+    `
+    const label = `
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+        ${pct}%
+      </div>
+    `
+    return `
+      <div style="display: inline-flex; position: relative">
+        ${donutChart}
+        ${label}
+      </div>
+    `
+}
+  

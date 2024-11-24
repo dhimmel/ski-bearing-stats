@@ -1,6 +1,6 @@
 import logging
 import multiprocessing
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
@@ -399,13 +399,18 @@ def create_ski_area_roses(overwrite: bool = False) -> None:
             }
         )
     logging.info(f"Creating roses for {len(tasks):,} ski areas concurrently...")
+
     # use spawn instead of fork until Python 3.14 as per https://docs.pola.rs/user-guide/misc/multiprocessing/
     mp_context = multiprocessing.get_context("spawn")
+
     with ProcessPoolExecutor(mp_context=mp_context) as executor:
-        executor.map(
-            lambda kwargs: _create_ski_area_rose(**kwargs),
-            tasks,
-        )
+        futures = [executor.submit(_create_ski_area_rose, **task) for task in tasks]
+        for future in as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                logging.error(f"Task failed: {e}")
+                raise
 
 
 def _create_ski_area_rose(

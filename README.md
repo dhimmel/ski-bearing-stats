@@ -96,7 +96,7 @@ List of related webpages:
 - Display table webpage background of falling snowflakes ([examples](https://freefrontend.com/css-snow-effects/))
 - Max slope v difficulty by region
 - fix matplotlib super title spacing
-- ski area table: donut for alignment percent ([example](https://glin.github.io/reactable/articles/popular-movies/popular-movies.html))
+- fix matplotlib snowflake alignment, current bottom right aligned
 - How many ski areas in the world, comparing to the Vanat report
 - Total combined vert of ski areas by rank of ski area (how much do big resorts drive the aggregated metrics)
 

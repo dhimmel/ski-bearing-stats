@@ -1,5 +1,11 @@
 ---
-title: About the project
+title: About
 ---
 
-TODO
+OpenSkiStats is an open resource for geospatial metrics about downhill ski areas.
+The data comes from [OpenSkiMap](https://openskimap.org), which refines [OpenStreetMap](https://www.openstreetmap.org) to create an amazing interactive visualization of the world and all its ski trails.
+Thousands of OpenStreetMap contributors have worked for decades to annotate ski areas and their trails.
+This is an ongoing effort, and we can expect the underlying data to continue to improve over time.
+
+Now we bring the data behind these ski areas to life with summary statistics.
+The founding application of this project is to explore the orientation (compass bearings) of all the runs that comprise a ski area or grouping of ski areas.

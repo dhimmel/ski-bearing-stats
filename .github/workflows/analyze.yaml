@@ -22,7 +22,7 @@ jobs:
     - run: uv sync
     - uses: quarto-dev/quarto-actions/setup@v2
     - name: install fonts
-      run: sudo apt-get install --yes fonts-dejavu-core fonts-noto-cjk
+      run: sudo apt-get install --yes --quiet fonts-dejavu-core fonts-noto-cjk
     # GitHub will remove any cache entries that have not been accessed in over 7 days
     - name: Cache OpenSkiMap
       id: cache-openskimap

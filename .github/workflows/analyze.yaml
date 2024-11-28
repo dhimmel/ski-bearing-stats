@@ -1,6 +1,13 @@
 name: Analyze
 on:
-- workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      refresh_cache:
+        description: Refresh OpenSkiMap download
+        default: false
+        type: boolean
+  schedule:
+    - cron: "0 10 * * SAT"  # https://crontab.guru/#0_10_*_*_SAT
 jobs:
   analyze:
     runs-on: ubuntu-latest
@@ -23,8 +30,11 @@ jobs:
       with:
         path: data/openskimap
         key: openskimap
+        lookup-only: ${{ inputs.refresh_cache == 'true'}}
     - name: Download OpenSkiMap
-      if: steps.cache-openskimap.outputs.cache-hit != 'true'
+      # confusing behavior where inputs.refresh_cache acts like a string not a boolean
+      # https://stackoverflow.com/questions/76292948/github-action-boolean-input-with-default-value
+      if: inputs.refresh_cache == 'true' || steps.cache-openskimap.outputs.cache-hit != 'true'
       run: uv run openskistats download
     - name: Analysis
       run: |

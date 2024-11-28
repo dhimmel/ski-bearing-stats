@@ -4,8 +4,9 @@ on:
     inputs:
       refresh_cache:
         description: Refresh OpenSkiMap download
-        default: false
         type: boolean
+        required: true
+        default: false
   schedule:
     - cron: "0 10 * * SAT"  # https://crontab.guru/#0_10_*_*_SAT
 jobs:
@@ -30,11 +31,12 @@ jobs:
       with:
         path: data/openskimap
         key: openskimap
-        lookup-only: ${{ inputs.refresh_cache == 'true'}}
+        lookup-only: ${{ toJSON(inputs.refresh_cache) }}
     - name: Download OpenSkiMap
       # confusing behavior where inputs.refresh_cache acts like a string not a boolean
       # https://stackoverflow.com/questions/76292948/github-action-boolean-input-with-default-value
-      if: inputs.refresh_cache == 'true' || steps.cache-openskimap.outputs.cache-hit != 'true'
+      # https://github.com/actions/runner/issues/1483
+      if: toJSON(inputs.refresh_cache) || steps.cache-openskimap.outputs.cache-hit != 'true'
       run: uv run openskistats download
     - name: Analysis
       run: |

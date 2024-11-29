@@ -1337,7 +1337,7 @@ requires-dist = [
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.8.0" },
     { name = "pyarrow", specifier = ">=17.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.4" },
-    { name = "reactable", specifier = ">=0.1.4" },
+    { name = "reactable", specifier = ">=0.1.5" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "typer", specifier = ">=0.12.5" },
 ]
@@ -1963,7 +1963,7 @@ wheels = [
 
 [[package]]
 name = "reactable"
-version = "0.1.4"
+version = "0.1.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "databackend" },
@@ -1974,9 +1974,9 @@ dependencies = [
     { name = "ipython" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b4/ab/06a24782da9509147e0258ada4cd4ba05c2c25eaacab373c4d8428fa3186/reactable-0.1.4.tar.gz", hash = "sha256:06faeb3d8ddcefd7ee3d869e3cec43fbaf8c25bb0a7629189184285bfd1c788c", size = 937856 }
+sdist = { url = "https://files.pythonhosted.org/packages/44/3e/b5ab4ac9f54c4806d1098b3e108e22ea36498164dd7d53cbce3d156ec32a/reactable-0.1.5.tar.gz", hash = "sha256:cbf7bf9aeb85752587864f93ada3b6ff17cc5af9438afb7cdc33bb082c25f5be", size = 937998 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7a/44/4baa041175bf010d40a07a2d12ea2f4d854fa7f1df16ad9d44571a192488/reactable-0.1.4-py3-none-any.whl", hash = "sha256:105f36821dd388dbe1f178d67ca4703c990b9a1fae3196ab04abc70b250e6f4d", size = 116064 },
+    { url = "https://files.pythonhosted.org/packages/c5/ab/cf38b3112f3aa5dfdc67c5f69a309563265189d9185e36a08f534712c35e/reactable-0.1.5-py3-none-any.whl", hash = "sha256:9d42e7271d41e772455504ca7af10c88a9d2ef2e70086c468877ef6c71f94f1c", size = 116412 },
 ]
 
 [[package]]

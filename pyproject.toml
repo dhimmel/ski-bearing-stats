@@ -28,7 +28,7 @@ dependencies = [
     "plotnine >= 0.13.6",
     "polars >= 1.13.1",
     "pyarrow >= 17.0.0",
-    "reactable >= 0.1.4",
+    "reactable >= 0.1.5",
     "requests >= 2.32.3",
     "typer >= 0.12.5",
 ]

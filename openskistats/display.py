@@ -310,6 +310,12 @@ _column_kwargs_bin_proportion = {
     "style": _percent_sequential_style,
 }
 
+theme = reactable.Theme(
+    style={
+        ".border-left": {"border-left": "2px solid #3f3e3e"},
+    },
+)
+
 
 def get_ski_area_reactable() -> reactable.Reactable:
     data_pl = get_ski_area_frontend_table()
@@ -330,6 +336,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
     return reactable.Reactable(
         data=data_pl,
         # striped=True,
+        theme=theme,
         searchable=False,
         highlight=True,
         full_width=True,
@@ -371,7 +378,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 cell=_country_cell,
                 html=True,
                 filter_method=_country_filter,
-                class_=["border-left"],
+                class_="border-left",
                 **_column_kwargs_location_str,
             ),
             reactable.Column(
@@ -398,13 +405,13 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 cell=_latitude_cell,
                 filter_method=_latitude_filter,
                 min_width=60,
-                class_=["border-left"],
             ),
             reactable.Column(
                 id="run_count",
                 name="Runs",
                 filter_method=_numeric_filter,
                 min_width=60,
+                class_="border-left",
             ),
             reactable.Column(
                 id="lift_count",
@@ -439,7 +446,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 cell=_azimuth_cell,
                 html=True,
                 filter_method=_numeric_filter,
-                class_=["border-left"],
+                class_="border-left",
                 min_width=60,
             ),
             reactable.Column(
@@ -467,7 +474,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="bin_proportion_N",
                 name="N",
                 **_column_kwargs_bin_proportion,
-                class_=["border-left"],
+                class_="border-left",
             ),
             reactable.Column(
                 id="bin_proportion_E",
@@ -492,7 +499,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 filterable=False,
                 cell=_rose_cell,
                 # max_width=45,
-                class_=["border-left"],
+                class_="border-left",
             ),
         ],
         column_groups=[

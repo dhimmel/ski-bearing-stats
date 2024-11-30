@@ -333,6 +333,15 @@ def get_ski_area_reactable() -> reactable.Reactable:
         country_emoji = data_pl.item(row=ci.row_index, column="country_emoji")
         return f"{country_emoji}<br>{ci.value}" if ci.value else ""
 
+    def _ski_area_metric_style(ci: reactable.CellInfo) -> dict[str, Any] | None:
+        """Style cell background for columns whose that express a sequential metric."""
+        if not isinstance(ci.value, int | float):
+            return None
+        color = _sequential_percent_palette(
+            ci.value / data_pl.get_column(ci.column_name).max()
+        )
+        return {"background": color}
+
     return reactable.Reactable(
         data=data_pl,
         # striped=True,
@@ -412,32 +421,38 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 filter_method=_numeric_filter,
                 min_width=60,
                 class_="border-left",
+                style=_ski_area_metric_style,
             ),
             reactable.Column(
                 id="lift_count",
                 name="Lifts",
                 filter_method=_numeric_filter,
                 min_width=60,
+                style=_ski_area_metric_style,
             ),
             reactable.Column(
                 id="combined_vertical",
                 name="Vertical",
                 **_column_kwargs_meters,
+                style=_ski_area_metric_style,
             ),
             reactable.Column(
                 id="vertical_drop",
                 name="Drop",
                 **_column_kwargs_meters,
+                style=_ski_area_metric_style,
             ),
             reactable.Column(
                 id="min_elevation",
                 name="Base Elev",
                 **_column_kwargs_meters,
+                style=_ski_area_metric_style,
             ),
             reactable.Column(
                 id="max_elevation",
                 name="Peak Elev",
                 **_column_kwargs_meters,
+                style=_ski_area_metric_style,
             ),
             reactable.Column(
                 id="bearing_mean",

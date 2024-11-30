@@ -210,6 +210,7 @@ def _format_header(ci: reactable.HeaderCellInfo) -> htmltools.Tag | str:
 _column_kwargs_location_str = {
     "default_sort_order": "asc",
     "min_width": 90,
+    "footer": reactable.JS("footerDistinctCount"),
 }
 _column_kwargs_meters = {
     "format": reactable.ColFormat(

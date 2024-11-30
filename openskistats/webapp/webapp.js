@@ -74,6 +74,15 @@ function footerMaxMeters(column, state) {
   return formatMeters(max);
 }
 
+function footerDistinctCount(column, state) {
+  const distinctValues = new Set(
+    state.sortedData
+      .map(row => row[column.id])
+      .filter(value => value !== null && value !== undefined)
+  );
+  return formatNumber(distinctValues.size);
+}
+
 function matchesNumericFilter(value, filterValue) {
     filterValue = filterValue.trim();
     let match;

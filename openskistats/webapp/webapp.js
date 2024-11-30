@@ -33,20 +33,20 @@ function filterLatitude(rows, columnId, filterValue) {
   });
 }
 
+function formatNumber(value) {
+  // Format the number with commas as thousand separators
+  return value.toLocaleString(undefined, {
+      maximumFractionDigits: 0 // No decimal digits
+  });
+}
 
 function formatMeters(value) {
   const NARROW_SPACE = '\u202F';
-  const suffix = `${NARROW_SPACE}m`;
-
-  // Format the number with commas as thousand separators
-  const formattedNumber = value.toLocaleString(undefined, { 
-      maximumFractionDigits: 0 // No decimal digits
-  });
-
-  return `${formattedNumber}${suffix}`;
+  const formattedNumber = formatNumber(value);
+  return `${formattedNumber}${NARROW_SPACE}m`;
 }
 
-function footerSum(column, state) {
+function sumColumn(column, state) {
   let total = 0;
   state.sortedData.forEach(function(row) {
     total += row[column.id]
@@ -54,11 +54,25 @@ function footerSum(column, state) {
   return total;
 }
 
+function footerSum(column, state) {
+  const total = sumColumn(column, state);
+  return formatNumber(total);
+}
+
 function footerSumMeters(column, state) {
-  const total = footerSum(column, state);
+  const total = sumColumn(column, state);
   return formatMeters(total);
 }
 
+function footerMinMeters(column, state) {
+  const min = Math.min(...state.sortedData.map(row => row[column.id]));
+  return formatMeters(min);
+}
+
+function footerMaxMeters(column, state) {
+  const max = Math.max(...state.sortedData.map(row => row[column.id]));
+  return formatMeters(max);
+}
 
 function matchesNumericFilter(value, filterValue) {
     filterValue = filterValue.trim();

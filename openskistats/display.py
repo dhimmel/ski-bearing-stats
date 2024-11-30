@@ -219,7 +219,6 @@ _column_kwargs_meters = {
     ),
     "filter_method": _numeric_filter,
     "min_width": 80,
-    "footer": reactable.JS("footerSumMeters"),
 }
 _column_kwargs_bin_proportion = {
     "format": reactable.ColFormat(percent=True, digits=0),
@@ -340,6 +339,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 min_width=60,
                 class_="border-left",
                 style=_ski_area_metric_style,
+                footer=reactable.JS("footerSum"),
             ),
             reactable.Column(
                 id="lift_count",
@@ -347,30 +347,35 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 filter_method=_numeric_filter,
                 min_width=60,
                 style=_ski_area_metric_style,
+                footer=reactable.JS("footerSum"),
             ),
             reactable.Column(
                 id="combined_vertical",
                 name="Vertical",
                 **_column_kwargs_meters,
                 style=_ski_area_metric_style,
+                footer=reactable.JS("footerSumMeters"),
             ),
             reactable.Column(
                 id="vertical_drop",
                 name="Drop",
                 **_column_kwargs_meters,
                 style=_ski_area_metric_style,
+                footer=reactable.JS("footerSumMeters"),
             ),
             reactable.Column(
                 id="min_elevation",
                 name="Base Elev",
                 **_column_kwargs_meters,
                 style=_ski_area_metric_style,
+                footer=reactable.JS("footerMinMeters"),
             ),
             reactable.Column(
                 id="max_elevation",
                 name="Peak Elev",
                 **_column_kwargs_meters,
                 style=_ski_area_metric_style,
+                footer=reactable.JS("footerMaxMeters"),
             ),
             reactable.Column(
                 id="bearing_mean",

@@ -293,6 +293,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 align="left",
                 sticky="left",  # makes entire group sticky
                 default_sort_order="asc",
+                footer=reactable.JS("footerDistinctCount"),
             ),
             reactable.Column(
                 id="osm_status",

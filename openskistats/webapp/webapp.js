@@ -34,6 +34,32 @@ function filterLatitude(rows, columnId, filterValue) {
 }
 
 
+function formatMeters(value) {
+  const NARROW_SPACE = '\u202F';
+  const suffix = `${NARROW_SPACE}m`;
+
+  // Format the number with commas as thousand separators
+  const formattedNumber = value.toLocaleString(undefined, { 
+      maximumFractionDigits: 0 // No decimal digits
+  });
+
+  return `${formattedNumber}${suffix}`;
+}
+
+function footerSum(column, state) {
+  let total = 0;
+  state.sortedData.forEach(function(row) {
+    total += row[column.id]
+  });
+  return total;
+}
+
+function footerSumMeters(column, state) {
+  const total = footerSum(column, state);
+  return formatMeters(total);
+}
+
+
 function matchesNumericFilter(value, filterValue) {
     filterValue = filterValue.trim();
     let match;

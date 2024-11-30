@@ -219,6 +219,7 @@ _column_kwargs_meters = {
     ),
     "filter_method": _numeric_filter,
     "min_width": 80,
+    "footer": reactable.JS("footerSumMeters"),
 }
 _column_kwargs_bin_proportion = {
     "format": reactable.ColFormat(percent=True, digits=0),

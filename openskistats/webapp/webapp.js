@@ -130,10 +130,10 @@ function cellAzimuth(cellInfo) {
 
   return `
   <div class="azimuth-arrow-cell" style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-      <svg width="24" height="24" viewBox="0 0 24 24" style="transform: rotate(${azimuth}deg); margin-bottom: 4px;">
-          <circle cx="12" cy="12" r="2" fill="black" />
-          <line x1="12" y1="12" x2="12" y2="4" stroke="black" stroke-width="2" />
-          <polygon points="8,6 12,1 16,6" fill="black" />
+      <svg width="36" height="36" viewBox="0 0 36 36" style="transform: rotate(${azimuth}deg); margin-bottom: 6px;">
+          <circle cx="18" cy="18" r="3" fill="black" />
+          <line x1="18" y1="18" x2="18" y2="6" stroke="black" stroke-width="3" />
+          <polygon points="12,9 18,1.5 24,9" fill="black" />
       </svg>
       <span style="font-size: 12px; color: #333;">${displayedAzimuth}°</span>
   </div>

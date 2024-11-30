@@ -108,92 +108,45 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
     )
 
 
-_country_filter = reactable.JS("""
-function(rows, columnId, filterValue) {
-    const filterValueLower = filterValue.toLowerCase();
-    return rows.filter(function(row) {
-        return (
-            (row.values["country"] && row.values["country"].toLowerCase().includes(filterValueLower)) ||
-            (row.values["country_code"] && row.values["country_code"].toLowerCase() === filterValueLower) ||
-            (row.values["country_emoji"] && row.values["country_emoji"] === filterValue)
-        );
-    });
-}
-""")
-
-
+# defining cellLatitude in webapp.js results in a React not found error
 _latitude_cell = reactable.JS("""
-function(cellInfo) {
-    const latitude = cellInfo.value;
-    const hemisphereSymbol = latitude > 0 ? "ℕ" : "𝕊";
+function cellLatitude(cellInfo) {
+  const latitude = cellInfo.value;
+  const hemisphereSymbol = latitude > 0 ? "ℕ" : "𝕊";
 
-    // Dynamic background color calculation
-    const normalizedLatitude = Math.abs(latitude) / 90;
-    const backgroundColor = `rgb(
-        ${255 - Math.round(normalizedLatitude * 255)},
-        ${255 - Math.round(normalizedLatitude * 255)},
-        ${255 - Math.round(normalizedLatitude * 255)}
-    )`;
+  // Dynamic background color calculation
+  const normalizedLatitude = Math.abs(latitude) / 90;
+  const backgroundColor = `rgb(
+      ${255 - Math.round(normalizedLatitude * 255)},
+      ${255 - Math.round(normalizedLatitude * 255)},
+      ${255 - Math.round(normalizedLatitude * 255)}
+  )`;
 
-    // Construct the cell's HTML
-    return React.createElement(
-        "span",
-        {
-            className: "badge",
-            style: { "--badge-bg-color": backgroundColor }
-        },
-        [
-            React.createElement(
-                "span",
-                { className: "hemisphere-symbol" },
-                hemisphereSymbol
-            ),
-            React.createElement(
-                "span",
-                { className: "latitude-value" },
-                `${latitude.toFixed(1)}°`
-            )
-        ]
-    );
+  // Construct the cell's HTML
+  return React.createElement(
+      "span",
+      {
+          className: "badge",
+          style: { "--badge-bg-color": backgroundColor }
+      },
+      [
+          React.createElement(
+              "span",
+              { className: "hemisphere-symbol" },
+              hemisphereSymbol
+          ),
+          React.createElement(
+              "span",
+              { className: "latitude-value" },
+              `${latitude.toFixed(1)}°`
+          )
+      ]
+  );
 }
 """)
 
-_latitude_filter = reactable.JS(r"""
-function(rows, columnId, filterValue) {
-    return rows.filter(function(row) {
-        const latitude = row.values["latitude"];
-        const hemisphere = latitude > 0 ? "north" : "south";
-
-        // Check if filterValue is entirely alphabetic
-        const isAlphabetic = /^[a-zA-Z]+$/.test(filterValue);
-
-        // Use matchesNumericFilter for numeric filter values
-        if (!isAlphabetic) {
-            return matchesNumericFilter(latitude, filterValue);
-        }
-
-        // Handle string filter values for "north" or "south"
-        if (typeof filterValue === "string") {
-            return hemisphere.includes(filterValue.toLowerCase());
-        }
-
-        // Default: include all rows if filterValue is invalid
-        return true;
-    });
-}
-""")
-
-_numeric_filter = reactable.JS("""
-function(rows, columnId, filterValue) {
-    return rows.filter(row => matchesNumericFilter(row.values[columnId], filterValue));
-}
-""")
-
-_percent_filter = reactable.JS("""
-function(rows, columnId, filterValue) {
-    return rows.filter(row => matchesNumericFilter(row.values[columnId] * 100, filterValue));
-}
-""")
+_numeric_filter = reactable.JS("filterNumeric")
+_percent_filter = reactable.JS("filterPercent")
 
 _sequential_percent_palette = gradient_n_pal(["#ffffff", "#a100bf"])
 _diverging_percent_palette = gradient_n_pal(["#e89200", "#ffffff", "#007dbf"])
@@ -218,24 +171,6 @@ def _percent_diverging_style(ci: reactable.CellInfo) -> dict[str, Any] | None:
 _percent_with_donut_cell = reactable.JS("""
 function(cellInfo) {
   return donutChart(cellInfo.value)
-}
-""")
-
-_azimuth_cell = reactable.JS("""
-function(cellInfo) {
-    const azimuth = cellInfo.value; // Original azimuth for arrow rotation
-    const displayedAzimuth = Math.round(azimuth); // Rounded azimuth for display only
-
-    return `
-    <div class="azimuth-arrow-cell" style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-        <svg width="24" height="24" viewBox="0 0 24 24" style="transform: rotate(${azimuth}deg); margin-bottom: 4px;">
-            <circle cx="12" cy="12" r="2" fill="black" />
-            <line x1="12" y1="12" x2="12" y2="4" stroke="black" stroke-width="2" />
-            <polygon points="8,6 12,1 16,6" fill="black" />
-        </svg>
-        <span style="font-size: 12px; color: #333;">${displayedAzimuth}°</span>
-    </div>
-    `;
 }
 """)
 
@@ -271,24 +206,6 @@ def _format_header(ci: reactable.HeaderCellInfo) -> htmltools.Tag | str:
         return htmltools.tags.abbr(column_name, title=description)
     return column_name
 
-
-# reactable.JS cells reduce output HTML size compared to htmltools.Tag cells, which get repeated for every cell
-_rose_cell = reactable.JS("""
-function(cellInfo) {
-    return `
-    <div class="tooltip-container"
-         onmouseover="showTooltip(event)"
-         onmouseout="hideTooltip(event)">
-        <a href="ski-areas/roses-full/${cellInfo.value}.svg" target="_blank">
-            <img src="ski-areas/roses-preview/${cellInfo.value}.svg" alt="Preview Rose" class="hover-preview">
-        </a>
-        <div class="tooltip-image">
-            <img src="ski-areas/roses-full/${cellInfo.value}.svg" alt="Full Rose">
-        </div>
-    </div>
-    `;
-}
-""")
 
 _column_kwargs_location_str = {
     "default_sort_order": "asc",
@@ -386,7 +303,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Country",
                 cell=_country_cell,
                 html=True,
-                filter_method=_country_filter,
+                filter_method=reactable.JS("filterCountry"),
                 class_="border-left",
                 **_column_kwargs_location_str,
             ),
@@ -412,7 +329,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="latitude",
                 name=f"ℍ{NARROW_SPACE}φ",
                 cell=_latitude_cell,
-                filter_method=_latitude_filter,
+                filter_method=reactable.JS("filterLatitude"),
                 min_width=60,
             ),
             reactable.Column(
@@ -458,7 +375,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 id="bearing_mean",
                 name="Azimuth",
                 # format=reactable.ColFormat(suffix="°", digits=0),
-                cell=_azimuth_cell,
+                cell=reactable.JS("cellAzimuth"),
                 html=True,
                 filter_method=_numeric_filter,
                 class_="border-left",
@@ -512,7 +429,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 html=True,
                 sortable=False,
                 filterable=False,
-                cell=_rose_cell,
+                cell=reactable.JS("cellRose"),
                 # max_width=45,
                 class_="border-left",
             ),

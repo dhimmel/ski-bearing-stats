@@ -1,3 +1,39 @@
+function filterCountry(rows, columnId, filterValue) {
+  const filterValueLower = filterValue.toLowerCase();
+  return rows.filter(function(row) {
+      return (
+          (row.values["country"] && row.values["country"].toLowerCase().includes(filterValueLower)) ||
+          (row.values["country_code"] && row.values["country_code"].toLowerCase() === filterValueLower) ||
+          (row.values["country_emoji"] && row.values["country_emoji"] === filterValue)
+      );
+  });
+}
+
+
+function filterLatitude(rows, columnId, filterValue) {
+  return rows.filter(function(row) {
+      const latitude = row.values["latitude"];
+      const hemisphere = latitude > 0 ? "north" : "south";
+
+      // Check if filterValue is entirely alphabetic
+      const isAlphabetic = /^[a-zA-Z]+$/.test(filterValue);
+
+      // Use matchesNumericFilter for numeric filter values
+      if (!isAlphabetic) {
+          return matchesNumericFilter(latitude, filterValue);
+      }
+
+      // Handle string filter values for "north" or "south"
+      if (typeof filterValue === "string") {
+          return hemisphere.includes(filterValue.toLowerCase());
+      }
+
+      // Default: include all rows if filterValue is invalid
+      return true;
+  });
+}
+
+
 function matchesNumericFilter(value, filterValue) {
     filterValue = filterValue.trim();
     let match;
@@ -29,6 +65,48 @@ function matchesNumericFilter(value, filterValue) {
     // Default: invalid filterValue returns true
     return true;
 }
+
+function filterNumeric(rows, columnId, filterValue) {
+  return rows.filter(row => matchesNumericFilter(row.values[columnId], filterValue));
+}
+
+function filterPercent(rows, columnId, filterValue) {
+  return rows.filter(row => matchesNumericFilter(row.values[columnId] * 100, filterValue));
+}
+
+
+function cellAzimuth(cellInfo) {
+  const azimuth = cellInfo.value; // Original azimuth for arrow rotation
+  const displayedAzimuth = Math.round(azimuth); // Rounded azimuth for display only
+
+  return `
+  <div class="azimuth-arrow-cell" style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+      <svg width="24" height="24" viewBox="0 0 24 24" style="transform: rotate(${azimuth}deg); margin-bottom: 4px;">
+          <circle cx="12" cy="12" r="2" fill="black" />
+          <line x1="12" y1="12" x2="12" y2="4" stroke="black" stroke-width="2" />
+          <polygon points="8,6 12,1 16,6" fill="black" />
+      </svg>
+      <span style="font-size: 12px; color: #333;">${displayedAzimuth}°</span>
+  </div>
+  `;
+}
+
+
+function cellRose(cellInfo) {
+  return `
+  <div class="tooltip-container"
+       onmouseover="showTooltip(event)"
+       onmouseout="hideTooltip(event)">
+      <a href="ski-areas/roses-full/${cellInfo.value}.svg" target="_blank">
+          <img src="ski-areas/roses-preview/${cellInfo.value}.svg" alt="Preview Rose" class="hover-preview">
+      </a>
+      <div class="tooltip-image">
+          <img src="ski-areas/roses-full/${cellInfo.value}.svg" alt="Full Rose">
+      </div>
+  </div>
+  `;
+}
+
 
 function showTooltip(event) {
     const tooltip = event.currentTarget.querySelector('.tooltip-image');

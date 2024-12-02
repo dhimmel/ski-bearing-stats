@@ -56,22 +56,22 @@ function sumColumn(column, state) {
 
 function footerSum(column, state) {
   const total = sumColumn(column, state);
-  return formatNumber(total);
+  return `Sum: ${formatNumber(total)}`;
 }
 
 function footerSumMeters(column, state) {
   const total = sumColumn(column, state);
-  return formatMeters(total);
+  return `Sum: ${formatNumber(total)}`;
 }
 
 function footerMinMeters(column, state) {
   const min = Math.min(...state.sortedData.map(row => row[column.id]));
-  return formatMeters(min);
+  return `Min: ${formatNumber(min)}`;
 }
 
 function footerMaxMeters(column, state) {
   const max = Math.max(...state.sortedData.map(row => row[column.id]));
-  return formatMeters(max);
+  return `Max: ${formatNumber(max)}`;
 }
 
 function footerDistinctCount(column, state) {
@@ -80,7 +80,7 @@ function footerDistinctCount(column, state) {
       .map(row => row[column.id])
       .filter(value => value !== null && value !== undefined)
   );
-  return formatNumber(distinctValues.size);
+  return `Distinct: ${formatNumber(distinctValues.size)}`;
 }
 
 function matchesNumericFilter(value, filterValue) {

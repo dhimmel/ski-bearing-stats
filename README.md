@@ -117,6 +117,7 @@ List of related webpages:
 - [reactable-py/issues/25](https://github.com/machow/reactable-py/issues/25): Column default sort order does not override global default
 - [reactable-py/issues/28](https://github.com/machow/reactable-py/issues/28): Column class_ argument only sets the dev class for the first row
 - [reactable-py/issues/29](https://github.com/machow/reactable-py/issues/29): Should great_tables be a dependency (currently dev dependency)
+- [reactable-py/issues/38](https://github.com/machow/reactable-py/issues/38): How to call custom javascript after the table is loaded?
 
 ## License
 

@@ -226,6 +226,7 @@ _column_kwargs_bin_proportion = {
     "min_width": 50,
     "filter_method": _percent_filter,
     "style": _percent_sequential_style,
+    "footer": reactable.JS("footerMeanWeightedPercent"),
 }
 
 theme = reactable.Theme(

@@ -83,6 +83,22 @@ function footerDistinctCount(column, state) {
   return `Distinct: ${formatNumber(distinctValues.size)}`;
 }
 
+function meanWeighted(column, state) {
+  let numerator = 0;
+  let denominator = 0;
+  state.sortedData.forEach(function(row) {
+    numerator += row["combined_vertical"] * row[column.id]
+    denominator += row["combined_vertical"]
+  });
+  return numerator / denominator;
+}
+
+function footerMeanWeightedPercent(column, state) {
+  return `Wtd. Mean: ${formatNumber(100 * meanWeighted(column, state))}%`;
+}
+
+
+
 function matchesNumericFilter(value, filterValue) {
     filterValue = filterValue.trim();
     let match;

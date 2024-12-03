@@ -229,4 +229,8 @@ function donutChart(value, color = '#a100bf') {
       </div>
     `
 }
-  
+
+window.addEventListener('DOMContentLoaded', function() {
+  console.log('Loading header tooltips');
+  tippy('[data-tippy-content]');
+});

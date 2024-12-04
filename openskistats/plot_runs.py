@@ -100,12 +100,18 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
         )
         .join(
             metrics_df.select(
-                "latitude_bin_lower", "bearing_bin_lower", "combined_vertical_prop"
+                "latitude_bin_lower",
+                "bearing_bin_lower",
+                "combined_vertical",
+                "combined_vertical_prop",
             ),
             on=["latitude_bin_lower", "bearing_bin_lower"],
             how="left",
         )
-        .with_columns(pl.col("combined_vertical_prop").fill_null(0))
+        .with_columns(
+            pl.col("combined_vertical").fill_null(0),
+            pl.col("combined_vertical_prop").fill_null(0),
+        )
         .pivot(
             index="latitude_bin_lower",
             columns="bearing_bin_lower",
@@ -126,6 +132,7 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
 
 
 def plot_bearing_by_latitude_bin() -> plt.Figure:
+    # consider separate plots by hemisphere
     grids = get_bearing_by_latitude_bin_mesh_grids()
     fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
     ax.pcolormesh(
@@ -145,3 +152,24 @@ def plot_bearing_by_latitude_bin() -> plt.Figure:
     ax.set_yticks([-90 + 180, 0 + 180, 90 + 180])
     ax.set_yticklabels(labels=["SP", "Eq", "NP"])
     return fig
+
+
+def get_latitude_histogram() -> pl.DataFrame:
+    return (
+        get_bearing_by_latitude_bin_metrics()
+        .group_by("latitude_bin")
+        .agg(
+            pl.first("latitude_bin_lower").alias("latitude_bin_lower"),
+            pl.first("latitude_bin_upper").alias("latitude_bin_upper"),
+            pl.first("latitude_bin_center").alias("latitude_bin_center"),
+            pl.sum("segment_count").alias("segment_count"),
+            pl.sum("combined_vertical").round(5).alias("combined_vertical"),
+        )
+        .with_columns(
+            # FIXME: abstract
+            hemisphere=pl.when(pl.col("latitude_bin_center").gt(0))
+            .then(pl.lit("north"))
+            .otherwise(pl.lit("south")),
+            latitude_bin_center_abs=pl.col("latitude_bin_center").abs(),
+        )
+    )

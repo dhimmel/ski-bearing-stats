@@ -89,6 +89,7 @@ List of related webpages:
 - https://verticalfeet.com/
 - https://en.wikipedia.org/wiki/Comparison_of_North_American_ski_resorts
 - https://www.nsaa.org/NSAA/Media/Industry_Stats.aspx
+- https://www.skitalk.com/threads/comparing-latitude-and-elevation-at-western-us-resorts.9980/
 
 ## Wild Ideas
 

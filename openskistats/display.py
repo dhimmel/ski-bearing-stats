@@ -425,28 +425,28 @@ def get_ski_area_reactable() -> reactable.Reactable:
             ),
             reactable.Column(
                 id="bin_proportion_4_N",
-                name="N",
+                name="N₄",
                 **_column_kwargs_bin_proportion,
                 class_="border-left",
             ),
             reactable.Column(
                 id="bin_proportion_4_E",
-                name="E",
+                name="E₄",
                 **_column_kwargs_bin_proportion,
             ),
             reactable.Column(
                 id="bin_proportion_4_S",
-                name="S",
+                name="S₄",
                 **_column_kwargs_bin_proportion,
             ),
             reactable.Column(
                 id="bin_proportion_4_W",
-                name="W",
+                name="W₄",
                 **_column_kwargs_bin_proportion,
             ),
             reactable.Column(
                 id="bin_proportion_2_N",
-                name="N",
+                name="N₂",
                 **_column_kwargs_bin_proportion,
                 class_="border-left",
             ),

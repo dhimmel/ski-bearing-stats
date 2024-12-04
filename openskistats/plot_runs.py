@@ -7,7 +7,7 @@ import polars as pl
 
 from openskistats.analyze import load_runs_pl
 
-LATITUDE_STEP = 4
+LATITUDE_STEP = 6
 BEARING_STEP = 4
 LATITUDE_BREAKS = list(range(-90, 90 + LATITUDE_STEP, LATITUDE_STEP))
 BEARING_BREAKS = list(range(0, 360 + BEARING_STEP, BEARING_STEP))
@@ -69,6 +69,11 @@ def get_bearing_by_latitude_bin_metrics() -> pl.DataFrame:
                 "bearing_bin_lower", "bearing_bin_upper"
             ),
         )
+        # Proportion of combined_vertical within a latitude bin
+        .with_columns(
+            combined_vertical_prop=pl.col("combined_vertical")
+            / pl.sum("combined_vertical").over("latitude_bin")
+        )
         .with_columns(bearing_bin_center_radians=pl.col("bearing_bin_center").radians())
         .sort("latitude_bin", "bearing_bin")
         .collect()
@@ -79,7 +84,7 @@ def get_bearing_by_latitude_bin_metrics() -> pl.DataFrame:
 class BearingByLatitudeBinMeshGrid:
     latitude_grid: npt.NDArray[np.float64]
     bearing_grid: npt.NDArray[np.float64]
-    combined_vertical_grid: npt.NDArray[np.float64]
+    color_grid: npt.NDArray[np.float64]
 
 
 def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
@@ -95,16 +100,16 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
         )
         .join(
             metrics_df.select(
-                "latitude_bin_lower", "bearing_bin_lower", "combined_vertical"
+                "latitude_bin_lower", "bearing_bin_lower", "combined_vertical_prop"
             ),
             on=["latitude_bin_lower", "bearing_bin_lower"],
             how="left",
         )
-        .with_columns(pl.col("combined_vertical").fill_null(0))
+        .with_columns(pl.col("combined_vertical_prop").fill_null(0))
         .pivot(
             index="latitude_bin_lower",
             columns="bearing_bin_lower",
-            values="combined_vertical",
+            values="combined_vertical_prop",
             sort_columns=False,  # order of discovery
         )
         .sort("latitude_bin_lower")
@@ -116,7 +121,7 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
     return BearingByLatitudeBinMeshGrid(
         latitude_grid=latitude_grid,
         bearing_grid=bearing_grid,
-        combined_vertical_grid=grid_pl.to_numpy(),
+        color_grid=grid_pl.to_numpy(),
     )
 
 
@@ -126,10 +131,17 @@ def plot_bearing_by_latitude_bin() -> plt.Figure:
     ax.pcolormesh(
         (np.deg2rad(grids.bearing_grid)).T,
         (grids.latitude_grid + 180).T,
-        grids.combined_vertical_grid,
+        grids.color_grid.clip(min=0.0, max=0.04),
         shading="flat",
-        cmap="viridis",
+        cmap="Purples",
     )
     ax.set_theta_zero_location("N")
-    ax.set_theta_direction(-1)
+    ax.set_theta_direction("clockwise")
+    # TODO: reuse code in plot
+    ax.set_xticks(ax.get_xticks())
+    xticklabels = ["N", "", "E", "", "S", "", "W", ""]
+    ax.set_xticklabels(labels=xticklabels)
+    ax.tick_params(axis="x", which="major", pad=-2)
+    ax.set_yticks([-90 + 180, 0 + 180, 90 + 180])
+    ax.set_yticklabels(labels=["SP", "Eq", "NP"])
     return fig

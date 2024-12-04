@@ -64,11 +64,22 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
     """
     cardinal_direction_props = (
         load_bearing_distribution_pl()
-        .filter(pl.col("num_bins") == 4)
-        .pivot(on="bin_label", index="ski_area_id", values="bin_proportion")
+        .filter(pl.col("num_bins").is_in([2, 4]))
+        .with_columns(
+            bin_count_label=pl.format("{}_{}", "num_bins", "bin_label"),
+        )
+        .pivot(on="bin_count_label", index="ski_area_id", values="bin_proportion")
         .select(
             "ski_area_id",
             pl.all().exclude("ski_area_id").round(5).name.prefix("bin_proportion_"),
+        )
+        .select(
+            "ski_area_id",
+            "bin_proportion_4_N",
+            "bin_proportion_4_E",
+            "bin_proportion_4_S",
+            "bin_proportion_4_W",
+            "bin_proportion_2_N",
         )
     )
     return (
@@ -180,10 +191,11 @@ columns_descriptions = {
     # add custom descriptions including overwriting SkiAreaModel descriptions
     "latitude": "Hemisphere where the ski area is located, either ℕ for north or 𝕊 for south, "
     "as well as the latitude (φ) in decimal degrees.",
-    "bin_proportion_N": "Proportion of vertical-weighted run segments oriented with a northern cardinal direction.",
-    "bin_proportion_E": "Proportion of vertical-weighted run segments oriented with an eastern cardinal direction.",
-    "bin_proportion_S": "Proportion of vertical-weighted run segments oriented with a southern cardinal direction.",
-    "bin_proportion_W": "Proportion of vertical-weighted run segments oriented with a western cardinal direction.",
+    "bin_proportion_4_N": "Proportion of vertical-weighted run segments oriented with a northern cardinal direction.",
+    "bin_proportion_4_E": "Proportion of vertical-weighted run segments oriented with an eastern cardinal direction.",
+    "bin_proportion_4_S": "Proportion of vertical-weighted run segments oriented with a southern cardinal direction.",
+    "bin_proportion_4_W": "Proportion of vertical-weighted run segments oriented with a western cardinal direction.",
+    "bin_proportion_2_N": "Proportion of vertical-weighted run segments oriented northward with the remaining proportion oriented southward.",
     "rose": "Compass rose histogram of run segment orientations. "
     "Hover over or click on the 8-bin preview rose to view the full 32-bin rose.",
 }
@@ -412,25 +424,31 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 style=_percent_diverging_style,
             ),
             reactable.Column(
-                id="bin_proportion_N",
+                id="bin_proportion_4_N",
                 name="N",
                 **_column_kwargs_bin_proportion,
                 class_="border-left",
             ),
             reactable.Column(
-                id="bin_proportion_E",
+                id="bin_proportion_4_E",
                 name="E",
                 **_column_kwargs_bin_proportion,
             ),
             reactable.Column(
-                id="bin_proportion_S",
+                id="bin_proportion_4_S",
                 name="S",
                 **_column_kwargs_bin_proportion,
             ),
             reactable.Column(
-                id="bin_proportion_W",
+                id="bin_proportion_4_W",
                 name="W",
                 **_column_kwargs_bin_proportion,
+            ),
+            reactable.Column(
+                id="bin_proportion_2_N",
+                name="N",
+                **_column_kwargs_bin_proportion,
+                class_="border-left",
             ),
             reactable.Column(
                 id="rose",
@@ -481,10 +499,10 @@ def get_ski_area_reactable() -> reactable.Reactable:
             reactable.ColGroup(
                 name="Cardinal Directions",
                 columns=[
-                    "bin_proportion_N",
-                    "bin_proportion_E",
-                    "bin_proportion_S",
-                    "bin_proportion_W",
+                    "bin_proportion_4_N",
+                    "bin_proportion_4_E",
+                    "bin_proportion_4_S",
+                    "bin_proportion_4_W",
                 ],
             ),
         ],

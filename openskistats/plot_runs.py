@@ -1,6 +1,16 @@
+from dataclasses import dataclass
+
+import matplotlib.pyplot as plt
+import numpy as np
+import numpy.typing as npt
 import polars as pl
 
 from openskistats.analyze import load_runs_pl
+
+LATITUDE_STEP = 4
+BEARING_STEP = 4
+LATITUDE_BREAKS = list(range(-90, 90 + LATITUDE_STEP, LATITUDE_STEP))
+BEARING_BREAKS = list(range(0, 360 + BEARING_STEP, BEARING_STEP))
 
 
 def get_bearing_by_latitude_bin_metrics() -> pl.DataFrame:
@@ -19,10 +29,10 @@ def get_bearing_by_latitude_bin_metrics() -> pl.DataFrame:
             "segment_hash",
             # pl.col("latitude").round(0).cast(pl.Int32).alias("latitude"),
             pl.col("latitude")
-            .cut(breaks=range(-90, 91, 2), left_closed=True)
+            .cut(breaks=LATITUDE_BREAKS, left_closed=True)
             .alias("latitude_bin"),
             pl.col("bearing")
-            .cut(breaks=range(0, 361, 2), left_closed=True)
+            .cut(breaks=BEARING_BREAKS, left_closed=True)
             .alias("bearing_bin"),
             # pl.col("bearing").round(0).cast(pl.Int32).alias("bearing"),
             "distance_vertical_drop",
@@ -63,3 +73,63 @@ def get_bearing_by_latitude_bin_metrics() -> pl.DataFrame:
         .sort("latitude_bin", "bearing_bin")
         .collect()
     )
+
+
+@dataclass
+class BearingByLatitudeBinMeshGrid:
+    latitude_grid: npt.NDArray[np.float64]
+    bearing_grid: npt.NDArray[np.float64]
+    combined_vertical_grid: npt.NDArray[np.float64]
+
+
+def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
+    metrics_df = get_bearing_by_latitude_bin_metrics()
+    grid_pl = (
+        pl.DataFrame({"latitude_bin_lower": LATITUDE_BREAKS[:-1]})
+        .join(
+            pl.DataFrame({"bearing_bin_lower": BEARING_BREAKS[:-1]}),
+            how="cross",
+        )
+        .select(
+            pl.all().cast(pl.Int32),
+        )
+        .join(
+            metrics_df.select(
+                "latitude_bin_lower", "bearing_bin_lower", "combined_vertical"
+            ),
+            on=["latitude_bin_lower", "bearing_bin_lower"],
+            how="left",
+        )
+        .with_columns(pl.col("combined_vertical").fill_null(0))
+        .pivot(
+            index="latitude_bin_lower",
+            columns="bearing_bin_lower",
+            values="combined_vertical",
+            sort_columns=False,  # order of discovery
+        )
+        .sort("latitude_bin_lower")
+        .with_columns(pl.selectors.by_dtype(pl.Float64).fill_null(0.0))
+        .drop("latitude_bin_lower")
+    )
+    assert np.all(np.diff([int(x) for x in grid_pl.columns]) > 0)
+    latitude_grid, bearing_grid = np.meshgrid(LATITUDE_BREAKS, BEARING_BREAKS)
+    return BearingByLatitudeBinMeshGrid(
+        latitude_grid=latitude_grid,
+        bearing_grid=bearing_grid,
+        combined_vertical_grid=grid_pl.to_numpy(),
+    )
+
+
+def plot_bearing_by_latitude_bin() -> plt.Figure:
+    grids = get_bearing_by_latitude_bin_mesh_grids()
+    fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
+    ax.pcolormesh(
+        (np.deg2rad(grids.bearing_grid)).T,
+        (grids.latitude_grid + 180).T,
+        grids.combined_vertical_grid,
+        shading="flat",
+        cmap="viridis",
+    )
+    ax.set_theta_zero_location("N")
+    ax.set_theta_direction(-1)
+    return fig

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 import polars as pl
+from matplotlib.colors import TwoSlopeNorm
 
 from openskistats.analyze import load_runs_pl
 from openskistats.utils import pl_hemisphere
@@ -120,7 +121,7 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
             pl.all().cast(pl.Int32),
         )
         .join(
-            metrics_df.filter(pl.col("total_combined_vertical") > 10_000).select(
+            metrics_df.select(
                 "latitude_abs_bin_lower",
                 "bearing_bin_lower",
                 "combined_vertical",
@@ -131,19 +132,26 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
             how="left",
         )
         .with_columns(
+            total_combined_vertical=pl.sum("combined_vertical").over(
+                "latitude_abs_bin_lower"
+            ),
+        )
+        .with_columns(
             pl.col("combined_vertical").fill_null(0),
             pl.col("combined_vertical_prop").fill_null(0),
-            pl.col("combined_vertical_enrichment").fill_null(0),
+            combined_vertical_enrichment=pl.when(
+                pl.col("total_combined_vertical") >= 10_000
+            ).then(pl.col("combined_vertical_enrichment").fill_null(0)),
         )
         .pivot(
             index="latitude_abs_bin_lower",
             columns="bearing_bin_lower",
             # values="combined_vertical",
-            values="combined_vertical_prop",
+            values="combined_vertical_enrichment",
             sort_columns=False,  # order of discovery
         )
         .sort("latitude_abs_bin_lower")
-        .with_columns(pl.selectors.by_dtype(pl.Float64).fill_null(0.0))
+        # .with_columns(pl.selectors.by_dtype(pl.Float64).fill_null(0.0))
         .drop("latitude_abs_bin_lower")
     )
     assert np.all(np.diff([int(x) for x in grid_pl.columns]) > 0)
@@ -156,26 +164,31 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
 
 
 def plot_bearing_by_latitude_bin() -> plt.Figure:
-    # consider separate plots by hemisphere
     grids = get_bearing_by_latitude_bin_mesh_grids()
     fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
-    ax.pcolormesh(
+    quad_mesh = ax.pcolormesh(
         (np.deg2rad(grids.bearing_grid)).transpose(),
         grids.latitude_grid.transpose(),
-        grids.color_grid.clip(min=0, max=0.0222),
+        grids.color_grid.clip(min=0, max=2.5),
         shading="flat",
-        cmap="Purples",
+        cmap="coolwarm",
+        norm=TwoSlopeNorm(vmin=0, vcenter=1, vmax=2.5),
     )
+    plt.colorbar(quad_mesh, ax=ax)
     ax.set_theta_zero_location("N")
     ax.set_theta_direction("clockwise")
+    ax.grid(False)
     # TODO: reuse code in plot
     ax.set_xticks(ax.get_xticks())
     xticklabels = ["Poleward", "", "E", "", "Equatorward", "", "W", ""]
     ax.set_xticklabels(labels=xticklabels)
-    ax.grid(False)
     ax.tick_params(axis="x", which="major", pad=-2)
-    ax.set_yticks([])
-    # ax.set_yticklabels(labels=["Eq", "Pole"])
+    # y-tick labeling
+    latitude_ticks = np.arange(0, 91, 10)
+    ax.set_yticks(latitude_ticks)
+    ax.tick_params(axis="y", which="major", length=5, width=1)
+    ax.set_yticklabels([f"{r}°" for r in latitude_ticks], rotation=0, fontsize=8)
+    ax.set_rlabel_position(225)
     return fig
 
 

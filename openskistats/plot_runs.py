@@ -170,8 +170,9 @@ def plot_bearing_by_latitude_bin() -> plt.Figure:
     ax.set_theta_direction("clockwise")
     # TODO: reuse code in plot
     ax.set_xticks(ax.get_xticks())
-    xticklabels = ["Pole", "", "E", "", "Equator", "", "W", ""]
+    xticklabels = ["Poleward", "", "E", "", "Equatorward", "", "W", ""]
     ax.set_xticklabels(labels=xticklabels)
+    ax.grid(False)
     ax.tick_params(axis="x", which="major", pad=-2)
     ax.set_yticks([])
     # ax.set_yticklabels(labels=["Eq", "Pole"])

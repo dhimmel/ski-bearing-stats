@@ -81,8 +81,19 @@ def get_bearing_by_latitude_bin_metrics() -> pl.DataFrame:
         )
         # Proportion of combined_vertical within a latitude bin
         .with_columns(
-            combined_vertical_prop=pl.col("combined_vertical")
-            / pl.sum("combined_vertical").over("latitude_abs_bin")
+            total_combined_vertical=pl.sum("combined_vertical").over(
+                "latitude_abs_bin"
+            ),
+        )
+        .with_columns(
+            combined_vertical_prop=pl.col("combined_vertical").truediv(
+                "total_combined_vertical"
+            ),
+        )
+        .with_columns(
+            combined_vertical_enrichment=pl.col("combined_vertical_prop").mul(
+                len(BEARING_BREAKS) - 1
+            ),
         )
         .with_columns(bearing_bin_center_radians=pl.col("bearing_bin_center").radians())
         .sort("latitude_abs_bin", "bearing_bin")
@@ -109,11 +120,12 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
             pl.all().cast(pl.Int32),
         )
         .join(
-            metrics_df.select(
+            metrics_df.filter(pl.col("total_combined_vertical") > 10_000).select(
                 "latitude_abs_bin_lower",
                 "bearing_bin_lower",
                 "combined_vertical",
                 "combined_vertical_prop",
+                "combined_vertical_enrichment",
             ),
             on=["latitude_abs_bin_lower", "bearing_bin_lower"],
             how="left",
@@ -121,6 +133,7 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
         .with_columns(
             pl.col("combined_vertical").fill_null(0),
             pl.col("combined_vertical_prop").fill_null(0),
+            pl.col("combined_vertical_enrichment").fill_null(0),
         )
         .pivot(
             index="latitude_abs_bin_lower",
@@ -149,7 +162,7 @@ def plot_bearing_by_latitude_bin() -> plt.Figure:
     ax.pcolormesh(
         (np.deg2rad(grids.bearing_grid)).transpose(),
         grids.latitude_grid.transpose(),
-        grids.color_grid,
+        grids.color_grid.clip(min=0, max=0.0222),
         shading="flat",
         cmap="Purples",
     )

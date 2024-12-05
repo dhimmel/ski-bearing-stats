@@ -177,7 +177,7 @@ def plot_bearing_by_latitude_bin() -> plt.Figure:
     plt.colorbar(quad_mesh, ax=ax)
     ax.set_theta_zero_location("N")
     ax.set_theta_direction("clockwise")
-    ax.grid(False)
+    ax.grid(visible=False)
     # TODO: reuse code in plot
     ax.set_xticks(ax.get_xticks())
     xticklabels = ["Poleward", "", "E", "", "Equatorward", "", "W", ""]
@@ -187,8 +187,25 @@ def plot_bearing_by_latitude_bin() -> plt.Figure:
     latitude_ticks = np.arange(0, 91, 10)
     ax.set_yticks(latitude_ticks)
     ax.tick_params(axis="y", which="major", length=5, width=1)
-    ax.set_yticklabels([f"{r}°" for r in latitude_ticks], rotation=0, fontsize=8)
+    ax.set_yticklabels(
+        [f"{r}°" if r in {0, 90} else "" for r in latitude_ticks],
+        rotation=0,
+        fontsize=7,
+    )
     ax.set_rlabel_position(225)
+
+    # Draw custom radial arcs for y-ticks
+    for radius in latitude_ticks:
+        theta_start = np.deg2rad(220)
+        theta_end = np.deg2rad(230)
+        theta = np.linspace(theta_start, theta_end, 100)
+        ax.plot(
+            theta,
+            np.full_like(theta, radius),
+            linewidth=1 if radius < 90 else 2,
+            color="black",
+        )
+
     return fig
 
 

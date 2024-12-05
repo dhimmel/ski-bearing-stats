@@ -347,6 +347,9 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
             free_y=True,
         )
         figures.append(fig)
+    from openskistats.plot_runs import plot_bearing_by_latitude_bin
+
+    figures.append(plot_bearing_by_latitude_bin())
     logging.info(f"Writing ski rose the world to {path}")
     with pdf_pages:
         for fig in figures:

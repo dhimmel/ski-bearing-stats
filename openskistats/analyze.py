@@ -25,7 +25,7 @@ from openskistats.plot import (
     plot_orientation,
     subplot_orientations,
 )
-from openskistats.utils import get_data_directory
+from openskistats.utils import get_data_directory, pl_hemisphere
 
 
 def get_ski_area_metrics_path(testing: bool = False) -> Path:
@@ -78,9 +78,7 @@ def analyze_all_ski_areas_polars(skip_runs: bool = False) -> None:
         .explode("run_coordinates_clean")
         .unnest("run_coordinates_clean")
         .with_columns(
-            hemisphere=pl.when(pl.col("latitude").gt(0))
-            .then(pl.lit("north"))
-            .otherwise(pl.lit("south")),
+            hemisphere=pl_hemisphere("latitude"),
         )
         .group_by("ski_area_id")
         .agg(

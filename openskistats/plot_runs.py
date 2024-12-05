@@ -6,6 +6,7 @@ import numpy.typing as npt
 import polars as pl
 
 from openskistats.analyze import load_runs_pl
+from openskistats.utils import pl_hemisphere
 
 LATITUDE_STEP = 6
 BEARING_STEP = 4
@@ -166,10 +167,7 @@ def get_latitude_histogram() -> pl.DataFrame:
             pl.sum("combined_vertical").round(5).alias("combined_vertical"),
         )
         .with_columns(
-            # FIXME: abstract
-            hemisphere=pl.when(pl.col("latitude_bin_center").gt(0))
-            .then(pl.lit("north"))
-            .otherwise(pl.lit("south")),
+            hemisphere=pl_hemisphere("latitude_bin_center"),
             latitude_bin_center_abs=pl.col("latitude_bin_center").abs(),
         )
     )

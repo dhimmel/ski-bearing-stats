@@ -211,11 +211,12 @@ def _format_header(ci: reactable.HeaderCellInfo) -> htmltools.Tag | str:
     https://machow.github.io/reactable-py/get-started/format-header-footer.html#headers
     https://glin.github.io/reactable/articles/cookbook/cookbook.html#tooltips
     https://github.com/glin/reactable/issues/220
+    https://atomiks.github.io/tippyjs/v6/constructor/
     """
     column_id = ci.name
     column_name = ci.value
     if description := columns_descriptions.get(column_id):
-        return htmltools.tags.abbr(column_name, title=description)
+        return htmltools.tags.span(column_name, data_tippy_content=description)
     return column_name
 
 

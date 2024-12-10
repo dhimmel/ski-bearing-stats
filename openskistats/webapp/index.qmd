@@ -1,11 +1,30 @@
 ---
-title: About
+anchor-sections: false
+format:
+  html:
+    css: index.css
 ---
 
-OpenSkiStats is an open resource for geospatial metrics about downhill ski areas.
+::: {.column-screen}
+<div class="snow-container" id="snow-container"></div>
+<div class="text-overlay">
+
+## OpenSkiStats
+
+an open resource for geospatial metrics of downhill ski areas
+
+</div>
+<div class="body-text">
+
 The data comes from [OpenSkiMap](https://openskimap.org), which refines [OpenStreetMap](https://www.openstreetmap.org) to create an amazing interactive visualization of the world and all its ski trails.
 Thousands of OpenStreetMap contributors have worked for decades to annotate ski areas and their trails.
 This is an ongoing effort, and we can expect the underlying data to continue to improve over time.
 
-Now we bring the data behind these ski areas to life with summary statistics.
+This project brings to life the data behind these ski areas with summary statistics. 
+<!-- Explore ski area metrics like trail orientation, vertical drops, and more to uncover fascinating insights into the geography of skiing. -->
 The founding application of this project is to explore the orientation (compass bearings) of all the runs that comprise a ski area or grouping of ski areas.
+
+</div>
+<script src="snowflake.js"></script>
+
+:::

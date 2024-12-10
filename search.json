@@ -1,0 +1,58 @@
+[
+  {
+    "objectID": "ski-areas.html",
+    "href": "ski-areas.html",
+    "title": "OpenSkiStats Ski Area Browser",
+    "section": "",
+    "text": "Explore statistics on all named ski areas in the world with at least 3 runs and 50 meters of cumulative vertical drop across their runs. The underlying data is provided by OpenSkiMap and OpenStreetMap with statistics computed by https://github.com/dhimmel/openskistats.\n\n\n\n\n\n\nWarning\n\n\n\nThis project is currently under heavy development and is not yet ready for public consumption.\n\n\n\n\n    \n    \n\n    \n    \n\n    \n    \n    \n    \n    \n\n\n\nTable usage\nNumeric columns support the filtering filters:\n\n15 for value ≥ 15\n-20 for value ≤ 20\n[10, 20] for 10 ≤ value ≤ 20\n(10, 20) for 10 &lt; value &lt; 20\n(, 5] for value ≤ 5\n80 (not 0.8) for a percent value ≥ 80%.\n\n\n\nSource data\n\n\nOpenSkiMap data is from 2024-12-10."
+  },
+  {
+    "objectID": "manuscript.html",
+    "href": "manuscript.html",
+    "title": "OpenSkiStats Manuscript",
+    "section": "",
+    "text": "We present OpenSkiStats, the first open, global, and continuously updating resource of downhill skiing summary statistics. The initial focus of OpenSkiStats is to provide spatial statistics of ski areas and their runs, in particular, the orientation of ski runs. Data is sourced from OpenSkiMap, a project to extract and visualize skiing related features from the crowd-sourced OpenStreetMap. OpenSkiMap provides a resource of XX downhill ski areas in XX countries and XX downhill ski runs comprised of XX segments."
+  },
+  {
+    "objectID": "manuscript.html#abstract",
+    "href": "manuscript.html#abstract",
+    "title": "OpenSkiStats Manuscript",
+    "section": "",
+    "text": "We present OpenSkiStats, the first open, global, and continuously updating resource of downhill skiing summary statistics. The initial focus of OpenSkiStats is to provide spatial statistics of ski areas and their runs, in particular, the orientation of ski runs. Data is sourced from OpenSkiMap, a project to extract and visualize skiing related features from the crowd-sourced OpenStreetMap. OpenSkiMap provides a resource of XX downhill ski areas in XX countries and XX downhill ski runs comprised of XX segments."
+  },
+  {
+    "objectID": "manuscript.html#introduction",
+    "href": "manuscript.html#introduction",
+    "title": "OpenSkiStats Manuscript",
+    "section": "Introduction",
+    "text": "Introduction\nAnalyses of city street orientation [1,2]."
+  },
+  {
+    "objectID": "manuscript.html#main-text",
+    "href": "manuscript.html#main-text",
+    "title": "OpenSkiStats Manuscript",
+    "section": "Main text",
+    "text": "Main text\nDeduplication of effort: OpenStreetMap used by Strava, etc. Single place to curate the world’s ski areas\nWe extract all segments comprising ski runs\nOrientation versus aspect\nAspect applies to polygons and lines. Most polygon runs also have a line run Orientation only applies to lines In the absence of trees, aspect would be a better indicator of sun exposure. However, with shading of trees, orientation could be a better indicator of sun exposure Weighting by vertical drop along a segment, likely brings orientation closer to aspect under the assumption that steeper trails are more likely to descend along the fall line. Orientation was more readily available because it just requires the coordinates of the run (latitude, longitude, elevation), which OpenSkiMap includes, and does not require computation on adjacent terrain. Ski trails that traverse the fall line are often graded, would the resolution of aspect measurements be sufficient Orientation might be more relevant for skiers ???\nWeighting segments by vertical drop. Downhill skiing is the art of descent. On flat terrain, the is no terrain shading based on topography\nTopographic shadowing versus vegetative shadowing"
+  },
+  {
+    "objectID": "manuscript.html#references",
+    "href": "manuscript.html#references",
+    "title": "OpenSkiStats Manuscript",
+    "section": "References",
+    "text": "References\n\n\n1. OSMnx: New methods for acquiring, constructing, analyzing, and visualizing complex street networks Geoff Boeing Computers, Environment and Urban Systems (2017-09) https://doi.org/gbvjxq DOI: 10.1016/j.compenvurbsys.2017.05.004\n\n\n2. Urban spatial order: street network orientation, configuration, and entropy Geoff Boeing Applied Network Science (2019-08-23) https://doi.org/gf8srn DOI: 10.1007/s41109-019-0189-1"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "OpenSkiStats",
+    "section": "",
+    "text": "an open resource for geospatial metrics of downhill ski areas\n\n\nThe data comes from OpenSkiMap, which refines OpenStreetMap to create an amazing interactive visualization of the world and all its ski trails. Thousands of OpenStreetMap contributors have worked for decades to annotate ski areas and their trails. This is an ongoing effort, and we can expect the underlying data to continue to improve over time.\nThis project brings to life the data behind these ski areas with summary statistics.  The founding application of this project is to explore the orientation (compass bearings) of all the runs that comprise a ski area or grouping of ski areas."
+  },
+  {
+    "objectID": "index.html#openskistats",
+    "href": "index.html#openskistats",
+    "title": "OpenSkiStats",
+    "section": "",
+    "text": "an open resource for geospatial metrics of downhill ski areas"
+  }
+]

@@ -1,0 +1,49 @@
+---
+title: "OpenSkiStats Manuscript"
+# Quarto is not finding these bibliographies. Only references seems to work.
+bibliography:
+  - references.yaml
+  - references.bib
+references:
+  - id: osmnx
+    DOI: 10.1016/j.compenvurbsys.2017.05.004
+    type: article-journal
+    title: 'OSMnx: New methods for acquiring, constructing, analyzing, and visualizing complex street networks'
+    author:
+    - given: Geoff
+      family: Boeing
+csl: https://github.com/manubot/rootstock/raw/main/build/assets/style.csl
+nocite: '@*'
+editor:
+  markdown:
+    wrap: sentence
+---
+
+## Abstract
+
+We present OpenSkiStats, the first open, global, and continuously updating resource of downhill skiing summary statistics. The initial focus of OpenSkiStats is to provide spatial statistics of ski areas and their runs, in particular, the orientation of ski runs. Data is sourced from OpenSkiMap, a project to extract and visualize skiing related features from the crowd-sourced OpenStreetMap. OpenSkiMap provides a resource of XX downhill ski areas in XX countries and XX downhill ski runs comprised of XX segments.
+
+[@osmnx; @boeing2019; @boeing2019a]
+
+## Introduction
+
+Analyses of city street orientation [@osmnx; @boeing2017osmnx; @boeing-street-nets-2019].
+
+## Main text
+
+Deduplication of effort: OpenStreetMap used by Strava, etc. Single place to curate the world's ski areas
+
+We extract all segments comprising ski runs
+
+Orientation versus aspect
+
+Aspect applies to polygons and lines. Most polygon runs also have a line run Orientation only applies to lines In the absence of trees, aspect would be a better indicator of sun exposure. However, with shading of trees, orientation could be a better indicator of sun exposure Weighting by vertical drop along a segment, likely brings orientation closer to aspect under the assumption that steeper trails are more likely to descend along the fall line. Orientation was more readily available because it just requires the coordinates of the run (latitude, longitude, elevation), which OpenSkiMap includes, and does not require computation on adjacent terrain. Ski trails that traverse the fall line are often graded, would the resolution of aspect measurements be sufficient Orientation might be more relevant for skiers ???
+
+Weighting segments by vertical drop. Downhill skiing is the art of descent. On flat terrain, the is no terrain shading based on topography
+
+Topographic shadowing versus vegetative shadowing
+
+## References
+
+::: {#refs}
+:::

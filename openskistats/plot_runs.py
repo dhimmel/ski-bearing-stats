@@ -14,6 +14,7 @@ from openskistats.utils import pl_fold_bearing, pl_hemisphere
 class RunLatitudeBearingHistogram:
     num_latitude_bins: int = 30  # 3-degree bins
     num_bearing_bins: int = 90  # 4-degree bins
+    prior_total_combined_vert: int = 20_000
 
     @property
     def latitude_abs_breaks(self) -> npt.NDArray[np.float64]:
@@ -60,9 +61,6 @@ class RunLatitudeBearingHistogram:
                     "bearing_bin_lower", "bearing_bin_upper"
                 )
             )
-            # .select(
-            #     pl.all().cast(pl.Int32),
-            # )
         )
 
     def load_and_filter_runs_pl(self) -> pl.LazyFrame:
@@ -103,6 +101,7 @@ class RunLatitudeBearingHistogram:
         histogram = (
             self.load_and_filter_runs_pl()
             .group_by("hemisphere", "latitude_abs_bin_upper")
+            # TODO: bearing statistics
             .agg(*self._get_agg_metrics())
         )
         return (
@@ -156,6 +155,17 @@ class RunLatitudeBearingHistogram:
             .with_columns(
                 bearing_bin_center_radians=pl.col("bearing_bin_center").radians()
             )
+            .with_columns(
+                combined_vertical_prop_regularized=pl.col("combined_vertical").add(
+                    self.prior_total_combined_vert / self.num_bearing_bins
+                )
+                / pl.col("total_combined_vertical").add(self.prior_total_combined_vert),
+            )
+            .with_columns(
+                combined_vertical_enrichment_regularized=pl.col(
+                    "combined_vertical_prop_regularized"
+                ).mul(self.num_bearing_bins)
+            )
         )
 
 
@@ -168,34 +178,20 @@ class BearingByLatitudeBinMeshGrid:
 
 def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
     rlbh = RunLatitudeBearingHistogram()
-    PRIOR_TOTAL_COMBINED_VERT = 20_000
     grid_pl = (
         rlbh.get_latitude_bearing_histogram()
         .with_columns(
-            combined_vertical_prop_regularized=pl.col("combined_vertical").add(
-                PRIOR_TOTAL_COMBINED_VERT / rlbh.num_bearing_bins
-            )
-            / pl.col("total_combined_vertical").add(PRIOR_TOTAL_COMBINED_VERT),
-        )
-        .with_columns(
-            combined_vertical_enrichment_regularized=pl.col(
-                "combined_vertical_prop_regularized"
-            ).mul(rlbh.num_bearing_bins)
-        )
-        .with_columns(
-            combined_vertical_enrichment_regularized=pl.when(
-                pl.col("total_combined_vertical") >= 10_000
-            ).then(pl.col("combined_vertical_enrichment_regularized")),
+            _pivot_value=pl.when(pl.col("total_combined_vertical") >= 10_000).then(
+                pl.col("combined_vertical_enrichment_regularized")
+            ),
         )
         .pivot(
             index="latitude_abs_bin_lower",
             columns="bearing_bin_lower",
-            # values="combined_vertical",
-            values="combined_vertical_enrichment_regularized",
+            values="_pivot_value",
             sort_columns=False,  # order of discovery
         )
         .sort("latitude_abs_bin_lower")
-        # .with_columns(pl.selectors.by_dtype(pl.Float64).fill_null(0.0))
         .drop("latitude_abs_bin_lower")
     )
     assert np.all(np.diff([float(x) for x in grid_pl.columns]) > 0)

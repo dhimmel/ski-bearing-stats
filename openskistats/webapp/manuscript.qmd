@@ -1,19 +1,8 @@
 ---
 title: "OpenSkiStats Manuscript"
-# Quarto is not finding these bibliographies. Only references seems to work.
 bibliography:
-  - references.yaml
-  - references.bib
-references:
-  - id: osmnx
-    DOI: 10.1016/j.compenvurbsys.2017.05.004
-    type: article-journal
-    title: 'OSMnx: New methods for acquiring, constructing, analyzing, and visualizing complex street networks'
-    author:
-    - given: Geoff
-      family: Boeing
+  - references.yml
 csl: https://github.com/manubot/rootstock/raw/main/build/assets/style.csl
-nocite: '@*'
 editor:
   markdown:
     wrap: sentence
@@ -23,11 +12,9 @@ editor:
 
 We present OpenSkiStats, the first open, global, and continuously updating resource of downhill skiing summary statistics. The initial focus of OpenSkiStats is to provide spatial statistics of ski areas and their runs, in particular, the orientation of ski runs. Data is sourced from OpenSkiMap, a project to extract and visualize skiing related features from the crowd-sourced OpenStreetMap. OpenSkiMap provides a resource of XX downhill ski areas in XX countries and XX downhill ski runs comprised of XX segments.
 
-[@osmnx; @boeing2019; @boeing2019a]
-
 ## Introduction
 
-Analyses of city street orientation [@osmnx; @boeing2017osmnx; @boeing-street-nets-2019].
+Analyses of city street orientation [@osmnx; @boeing-street-nets-2019].
 
 ## Main text
 

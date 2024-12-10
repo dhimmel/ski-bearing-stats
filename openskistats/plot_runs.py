@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
+import plotnine as pn
 import polars as pl
 from matplotlib.colors import TwoSlopeNorm
 
@@ -175,6 +176,36 @@ class RunLatitudeBearingHistogram:
                 combined_vertical_enrichment_regularized=pl.col(
                     "combined_vertical_prop_regularized"
                 ).mul(self.num_bearing_bins)
+            )
+        )
+
+    def plot_latitude_histogram(self) -> pn.ggplot:
+        return (
+            pn.ggplot(
+                data=self.get_latitude_histogram(),
+                mapping=pn.aes(
+                    x="latitude_abs_bin_center",
+                    y="combined_vertical",
+                    fill="hemisphere",
+                ),
+            )
+            + pn.geom_col()
+            + pn.scale_x_continuous(
+                name="Absolute Latitude",
+                breaks=np.linspace(0, 90, 10),
+                labels=lambda values: [f"{x:.0f}°" for x in values],
+                expand=(0, 0),
+            )
+            + pn.scale_y_continuous(
+                labels=lambda values: [f"{x / 1_000:.0f}" for x in values],
+                name="Combined Vertical (km)",
+            )
+            + pn.coord_flip()
+            + pn.theme_bw()
+            + pn.theme(
+                figure_size=(2.5, 5),
+                legend_position="inside",
+                legend_position_inside=(0.97, 0.97),
             )
         )
 

@@ -6,7 +6,6 @@ format:
 ---
 
 ::: {.column-screen}
-```{=html}
 <div class="snow-container" id="snow-container"></div>
 <div class="text-overlay">
 

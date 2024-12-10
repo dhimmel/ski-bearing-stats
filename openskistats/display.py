@@ -265,13 +265,16 @@ def get_ski_area_reactable() -> reactable.Reactable:
         return f"{country_emoji}<br>{ci.value}" if ci.value else ""
 
     def _ski_area_metric_style(ci: reactable.CellInfo) -> dict[str, Any] | None:
-        """Style cell background for columns whose that express a sequential metric."""
+        """
+        Style colored text underline for cell in columns whose that express a sequential metric.
+        Must apply the `mu` class to the column, shorthand for "metric underline".
+        """
         if not isinstance(ci.value, int | float):
             return None
         color = _sequential_percent_palette(
             ci.value / data_pl.get_column(ci.column_name).max()
         )
-        return {"background": color}
+        return {"--c": color}
 
     return reactable.Reactable(
         data=data_pl,
@@ -352,8 +355,8 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Runs",
                 filter_method=_numeric_filter,
                 min_width=60,
-                class_="border-left",
                 style=_ski_area_metric_style,
+                class_="border-left mu",
                 footer=reactable.JS("footerSum"),
             ),
             reactable.Column(
@@ -362,6 +365,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 filter_method=_numeric_filter,
                 min_width=60,
                 style=_ski_area_metric_style,
+                class_="mu",
                 footer=reactable.JS("footerSum"),
             ),
             reactable.Column(
@@ -369,6 +373,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Vertical",
                 **_column_kwargs_meters,
                 style=_ski_area_metric_style,
+                class_="mu",
                 footer=reactable.JS("footerSumMeters"),
             ),
             reactable.Column(
@@ -376,6 +381,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Drop",
                 **_column_kwargs_meters,
                 style=_ski_area_metric_style,
+                class_="mu",
                 footer=reactable.JS("footerSumMeters"),
             ),
             reactable.Column(
@@ -383,6 +389,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Base Elev",
                 **_column_kwargs_meters,
                 style=_ski_area_metric_style,
+                class_="mu",
                 footer=reactable.JS("footerMinMeters"),
             ),
             reactable.Column(
@@ -390,6 +397,7 @@ def get_ski_area_reactable() -> reactable.Reactable:
                 name="Peak Elev",
                 **_column_kwargs_meters,
                 style=_ski_area_metric_style,
+                class_="mu",
                 footer=reactable.JS("footerMaxMeters"),
             ),
             reactable.Column(

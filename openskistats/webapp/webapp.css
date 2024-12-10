@@ -55,3 +55,10 @@
   line-height: 1em;
   margin-top: 0.2em;
 }
+
+/* metric underline styling */
+.mu {
+  text-decoration: underline var(--c);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 3px;
+}

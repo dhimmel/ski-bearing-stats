@@ -8,3 +8,19 @@
 .nav-footer {
     background-color: transparent !important;
 }
+@media (max-width: 768px) {
+    .nav-footer {
+        display: flex;
+        flex-wrap: nowrap; /* Keep items in one row */
+        text-align: left;
+        padding: 10px; /* Adjust padding as needed */
+    }
+
+    .nav-footer-left,
+    .nav-footer-center {
+        flex: 1 1 auto; /* Allow flexible width */
+    }
+    .nav-footer-right {
+        flex: 1 1 auto; /* Allow flexible width */
+    }
+}

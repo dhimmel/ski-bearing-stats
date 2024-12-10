@@ -186,8 +186,8 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
             ),
         )
         .pivot(
+            on="bearing_bin_lower",
             index="latitude_abs_bin_lower",
-            columns="bearing_bin_lower",
             values="_pivot_value",
             sort_columns=False,  # order of discovery
         )

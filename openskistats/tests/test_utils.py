@@ -18,6 +18,7 @@ def test_pl_flip_bearing() -> None:
             {"latitude": -10, "bearing": 180, "bearing_poleward": 0},
             {"latitude": -10, "bearing": 265, "bearing_poleward": 275},
             {"latitude": -10, "bearing": 270, "bearing_poleward": 270},
+            {"latitude": -10, "bearing": 360, "bearing_poleward": 180},
         ]
     )
     output_df = expected_df.with_columns(bearing_poleward=pl_flip_bearing())

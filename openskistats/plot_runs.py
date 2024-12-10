@@ -7,7 +7,7 @@ import polars as pl
 from matplotlib.colors import TwoSlopeNorm
 
 from openskistats.analyze import load_runs_pl
-from openskistats.utils import pl_fold_bearing, pl_hemisphere
+from openskistats.utils import pl_flip_bearing, pl_hemisphere
 
 
 @dataclass
@@ -73,7 +73,7 @@ class RunLatitudeBearingHistogram:
             .with_columns(
                 latitude_abs=pl.col("latitude").abs(),
                 hemisphere=pl_hemisphere(),
-                bearing_poleward=pl_fold_bearing(),
+                bearing_poleward=pl_flip_bearing(),
             )
             .with_columns(
                 pl.col("latitude_abs")

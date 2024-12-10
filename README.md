@@ -23,7 +23,7 @@ uv run openskistats visualize
 uv run openskistats display
 
 # quarto display
-quarto render openskistats/webapp --output-dir="$(pwd)/data/webapp"
+quarto render openskistats/webapp
 quarto preview openskistats/webapp  
 
 # webserver for viewing http://localhost:8000

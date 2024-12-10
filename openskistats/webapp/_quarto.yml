@@ -1,6 +1,6 @@
 project:
   type: website
-
+  output-dir: ../../data/webapp
 website:
   title: "OpenSkiStats"
   search: false

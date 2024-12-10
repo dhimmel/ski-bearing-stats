@@ -7,99 +7,156 @@ import polars as pl
 from matplotlib.colors import TwoSlopeNorm
 
 from openskistats.analyze import load_runs_pl
-from openskistats.utils import pl_hemisphere
-
-LATITUDE_STEP = 3
-BEARING_STEP = 4
-LATITUDE_ABS_BREAKS = list(range(0, 90 + LATITUDE_STEP, LATITUDE_STEP))
-BEARING_BREAKS = list(range(0, 360 + BEARING_STEP, BEARING_STEP))
+from openskistats.utils import pl_fold_bearing, pl_hemisphere
 
 
-def get_bearing_by_latitude_bin_metrics() -> pl.DataFrame:
-    """
-    Metrics for (latitude_abs_bin, bearing_bin) pairs.
-    """
-    bin_pattern = r"\[(.+), (.+)\)"
-    return (
-        load_runs_pl()
-        .filter(pl.col("run_uses").list.contains("downhill"))
-        .explode("run_coordinates_clean")
-        .unnest("run_coordinates_clean")
-        .filter(pl.col("segment_hash").is_not_null())
-        .with_columns(
-            # Flips a degree bearing across the east-west axis,
-            # i.e. a latitudinal reflection or hemispherical flip of bearings in the southern hemisphere
-            bearing_poleward=pl.when(pl.col("latitude").gt(0))
-            .then(pl.col("bearing"))
-            .otherwise(pl.lit(180).sub("bearing").mod(360)),
-        )
-        # FIXME: consider using get_bearing_histogram method to prevent bin-edge effects
-        .select(
-            "run_id",
-            "segment_hash",
-            # pl.col("latitude").round(0).cast(pl.Int32).alias("latitude"),
-            pl.col("latitude")
-            .abs()
-            .cut(breaks=LATITUDE_ABS_BREAKS, left_closed=True)
-            .alias("latitude_abs_bin"),
-            pl.col("bearing_poleward")
-            .cut(breaks=BEARING_BREAKS, left_closed=True)
-            .alias("bearing_bin"),
-            # pl.col("bearing").round(0).cast(pl.Int32).alias("bearing"),
-            "distance_vertical_drop",
-        )
-        .group_by("latitude_abs_bin", "bearing_bin")
-        .agg(
-            pl.count("segment_hash").alias("segment_count"),
-            pl.col("distance_vertical_drop").sum().alias("combined_vertical").round(5),
-        )
-        .filter(pl.col("combined_vertical") > 0)
-        .with_columns(
-            latitude_abs_bin_lower=pl.col("latitude_abs_bin")
-            .cast(pl.String)
-            .str.extract(pattern=bin_pattern, group_index=1)
-            .cast(pl.Int32),
-            latitude_abs_bin_upper=pl.col("latitude_abs_bin")
-            .cast(pl.String)
-            .str.extract(pattern=bin_pattern, group_index=2)
-            .cast(pl.Int32),
-            bearing_bin_lower=pl.col("bearing_bin")
-            .cast(pl.String)
-            .str.extract(pattern=bin_pattern, group_index=1)
-            .cast(pl.Int32),
-            bearing_bin_upper=pl.col("bearing_bin")
-            .cast(pl.String)
-            .str.extract(pattern=bin_pattern, group_index=2)
-            .cast(pl.Int32),
-        )
-        .with_columns(
+@dataclass
+class RunLatitudeBearingHistogram:
+    num_latitude_bins: int = 30  # 3-degree bins
+    num_bearing_bins: int = 90  # 4-degree bins
+
+    @property
+    def latitude_abs_breaks(self) -> npt.NDArray[np.float64]:
+        return np.linspace(0, 90, self.num_latitude_bins + 1)
+
+    @property
+    def bearing_breaks(self) -> npt.NDArray[np.float64]:
+        return np.linspace(0, 360, self.num_bearing_bins + 1)
+
+    def get_latitude_bins_df(self, include_hemisphere: bool = False) -> pl.DataFrame:
+        latitude_bins = pl.DataFrame(
+            {
+                "latitude_abs_bin_lower": self.latitude_abs_breaks[:-1],
+                "latitude_abs_bin_upper": self.latitude_abs_breaks[1:],
+            }
+        ).with_columns(
             latitude_abs_bin_center=pl.mean_horizontal(
                 "latitude_abs_bin_lower", "latitude_abs_bin_upper"
-            ),
-            bearing_bin_center=pl.mean_horizontal(
-                "bearing_bin_lower", "bearing_bin_upper"
-            ),
+            )
         )
-        # Proportion of combined_vertical within a latitude bin
-        .with_columns(
-            total_combined_vertical=pl.sum("combined_vertical").over(
-                "latitude_abs_bin"
-            ),
+        if include_hemisphere:
+            latitude_bins = pl.concat(
+                [
+                    latitude_bins.with_columns(hemisphere=pl.lit("north")),
+                    latitude_bins.with_columns(hemisphere=pl.lit("south")),
+                ]
+            )
+        return latitude_bins
+
+    def get_grid_bins_df(self) -> pl.DataFrame:
+        return (
+            self.get_latitude_bins_df()
+            .join(
+                pl.DataFrame(
+                    {
+                        "bearing_bin_lower": self.bearing_breaks[:-1],
+                        "bearing_bin_upper": self.bearing_breaks[1:],
+                    }
+                ),
+                how="cross",
+            )
+            .with_columns(
+                bearing_bin_center=pl.mean_horizontal(
+                    "bearing_bin_lower", "bearing_bin_upper"
+                )
+            )
+            # .select(
+            #     pl.all().cast(pl.Int32),
+            # )
         )
-        .with_columns(
-            combined_vertical_prop=pl.col("combined_vertical").truediv(
-                "total_combined_vertical"
-            ),
+
+    def load_and_filter_runs_pl(self) -> pl.LazyFrame:
+        return (
+            load_runs_pl()
+            .filter(pl.col("run_uses").list.contains("downhill"))
+            .explode("run_coordinates_clean")
+            .unnest("run_coordinates_clean")
+            .filter(pl.col("segment_hash").is_not_null())
+            .with_columns(
+                latitude_abs=pl.col("latitude").abs(),
+                hemisphere=pl_hemisphere(),
+                bearing_poleward=pl_fold_bearing(),
+            )
+            .with_columns(
+                pl.col("latitude_abs")
+                .cut(
+                    breaks=self.latitude_abs_breaks,
+                    left_closed=True,
+                    include_breaks=True,
+                )
+                .struct.field("breakpoint")
+                .alias("latitude_abs_bin_upper"),
+                pl.col("bearing_poleward")
+                .cut(breaks=self.bearing_breaks, left_closed=True, include_breaks=True)
+                .struct.field("breakpoint")
+                .alias("bearing_bin_upper"),
+            )
         )
-        .with_columns(
-            combined_vertical_enrichment=pl.col("combined_vertical_prop").mul(
-                len(BEARING_BREAKS) - 1
-            ),
+
+    def _get_agg_metrics(self) -> list[pl.Expr]:
+        return [
+            pl.count("segment_hash").alias("segment_count"),
+            pl.col("distance_vertical_drop").sum().alias("combined_vertical").round(5),
+        ]
+
+    def get_latitude_histogram(self) -> pl.DataFrame:
+        histogram = (
+            self.load_and_filter_runs_pl()
+            .group_by("hemisphere", "latitude_abs_bin_upper")
+            .agg(*self._get_agg_metrics())
         )
-        .with_columns(bearing_bin_center_radians=pl.col("bearing_bin_center").radians())
-        .sort("latitude_abs_bin", "bearing_bin")
-        .collect()
-    )
+        return (
+            self.get_latitude_bins_df(include_hemisphere=True)
+            .lazy()
+            .join(histogram, how="left", on=["hemisphere", "latitude_abs_bin_upper"])
+            .sort("hemisphere", "latitude_abs_bin_lower")
+            .collect()
+            .with_columns(
+                pl.col("segment_count").fill_null(0),
+                pl.col("combined_vertical").fill_null(0).round(5),
+            )
+        )
+
+    def get_latitude_bearing_histogram(self) -> pl.DataFrame:
+        histogram = (
+            self.load_and_filter_runs_pl()
+            .group_by("latitude_abs_bin_upper", "bearing_bin_upper")
+            .agg(*self._get_agg_metrics())
+        )
+
+        return (
+            self.get_grid_bins_df()
+            .lazy()
+            .join(
+                histogram,
+                how="left",
+                on=["latitude_abs_bin_upper", "bearing_bin_upper"],
+            )
+            .sort("latitude_abs_bin_upper", "bearing_bin_upper")
+            .collect()
+            .with_columns(
+                pl.col("segment_count").fill_null(0),
+                pl.col("combined_vertical").fill_null(0).round(5),
+            )
+            .with_columns(
+                total_combined_vertical=pl.sum("combined_vertical").over(
+                    "latitude_abs_bin_upper"
+                ),
+            )
+            .with_columns(
+                combined_vertical_prop=pl.col("combined_vertical").truediv(
+                    "total_combined_vertical"
+                ),
+            )
+            .with_columns(
+                combined_vertical_enrichment=pl.col("combined_vertical_prop").mul(
+                    self.num_bearing_bins
+                ),
+            )
+            .with_columns(
+                bearing_bin_center_radians=pl.col("bearing_bin_center").radians()
+            )
+        )
 
 
 @dataclass
@@ -110,48 +167,20 @@ class BearingByLatitudeBinMeshGrid:
 
 
 def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
+    rlbh = RunLatitudeBearingHistogram()
     PRIOR_TOTAL_COMBINED_VERT = 20_000
-    NUM_BEARING_BINS = len(BEARING_BREAKS) - 1
-    metrics_df = get_bearing_by_latitude_bin_metrics()
     grid_pl = (
-        pl.DataFrame({"latitude_abs_bin_lower": LATITUDE_ABS_BREAKS[:-1]})
-        .join(
-            pl.DataFrame({"bearing_bin_lower": BEARING_BREAKS[:-1]}),
-            how="cross",
-        )
-        .select(
-            pl.all().cast(pl.Int32),
-        )
-        .join(
-            metrics_df.select(
-                "latitude_abs_bin_lower",
-                "bearing_bin_lower",
-                "combined_vertical",
-                "combined_vertical_prop",
-                "combined_vertical_enrichment",
-            ),
-            on=["latitude_abs_bin_lower", "bearing_bin_lower"],
-            how="left",
-        )
-        .with_columns(
-            total_combined_vertical=pl.sum("combined_vertical")
-            .over("latitude_abs_bin_lower")
-            .fill_null(0),
-        )
-        .with_columns(
-            pl.col("combined_vertical").fill_null(0),
-            pl.col("combined_vertical_prop").fill_null(0),
-        )
+        rlbh.get_latitude_bearing_histogram()
         .with_columns(
             combined_vertical_prop_regularized=pl.col("combined_vertical").add(
-                PRIOR_TOTAL_COMBINED_VERT / NUM_BEARING_BINS
+                PRIOR_TOTAL_COMBINED_VERT / rlbh.num_bearing_bins
             )
             / pl.col("total_combined_vertical").add(PRIOR_TOTAL_COMBINED_VERT),
         )
         .with_columns(
             combined_vertical_enrichment_regularized=pl.col(
                 "combined_vertical_prop_regularized"
-            ).mul(NUM_BEARING_BINS)
+            ).mul(rlbh.num_bearing_bins)
         )
         .with_columns(
             combined_vertical_enrichment_regularized=pl.when(
@@ -169,8 +198,10 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
         # .with_columns(pl.selectors.by_dtype(pl.Float64).fill_null(0.0))
         .drop("latitude_abs_bin_lower")
     )
-    assert np.all(np.diff([int(x) for x in grid_pl.columns]) > 0)
-    latitude_grid, bearing_grid = np.meshgrid(LATITUDE_ABS_BREAKS, BEARING_BREAKS)
+    assert np.all(np.diff([float(x) for x in grid_pl.columns]) > 0)
+    latitude_grid, bearing_grid = np.meshgrid(
+        rlbh.latitude_abs_breaks, rlbh.bearing_breaks
+    )
     return BearingByLatitudeBinMeshGrid(
         latitude_grid=latitude_grid,
         bearing_grid=bearing_grid,
@@ -225,22 +256,3 @@ def plot_bearing_by_latitude_bin() -> plt.Figure:
         )
 
     return fig
-
-
-def get_latitude_histogram() -> pl.DataFrame:
-    # FIXME: hemisphere broken
-    return (
-        get_bearing_by_latitude_bin_metrics()
-        .group_by("latitude_bin")
-        .agg(
-            pl.first("latitude_bin_lower").alias("latitude_bin_lower"),
-            pl.first("latitude_bin_upper").alias("latitude_bin_upper"),
-            pl.first("latitude_bin_center").alias("latitude_bin_center"),
-            pl.sum("segment_count").alias("segment_count"),
-            pl.sum("combined_vertical").round(5).alias("combined_vertical"),
-        )
-        .with_columns(
-            hemisphere=pl_hemisphere("latitude_bin_center"),
-            latitude_bin_center_abs=pl.col("latitude_bin_center").abs(),
-        )
-    )

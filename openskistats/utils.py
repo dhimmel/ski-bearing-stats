@@ -25,3 +25,18 @@ def pl_hemisphere(latitude_col: str = "latitude") -> pl.Expr:
         .when(pl.col(latitude_col).lt(0))
         .then(pl.lit("south"))
     )
+
+
+def pl_fold_bearing(
+    latitude_col: str = "latitude", bearing_col: str = "bearing"
+) -> pl.Expr:
+    """
+    Fold bearings in the southern hemisphere across the hemisphere (east-west axis).
+    Performs a latitudinal reflection or hemispherical flip of bearings in the southern hemisphere,
+    while returning the original bearings in the northern hemisphere.
+    """
+    return (
+        pl.when(pl.col(latitude_col).gt(0))
+        .then(pl.col(bearing_col))
+        .otherwise(pl.lit(180).sub(bearing_col).mod(360))
+    )

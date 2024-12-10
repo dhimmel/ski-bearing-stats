@@ -28,10 +28,8 @@ function adjustSnowflakeFrequency() {
 
   // Set the interval based on width
   let intervalTime;
-  if (width > 1200) {
-    intervalTime = 200; // Frequent for larger screens
-  } else if (width > 800) {
-    intervalTime = 400; // Moderate for medium screens
+  if (width > 800) {
+    intervalTime = 400; // Frequent for larger screens
   } else {
     intervalTime = 600; // Less frequent for smaller screens
   }

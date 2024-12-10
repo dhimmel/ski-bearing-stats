@@ -110,6 +110,8 @@ class BearingByLatitudeBinMeshGrid:
 
 
 def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
+    PRIOR_TOTAL_COMBINED_VERT = 20_000
+    NUM_BEARING_BINS = len(BEARING_BREAKS) - 1
     metrics_df = get_bearing_by_latitude_bin_metrics()
     grid_pl = (
         pl.DataFrame({"latitude_abs_bin_lower": LATITUDE_ABS_BREAKS[:-1]})
@@ -132,22 +134,35 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
             how="left",
         )
         .with_columns(
-            total_combined_vertical=pl.sum("combined_vertical").over(
-                "latitude_abs_bin_lower"
-            ),
+            total_combined_vertical=pl.sum("combined_vertical")
+            .over("latitude_abs_bin_lower")
+            .fill_null(0),
         )
         .with_columns(
             pl.col("combined_vertical").fill_null(0),
             pl.col("combined_vertical_prop").fill_null(0),
-            combined_vertical_enrichment=pl.when(
+        )
+        .with_columns(
+            combined_vertical_prop_regularized=pl.col("combined_vertical").add(
+                PRIOR_TOTAL_COMBINED_VERT / NUM_BEARING_BINS
+            )
+            / pl.col("total_combined_vertical").add(PRIOR_TOTAL_COMBINED_VERT),
+        )
+        .with_columns(
+            combined_vertical_enrichment_regularized=pl.col(
+                "combined_vertical_prop_regularized"
+            ).mul(NUM_BEARING_BINS)
+        )
+        .with_columns(
+            combined_vertical_enrichment_regularized=pl.when(
                 pl.col("total_combined_vertical") >= 10_000
-            ).then(pl.col("combined_vertical_enrichment").fill_null(0)),
+            ).then(pl.col("combined_vertical_enrichment_regularized")),
         )
         .pivot(
             index="latitude_abs_bin_lower",
             columns="bearing_bin_lower",
             # values="combined_vertical",
-            values="combined_vertical_enrichment",
+            values="combined_vertical_enrichment_regularized",
             sort_columns=False,  # order of discovery
         )
         .sort("latitude_abs_bin_lower")
@@ -164,6 +179,9 @@ def get_bearing_by_latitude_bin_mesh_grids() -> BearingByLatitudeBinMeshGrid:
 
 
 def plot_bearing_by_latitude_bin() -> plt.Figure:
+    """
+    https://github.com/dhimmel/openskistats/issues/11
+    """
     grids = get_bearing_by_latitude_bin_mesh_grids()
     fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
     quad_mesh = ax.pcolormesh(

@@ -98,11 +98,21 @@ class RunLatitudeBearingHistogram:
         ]
 
     def get_latitude_histogram(self) -> pl.DataFrame:
+        from openskistats.analyze import _get_bearing_summary_stats_pl
+
         histogram = (
             self.load_and_filter_runs_pl()
             .group_by("hemisphere", "latitude_abs_bin_upper")
-            # TODO: bearing statistics
-            .agg(*self._get_agg_metrics())
+            .agg(
+                *self._get_agg_metrics(),
+                _bearing_stats=pl.struct(
+                    "bearing",
+                    pl.col("distance_vertical_drop").alias("bearing_magnitude_net"),
+                    pl.col("distance_vertical_drop").alias("bearing_magnitude_cum"),
+                    "hemisphere",
+                ).map_batches(_get_bearing_summary_stats_pl, returns_scalar=True),
+            )
+            .unnest("_bearing_stats")
         )
         return (
             self.get_latitude_bins_df(include_hemisphere=True)

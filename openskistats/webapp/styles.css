@@ -1,0 +1,10 @@
+.navbar a, 
+.navbar-brand {
+    color: #1b1b1b !important;
+}
+.navbar {
+    background-color: transparent !important;
+}
+.nav-footer {
+    background-color: transparent !important;
+}

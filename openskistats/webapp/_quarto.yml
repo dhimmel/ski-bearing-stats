@@ -7,8 +7,6 @@ website:
   site-url: https://openskistats.org
   navbar:
     left:
-      - href: index.qmd
-        text: About
       - href: ski-areas.qmd
         text: Ski Areas
     right:
@@ -21,6 +19,7 @@ website:
 format:
   html:
     theme: cosmo
+    css: styles.css
     toc: true
     code-fold: true
 

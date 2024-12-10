@@ -1,11 +1,106 @@
 ---
-title: About
+anchor-sections: false
 ---
 
-OpenSkiStats is an open resource for geospatial metrics about downhill ski areas.
-The data comes from [OpenSkiMap](https://openskimap.org), which refines [OpenStreetMap](https://www.openstreetmap.org) to create an amazing interactive visualization of the world and all its ski trails.
+::: {.column-screen}
+```{=html}
+<!-- Full-Screen Snow Animation -->
+<div class="snow-container" id="snow-container"></div>
+<div class="text-overlay">
+<h2>OpenSkiStats</h2>
+<p> an open resource for geospatial metrics about downhill ski areas
+</p>
+
+</div>
+
+<style>
+/* Snow Animation Styling */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(to top, #0d1b2a, #1b263b, #415a77, #778da9);
+
+
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.snow-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.snowflake {
+  position: absolute;
+  top: -10px;
+  font-size: 1em;
+  color: white;
+  opacity: 0.8;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.text-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  text-align: center;
+}
+
+.text-overlay h1 {
+  font-size: 3em;
+  margin: 0;
+}
+
+.text-overlay p {
+  font-size: 1.2em;
+  margin: 10px 0 0;
+}
+</style>
+
+<script>
+// Snowflake generator
+const snowContainer = document.getElementById('snow-container');
+
+function createSnowflake() {
+  const snowflake = document.createElement('div');
+  snowflake.classList.add('snowflake');
+  snowflake.textContent = '❄';
+  snowflake.style.left = `${Math.random() * 100}vw`;
+  // snowflake.style.top = `${Math.random() * -20}vh`; 
+  snowflake.style.fontSize = `${Math.random() * 20 + 10}px`;
+  snowflake.style.animationDuration = `${Math.random() * 10 + 3}s`;
+  // snowflake.style.animationDelay = `${Math.random() * 2}s`;
+  snowContainer.appendChild(snowflake);
+
+  // Remove snowflake after animation
+  setTimeout(() => snowflake.remove(), 10000);
+}
+
+// Generate snowflakes continuously
+setInterval(createSnowflake, 200);
+</script>
+
+
+
+<!-- The data comes from [OpenSkiMap](https://openskimap.org), which refines [OpenStreetMap](https://www.openstreetmap.org) to create an amazing interactive visualization of the world and all its ski trails.
 Thousands of OpenStreetMap contributors have worked for decades to annotate ski areas and their trails.
 This is an ongoing effort, and we can expect the underlying data to continue to improve over time.
 
 Now we bring the data behind these ski areas to life with summary statistics.
-The founding application of this project is to explore the orientation (compass bearings) of all the runs that comprise a ski area or grouping of ski areas.
+The founding application of this project is to explore the orientation (compass bearings) of all the runs that comprise a ski area or grouping of ski areas. -->
+:::

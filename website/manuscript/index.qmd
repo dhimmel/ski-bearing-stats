@@ -16,9 +16,11 @@ We present OpenSkiStats, the first open, global, and continuously updating resou
 
 Analyses of city street orientation [@osmnx; @street-orientation].
 
-Climate change [@climate-change-europe; @climate-change-alps]
+Climate change [@climate-change-europe; @climate-change-alps; @climate-change-usnf]
 
 Routing [@skivis; @osm-ski-routing]
+
+Other [@ski-resort-sustainability; @apennines-winter]
 
 ## Main text
 

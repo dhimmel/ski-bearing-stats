@@ -18,6 +18,8 @@ Analyses of city street orientation [@osmnx; @boeing-street-nets-2019].
 
 ## Main text
 
+![Eye of skiing](../images/bearing_by_latitude_eye.svg)
+
 Deduplication of effort: OpenStreetMap used by Strava, etc. Single place to curate the world's ski areas
 
 We extract all segments comprising ski runs

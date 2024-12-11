@@ -295,7 +295,7 @@ def bearing_dists_by_status() -> pl.DataFrame:
             pl.col("osm_status").is_in(["abandoned", "operating"]),
         ],
     ).with_columns(
-        group_name=pl.format(
+        hemisphere_status=pl.format(
             "{} in {} Hem.",
             pl.col("osm_status").str.to_titlecase(),
             pl.col("hemisphere").str.to_titlecase(),
@@ -315,7 +315,9 @@ def bearing_dists_by_country() -> pl.DataFrame:
 
 
 def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
-    path = get_data_directory().joinpath("ski-roses.pdf")
+    image_directory = get_data_directory().joinpath("images")
+    image_directory.mkdir(exist_ok=True)
+    path = image_directory.joinpath("ski-roses.pdf")
     pdf_pages = PdfPages(
         filename=path,
         metadata={
@@ -325,11 +327,11 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
     )
     grouping_col_to_stats = {
         "hemisphere": bearing_dists_by_hemisphere(),
-        "group_name": bearing_dists_by_status(),
+        "hemisphere_status": bearing_dists_by_status(),
         "country": bearing_dists_by_country(),
         "region": bearing_dists_by_us_state(),
     }
-    figures = []
+    figures = {}
     for grouping_col, groups_pl in grouping_col_to_stats.items():
         logging.info(f"Plotting ski roses by {grouping_col}")
         groups_pl = groups_pl.filter(
@@ -337,7 +339,7 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
         )
         if groups_pl.is_empty():
             logging.info(
-                f"Skipping {grouping_col} plot which returns no groups with combined_vertical >= {min_combined_vertical:,}m."
+                f"Skipping {grouping_col} plot which returns no groups with combined_vertical >= {min_combined_vertical:,} m."
             )
             continue
         fig = subplot_orientations(
@@ -346,13 +348,25 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
             n_cols=min(4, len(groups_pl)),
             free_y=True,
         )
-        figures.append(fig)
+        figures[f"{grouping_col}_roses"] = fig
     from openskistats.plot_runs import plot_bearing_by_latitude_bin
 
-    figures.append(plot_bearing_by_latitude_bin())
+    figures["bearing_by_latitude_eye"] = plot_bearing_by_latitude_bin()
+    # save SVGs
+    for name, fig in figures.items():
+        fig.savefig(
+            image_directory.joinpath(f"{name}.svg"),
+            format="svg",
+            bbox_inches="tight",
+            pad_inches=0.02,
+            metadata={
+                "Creator": "https://github.com/dhimmel/openskistats",
+            },
+        )
+    # save multi-page PDF
     logging.info(f"Writing ski rose the world to {path}")
     with pdf_pages:
-        for fig in figures:
+        for fig in figures.values():
             pdf_pages.savefig(fig, facecolor="#FFFFFF", bbox_inches="tight")
             matplotlib.pyplot.close(fig)
 

@@ -122,6 +122,7 @@ List of related webpages:
 - [reactable-py/issues/29](https://github.com/machow/reactable-py/issues/29): Should great_tables be a dependency (currently dev dependency)
 - [reactable-py/issues/38](https://github.com/machow/reactable-py/issues/38): How to call custom javascript after the table is loaded?
 - [quarto-cli/issues/11656](https://github.com/quarto-dev/quarto-cli/issues/11656): YAML bibliographies should accept list format, currently requires a dictionary with references
+- [pandoc/issues/10452](https://github.com/jgm/pandoc/issues/10452): YAML bibliographies require an object with references and do not accept arrays
 
 ## License
 

@@ -14,14 +14,18 @@ We present OpenSkiStats, the first open, global, and continuously updating resou
 
 ## Introduction
 
-Analyses of city street orientation [@osmnx; @boeing-street-nets-2019].
+Analyses of city street orientation [@osmnx; @street-orientation].
+
+Climate change [@climate-change-europe; @climate-change-alps]
+
+Routing [@skivis; @osm-ski-routing]
 
 ## Main text
 
 
 ![Ski roses by hemisphere](../images/hemisphere_roses.svg)
 
-::: {#fig-elephants layout-ncol=2}
+::: {#fig-elephants layout="[75,25]"}
 
 ![Eye of skiing](../images/bearing_by_latitude_eye.svg){#fig-eye}
 

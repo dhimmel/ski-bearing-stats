@@ -16,7 +16,8 @@ We present OpenSkiStats, the first open, global, and continuously updating resou
 
 Analyses of city street orientation [@osmnx; @osmnx-joss; @street-orientation].
 
-Ski Rose [@compass-rose; @wind-rose-bias]
+
+Ski Rose [@compass-rose;  @compass-rose-symbolism; @wind-rose-bias;]
 
 Climate change [@climate-change-europe; @climate-change-alps; @climate-change-usnf]
 

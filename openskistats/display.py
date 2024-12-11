@@ -35,15 +35,15 @@ def export_display_notebook() -> None:
 
 
 def embed_reactable_html() -> None:
-    webapp_source_dir = Path(__file__).parent.joinpath("webapp")
+    website_source_dir = Path(__file__).parent.joinpath("website")
     html_script = f"""
     <script>
-    {webapp_source_dir.joinpath("webapp.js").read_text()}
+    {website_source_dir.joinpath("ski-areas", "script.js").read_text()}
     </script>
     """
     html_style = f"""
     <style>
-    {webapp_source_dir.joinpath("webapp.css").read_text()}
+    {website_source_dir.joinpath("ski-areas", "style.css").read_text()}
     </style>
     """
     for html_ in html_style, html_script:
@@ -119,7 +119,7 @@ def get_ski_area_frontend_table() -> pl.DataFrame:
     )
 
 
-# defining cellLatitude in webapp.js results in a React not found error
+# defining cellLatitude in script.js results in a React not found error
 _latitude_cell = reactable.JS("""
 function cellLatitude(cellInfo) {
   const latitude = cellInfo.value;

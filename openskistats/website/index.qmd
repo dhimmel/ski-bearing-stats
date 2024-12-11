@@ -2,7 +2,7 @@
 anchor-sections: false
 format:
   html:
-    css: index.css
+    css: index/style.css
 ---
 
 ::: {.column-screen}

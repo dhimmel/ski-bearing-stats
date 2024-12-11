@@ -23,8 +23,8 @@ uv run openskistats visualize
 uv run openskistats display
 
 # quarto display
-quarto render openskistats/website
-quarto preview openskistats/website
+quarto render website
+quarto preview website
 
 # webserver for viewing http://localhost:8000
 python -m http.server --directory=data/webapp

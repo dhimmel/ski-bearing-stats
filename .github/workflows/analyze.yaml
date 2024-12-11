@@ -43,7 +43,7 @@ jobs:
         uv run openskistats analyze
         uv run openskistats validate
         uv run openskistats visualize
-        uv run quarto render openskistats/website"
+        uv run quarto render website
       shell: bash
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4

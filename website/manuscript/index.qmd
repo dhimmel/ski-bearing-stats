@@ -18,7 +18,17 @@ Analyses of city street orientation [@osmnx; @boeing-street-nets-2019].
 
 ## Main text
 
-![Eye of skiing](../images/bearing_by_latitude_eye.svg)
+
+![Ski roses by hemisphere](../images/hemisphere_roses.svg)
+
+::: {#fig-elephants layout-ncol=2}
+
+![Eye of skiing](../images/bearing_by_latitude_eye.svg){#fig-eye}
+
+![Latitude histogram](../images/latitude_histogram.svg){#fig-hanno}
+
+Latitude rules
+:::
 
 Deduplication of effort: OpenStreetMap used by Strava, etc. Single place to curate the world's ski areas
 

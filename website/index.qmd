@@ -25,6 +25,6 @@ This project brings to life the data behind these ski areas with summary statist
 The founding application of this project is to explore the orientation (compass bearings) of all the runs that comprise a ski area or grouping of ski areas.
 
 </div>
-<script src="snowflake.js"></script>
+<script src="index/snowflake.js"></script>
 
 :::

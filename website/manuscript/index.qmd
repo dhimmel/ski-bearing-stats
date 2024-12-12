@@ -40,7 +40,7 @@ Other [@ski-resort-sustainability; @apennines-winter]
   A 2-dimensional polar histogram showing skiable vert by orientation (angular coordinate) and absolute latitude (radial coordinate).
   Orientations for ski run segments in the southern hemisphere undergo a hemispherical flip, such that a due west bearing remains due west, while a due south bearing becomes due north.
   Hence, orientation axis labels use the terms poleward and equatorward.
-  Each 2D histogram bin's fill color represents enrichment of observed combined skiiable vert over an equal distribution of orientation within an absolute latitude band.
+  Each 2D histogram bin's fill color represents enrichment of observed combined skiable vert over an equal distribution of orientation within an absolute latitude band.
   Several processing steps help highlight the trends in the data:
   latitude bands without at least XX in combined vert are removed;
   a uniform prior is applied to orientations;

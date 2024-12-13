@@ -30,6 +30,38 @@ Other [@ski-resort-sustainability; @apennines-winter]
 
 ## Main text
 
+Run counts: (with segments and points)
+- geometry filter
+- downhill filter
+- coordinate filter (remove elevation voids)
+- vertical drop filter
+- downhill ski area
+- ski resort
+
+Ski area counts (potentially lifts as well?)
+- downhill in uses
+- operating
+- named filter
+- resort filter
+
+## Data completeness
+
+### Number of Ski Areas
+
+Laurent Vanat's _2022 International Report on Snow & Mountain Tourism_ compiled primarily national level data to report on global ski area metrics [@vanat-2022].
+Vanat identified 5,764 ski areas worldwide,
+when limiting to "equipped outdoor ski areas covered with snow", which excludes "indoor facilities, mountaineering-only areas, and other types of facilities such as dry slopes."
+The 1,945 ski areas with 5 or more lifts qualified as a ski resort,
+of which 52 were deemed as _major_ based on a threshold of "1 million skier visits per winter season".
+OpenSkiMap contains 5,115 downhill ski areas with one or more lifts (i.e. equipped) and 1,635 with 5 or more lifts.
+This equates to 89% and 84% of Vanat's respective counts.
+<!-- should vanat comparables be filtered for operating? -->
+
+Stuart Winchester identified 505 active ski areas in the United States as of 2023 [@storm-skiing-505-ski-areas].
+Winchester required ski areas to have one or more lifts, a snow surface, operated for at least 1 day in the last season, excluding areas operating solely for personal use.
+OpenSkiMap contains 510 operating downhill ski areas in the United States.
+<!-- FIXME: operating filters: should just be operating or also null? -->
+
 ::: {#fig-hemisphere-roses}
 ![](../images/hemisphere_roses.svg)
 

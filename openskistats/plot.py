@@ -342,7 +342,6 @@ def subplot_orientations(
         fig.suptitle(t=suptitle, y=0.99, fontsize=13, verticalalignment="bottom")
     fig.tight_layout()
     fig.subplots_adjust(hspace=0.31)
-    # fig.savefig("images/street-orientations.png", facecolor="w", dpi=100, bbox_inches="tight")
     plt.close()
     return fig
 

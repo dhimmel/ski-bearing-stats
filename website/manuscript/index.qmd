@@ -19,6 +19,20 @@ OpenSkiMap provides a resource of XX downhill ski areas in XX countries and XX d
 
 There are an estimated 135 million alpine skiers worldwide, resulting in 350-380 million visits to ski areas per year [@vanat-2022].
 Mountain tourism is estimated to drive up to 16% of international tourist arrivals worldwide (~375 million in 2019) [@unwto-mountain-tourism].
+In the United States, outdoor recreation accounted for 2.3% of the gross domestic product in 2023 by adding $639.5 billion in value to the economy.
+$3.9 billion directly [@bea-outdoor-rec]
+
+In the United States, outdoor recreation generated $1.2 trillion in economic output or 2.3% of the gross domestic product in 2023  [@bea-outdoor-rec, Table 10].
+$3.9 billion in value added is directly [@bea-outdoor-rec, Table 2]
+
+<!-- tbl2 
+Table 2. Outdoor Recreation Value Added by Activity
+[Millions of current dollars]
+https://www.bea.gov/sites/default/files/2024-11/orsa1124-national_0.xlsx
+2,131 + 1,733 = 3,864
+
+See also https://recreationroundtable.org/news/new-data-shows-outdoor-recreation-is-a-1-2-trillion-economic-engine-supporting-5-million-american-jobs/
+-->
 
 
 Analyses of city street orientation [@osmnx; @osmnx-joss; @street-orientation].

@@ -17,6 +17,10 @@ OpenSkiMap provides a resource of XX downhill ski areas in XX countries and XX d
 
 ## Introduction
 
+There are an estimated 135 million alpine skiers worldwide, resulting in 350-380 million visits to ski areas per year [@vanat-2022].
+Mountain tourism is estimated to drive up to 16% of international tourist arrivals worldwide (~375 million in 2019) [@unwto-mountain-tourism].
+
+
 Analyses of city street orientation [@osmnx; @osmnx-joss; @street-orientation].
 
 Compass roses are an ancient visualization steeped in tradition and symbolism.
@@ -55,7 +59,9 @@ The 1,945 ski areas with 5 or more lifts qualified as a ski resort,
 of which 52 were deemed as _major_ based on a threshold of "1 million skier visits per winter season".
 OpenSkiMap contains 5,115 downhill ski areas with one or more lifts (i.e. equipped) and 1,635 with 5 or more lifts.
 This equates to 89% and 84% of Vanat's respective counts.
-<!-- should vanat comparables be filtered for operating? -->
+<!-- should vanat comparables be filtered for operating?
+TODO: country count: vanat identifies 68 countries
+-->
 
 Stuart Winchester identified 505 active ski areas in the United States as of 2023 [@storm-skiing-505-ski-areas].
 Winchester required ski areas to have one or more lifts, a snow surface, operated for at least 1 day in the last season, excluding areas operating solely for personal use.

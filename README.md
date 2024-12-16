@@ -92,6 +92,7 @@ List of related webpages:
 - https://www.skitalk.com/threads/comparing-latitude-and-elevation-at-western-us-resorts.9980/
 - https://www.stormskiing.com/p/there-are-505-active-ski-areas-in
 - https://github.com/pirxpilot/liftie
+- https://gitlab.com/hugfr/european-ski-resorts-snow-reliability and https://zenodo.org/records/8047168
 
 ## Wild Ideas
 

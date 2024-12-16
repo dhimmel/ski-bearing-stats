@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+import numpy as np
+import numpy.typing as npt
 import polars as pl
 
 repo_directory = Path(__file__).parent.parent
@@ -40,3 +42,10 @@ def pl_flip_bearing(
         .then(pl.col(bearing_col))
         .otherwise(pl.lit(180).sub(bearing_col).mod(360))
     )
+
+
+def gini_coefficient(values: npt.NDArray[np.float64]) -> float:
+    """Compute the Gini coefficient of a list of values."""
+    n = len(values)
+    cumsum = np.cumsum(sorted(values))
+    return float(1 - 2 * (cumsum.sum() / (n * cumsum[-1])) + n**-1)

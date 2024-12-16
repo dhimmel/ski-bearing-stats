@@ -1,7 +1,8 @@
 import polars as pl
+import pytest
 from polars.testing import assert_frame_equal
 
-from openskistats.utils import pl_flip_bearing
+from openskistats.utils import gini_coefficient, pl_flip_bearing
 
 
 def test_pl_flip_bearing() -> None:
@@ -23,3 +24,15 @@ def test_pl_flip_bearing() -> None:
     )
     output_df = expected_df.with_columns(bearing_poleward=pl_flip_bearing())
     assert_frame_equal(output_df, expected_df)
+
+
+@pytest.mark.parametrize(
+    "values,expected",
+    [
+        pytest.param([5.0, 5.0, 5.0, 5.0], 0.0, id="equal_values"),
+        pytest.param([100.0, 0.0, 0.0, 0.0], 0.75, id="max_inequality"),
+        pytest.param([1.0, 2.0, 3.0, 4.0], 0.25, id="intermediate_distribution"),
+    ],
+)
+def test_gini_coefficient(values: list[float], expected: float) -> None:
+    assert gini_coefficient(values) == pytest.approx(expected)

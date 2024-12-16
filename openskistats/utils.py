@@ -44,7 +44,7 @@ def pl_flip_bearing(
     )
 
 
-def gini_coefficient(values: npt.NDArray[np.float64]) -> float:
+def gini_coefficient(values: npt.NDArray[np.float64] | list[float]) -> float:
     """Compute the Gini coefficient of a list of values."""
     n = len(values)
     cumsum = np.cumsum(sorted(values))

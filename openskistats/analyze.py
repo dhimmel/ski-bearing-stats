@@ -353,11 +353,17 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
         RunLatitudeBearingHistogram,
         plot_bearing_by_latitude_bin,
     )
+    from openskistats.plot_ski_areas import (
+        plot_ski_area_metric_ecdfs,
+    )
 
     figures["bearing_by_latitude_eye"] = plot_bearing_by_latitude_bin()
     figures["latitude_histogram"] = (
         RunLatitudeBearingHistogram().plot_latitude_histogram().draw()
     )
+    lorenz_plot, gini_plot = plot_ski_area_metric_ecdfs()
+    figures["ski_area_lorenz_curves"] = lorenz_plot.draw()
+    figures["ski_area_gini_bars"] = gini_plot.draw()
     # save SVGs
     for name, fig in figures.items():
         fig.savefig(

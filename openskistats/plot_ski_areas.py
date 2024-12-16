@@ -6,9 +6,12 @@ from openskistats.analyze import load_ski_areas_pl
 from openskistats.utils import gini_coefficient
 
 
-def get_ski_area_metric_percentiles(
+def get_ski_area_metric_ecdfs(
     ski_area_filters: list[pl.Expr] | None = None,
 ) -> pl.DataFrame:
+    """
+    Cumulative distribution metrics for select ski area metrics.
+    """
     metrics = [
         "lift_count",
         "run_count",
@@ -37,12 +40,12 @@ def get_ski_area_metric_percentiles(
     )
 
 
-def plot_ski_area_metric_percentiles(
+def plot_ski_area_metric_ecdfs(
     ski_area_filters: list[pl.Expr] | None = None,
 ) -> tuple[pn.ggplot, pn.ggplot]:
-    cdf_metrics = get_ski_area_metric_percentiles(ski_area_filters)
+    ecdf_df = get_ski_area_metric_ecdfs(ski_area_filters)
     gini_df = (
-        cdf_metrics.group_by("variable", maintain_order=True)
+        ecdf_df.group_by("variable", maintain_order=True)
         .agg(
             gini=pl.col("value").map_batches(gini_coefficient, returns_scalar=True),
         )
@@ -53,11 +56,9 @@ def plot_ski_area_metric_percentiles(
     )
     metrics_enum = pl.Enum(gini_df["variable"])
     gini_df = gini_df.with_columns(variable=gini_df["variable"].cast(metrics_enum))
-    lorenz_curves = (
+    lorenz_plot = (
         pn.ggplot(
-            data=cdf_metrics.with_columns(
-                variable=pl.col("variable").cast(metrics_enum)
-            ),
+            data=ecdf_df.with_columns(variable=pl.col("variable").cast(metrics_enum)),
             mapping=pn.aes(
                 x="value_rank_pctl",
                 y="value_cdf",
@@ -66,7 +67,7 @@ def plot_ski_area_metric_percentiles(
         )
         + pn.geom_abline(intercept=0, slope=1, linetype="dashed")
         + pn.scale_x_continuous(
-            name="Percentile",
+            name="Ski Area Percentile",
             labels=percent_format(),
             expand=(0.01, 0.01),
         )
@@ -81,7 +82,7 @@ def plot_ski_area_metric_percentiles(
         + pn.theme_bw()
         + pn.theme(figure_size=(4.2, 4))
     )
-    gini_bars = (
+    gini_plot = (
         pn.ggplot(
             data=gini_df,
             mapping=pn.aes(
@@ -103,4 +104,4 @@ def plot_ski_area_metric_percentiles(
         + pn.theme_bw()
         + pn.theme(figure_size=(3, 4))
     )
-    return lorenz_curves, gini_bars
+    return lorenz_plot, gini_plot

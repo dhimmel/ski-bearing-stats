@@ -46,6 +46,9 @@ def plot_ski_area_metric_percentiles(
         .agg(
             gini=pl.col("value").map_batches(gini_coefficient, returns_scalar=True),
         )
+        .with_columns(
+            variable_label=pl.col("variable").str.replace("_", " ").str.to_titlecase()
+        )
         .sort("gini")
     )
     metrics_enum = pl.Enum(gini_df["variable"])
@@ -59,7 +62,6 @@ def plot_ski_area_metric_percentiles(
                 x="value_rank_pctl",
                 y="value_cdf",
                 color="variable",
-                show_legend=False,
             ),
         )
         + pn.geom_abline(intercept=0, slope=1, linetype="dashed")
@@ -74,11 +76,18 @@ def plot_ski_area_metric_percentiles(
             expand=(0.01, 0.01),
         )
         + pn.scale_color_discrete()
-        + pn.geom_path()
+        + pn.geom_path(show_legend=False)
+        + pn.coord_equal()
         + pn.theme_bw()
+        + pn.theme(figure_size=(4.2, 4))
     )
     gini_bars = (
-        pn.ggplot(data=gini_df, mapping=pn.aes(x="variable", y="gini", fill="variable"))
+        pn.ggplot(
+            data=gini_df,
+            mapping=pn.aes(
+                x="variable", y="gini", fill="variable", label="variable_label"
+            ),
+        )
         + pn.geom_col(show_legend=False)
         + pn.scale_y_continuous(
             name="Gini Coefficient",
@@ -86,8 +95,12 @@ def plot_ski_area_metric_percentiles(
             expand=(0, 0),
             limits=(0, 1),
         )
-        + pn.scale_x_discrete(name="", limits=list(reversed(metrics_enum.categories)))
+        + pn.geom_text(y=0.05, ha="left")
+        + pn.scale_x_discrete(
+            name="", limits=list(reversed(metrics_enum.categories)), labels=None
+        )
         + pn.coord_flip()
         + pn.theme_bw()
+        + pn.theme(figure_size=(3, 4))
     )
     return lorenz_curves, gini_bars

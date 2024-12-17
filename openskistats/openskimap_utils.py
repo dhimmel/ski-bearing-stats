@@ -163,7 +163,7 @@ def load_runs_from_download_pl() -> pl.DataFrame:
             ski_area["properties"]["id"] for ski_area in run_properties["skiAreas"]
         )
         row["run_sources"] = sorted(
-            "{type}:{id}".format(**source) for source in run_properties["sources"]
+            openskimap_source_to_url(**source) for source in run_properties["sources"]
         )
         coordinates = run["geometry"]["coordinates"]
         row["run_coordinates_raw"] = [

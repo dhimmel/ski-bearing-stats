@@ -9,6 +9,8 @@ website:
     left:
       - href: ski-areas/
         text: Ski Areas
+      - href: skirollytelling/
+        text: Skirollytelling
     right:
       - icon: github
         href: https://github.com/dhimmel/openskistats

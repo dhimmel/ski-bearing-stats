@@ -15,7 +15,7 @@ license = {file = "LICENSE.md"}
 repository = "https://github.com/dhimmel/openskistats"
 requires-python = ">= 3.12"
 dependencies = [
-    "great-tables >= 0.13.0",  # https://github.com/machow/reactable-py/issues/29
+    "great-tables >= 0.13.0", # https://github.com/machow/reactable-py/issues/29
     "jupyter >= 1.1.1",
     "lets-plot >= 4.5.1",
     "matplotlib >= 3.9.2",
@@ -26,7 +26,7 @@ dependencies = [
     "patito >= 0.8.2",
     "plotly >= 5.24.1",
     "plotnine >= 0.13.6",
-    "polars >= 1.13.1",
+    "polars >= 1.17.1",
     "pyarrow >= 17.0.0",
     "reactable >= 0.1.5",
     "requests >= 2.32.3",

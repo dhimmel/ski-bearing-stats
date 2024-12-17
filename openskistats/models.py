@@ -145,7 +145,9 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         Field(description="OpenSkiMap convention for the runs in the ski area."),
     ]
     osm_status: Literal["operating", "abandoned", "proposed", "disused"] | None = Field(
-        description="Operating status of the ski area according to OpenSkiMap."
+        description="Operating status of the ski area according to OpenSkiMap. "
+        "Null values arise for ski areas without an OSM source in ski_area_sources. "
+        "See OpenSkiMap processing code at <https://github.com/russellporter/openskidata-processor/blob/bc168105f4d90c19817189ebe47e7bee20a2dcbc/src/transforms/Status.ts#L3-L8>."
     )
     country: str | None = Field(
         description="Country where the ski area is located.",
@@ -175,7 +177,11 @@ class SkiAreaModel(Model):  # type: ignore [misc]
         list[str] | None,
         Field(
             description="List of sources for the ski area from OpenSkiMap.",
-            examples=["openstreetmap:relation/2873910", "skimap.org:17533"],
+            examples=[
+                "https://www.openstreetmap.org/relation/2873910",
+                "https://www.openstreetmap.org/way/387976210",
+                "https://skimap.org/skiareas/view/17533",
+            ],
         ),
     ]
     run_count: int = Field(

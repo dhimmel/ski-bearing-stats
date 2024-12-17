@@ -211,6 +211,19 @@ def load_ski_areas_from_download_pl() -> pl.DataFrame:
     ).rename(mapping={"id": "ski_area_id", "name": "ski_area_name"})
 
 
+def openskimap_source_to_url(
+    type: Literal["openstreetmap", "skimap.org"],
+    id: str | int,
+) -> str:
+    match type:
+        case "openstreetmap":
+            return f"https://www.openstreetmap.org/{id}"
+        case "skimap.org":
+            return f"https://skimap.org/skiareas/view/{id}"
+        case _:
+            raise ValueError(f"Invalid source {type=} for {id=}")
+
+
 @cache
 def load_downhill_ski_areas_from_download_pl() -> pl.DataFrame:
     lift_metrics = (
@@ -239,12 +252,15 @@ def load_downhill_ski_areas_from_download_pl() -> pl.DataFrame:
             pl.col("location__iso3166_2").alias("country_subdiv_code"),
             pl.col("websites").alias("ski_area_websites"),
             # sources can have inconsistently typed nested column 'id' as string or int
+            # map_elements on struct, see https://github.com/pola-rs/polars/issues/16452#issuecomment-2549487549
             pl.col("sources")
             .list.eval(
-                pl.concat_str(
-                    pl.element().struct.field("type"),
-                    pl.element().struct.field("id"),
-                    separator=":",
+                pl.element().map_elements(
+                    lambda x: openskimap_source_to_url(
+                        type=x["type"],
+                        id=x["id"],
+                    ),
+                    return_dtype=pl.String,
                 )
             )
             .alias("ski_area_sources"),

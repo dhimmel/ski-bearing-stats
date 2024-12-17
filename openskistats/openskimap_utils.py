@@ -16,7 +16,7 @@ import polars as pl
 import requests
 
 from openskistats.models import RunCoordinateModel
-from openskistats.utils import get_data_directory, repo_directory
+from openskistats.utils import get_data_directory, get_repo_directory
 
 
 def get_openskimap_path(
@@ -74,7 +74,7 @@ def download_openskimap_geojson(
         write_file.write(response.content)
     info = OsmDownloadInfo(
         url=url,
-        relative_path=path.relative_to(repo_directory).as_posix(),
+        relative_path=path.relative_to(get_repo_directory()).as_posix(),
         last_modified=parsedate_to_datetime(
             response.headers["last-modified"]
         ).isoformat(),

@@ -16,7 +16,7 @@ from openskistats.analyze import (
 )
 from openskistats.models import SkiAreaModel
 from openskistats.plot import NARROW_SPACE
-from openskistats.utils import get_data_directory, repo_directory
+from openskistats.utils import get_data_directory, get_website_source_directory
 
 
 def export_display_notebook() -> None:
@@ -35,7 +35,7 @@ def export_display_notebook() -> None:
 
 
 def embed_reactable_html() -> None:
-    website_source_dir = repo_directory.joinpath("website")
+    website_source_dir = get_website_source_directory()
     html_script = f"""
     <script>
     {website_source_dir.joinpath("ski-areas", "script.js").read_text()}

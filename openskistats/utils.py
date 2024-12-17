@@ -5,19 +5,23 @@ import numpy as np
 import numpy.typing as npt
 import polars as pl
 
-repo_directory = Path(__file__).parent.parent
-data_directory = repo_directory.joinpath("data")
-test_data_directory = Path(__file__).parent.joinpath("tests", "data")
+
+def get_repo_directory() -> Path:
+    return Path(__file__).parent.parent
 
 
 def get_data_directory(testing: bool = False) -> Path:
     directory = (
-        test_data_directory
+        Path(__file__).parent.joinpath("tests", "data")
         if testing or "PYTEST_CURRENT_TEST" in os.environ
-        else data_directory
+        else get_repo_directory().joinpath("data")
     )
     directory.mkdir(exist_ok=True)
     return directory
+
+
+def get_website_source_directory() -> Path:
+    return get_repo_directory().joinpath("website")
 
 
 def pl_hemisphere(latitude_col: str = "latitude") -> pl.Expr:

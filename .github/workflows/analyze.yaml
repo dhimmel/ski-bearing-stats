@@ -22,6 +22,15 @@ jobs:
     - uses: astral-sh/setup-uv@v3
     - run: uv sync
     - uses: quarto-dev/quarto-actions/setup@v2
+    - name: Install R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: '4.4.0'
+    - name: Install R Dependencies
+      uses: r-lib/actions/setup-renv@v2
+      with:
+        cache-version: 1
+        working-directory: website/skirollytelling/
     - name: install fonts
       run: sudo apt-get install --yes --quiet fonts-dejavu-core fonts-noto-cjk
     # GitHub will remove any cache entries that have not been accessed in over 7 days

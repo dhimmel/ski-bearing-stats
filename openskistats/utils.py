@@ -20,6 +20,20 @@ def get_data_directory(testing: bool = False) -> Path:
     return directory
 
 
+def get_images_directory() -> Path:
+    """Directory for saving generated images."""
+    directory = get_data_directory().joinpath("images")
+    directory.mkdir(exist_ok=True)
+    return directory
+
+
+def get_images_data_directory() -> Path:
+    """Directory for materializing data behind generated images."""
+    directory = get_images_directory().joinpath("data")
+    directory.mkdir(exist_ok=True)
+    return directory
+
+
 def get_website_source_directory() -> Path:
     return get_repo_directory().joinpath("website")
 

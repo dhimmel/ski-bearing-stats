@@ -25,7 +25,12 @@ from openskistats.plot import (
     plot_orientation,
     subplot_orientations,
 )
-from openskistats.utils import get_data_directory, pl_hemisphere
+from openskistats.utils import (
+    get_data_directory,
+    get_images_data_directory,
+    get_images_directory,
+    pl_hemisphere,
+)
 
 
 def get_ski_area_metrics_path(testing: bool = False) -> Path:
@@ -315,8 +320,7 @@ def bearing_dists_by_country() -> pl.DataFrame:
 
 
 def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
-    image_directory = get_data_directory().joinpath("images")
-    image_directory.mkdir(exist_ok=True)
+    image_directory = get_images_directory()
     path = image_directory.joinpath("ski-roses.pdf")
     pdf_pages = PdfPages(
         filename=path,
@@ -333,7 +337,8 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
     }
     figures = {}
     for grouping_col, groups_pl in grouping_col_to_stats.items():
-        logging.info(f"Plotting ski roses by {grouping_col}")
+        name = f"{grouping_col}_roses"
+        logging.info(f"{name}: plotting ski roses by {grouping_col}")
         groups_pl = groups_pl.filter(
             pl.col("combined_vertical") >= min_combined_vertical
         )
@@ -342,13 +347,16 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
                 f"Skipping {grouping_col} plot which returns no groups with combined_vertical >= {min_combined_vertical:,} m."
             )
             continue
+        groups_pl.write_parquet(
+            file=get_images_data_directory().joinpath(f"{name}.parquet")
+        )
         fig = subplot_orientations(
             groups_pl=groups_pl,
             grouping_col=grouping_col,
             n_cols=min(4, len(groups_pl)),
             free_y=True,
         )
-        figures[f"{grouping_col}_roses"] = fig
+        figures[name] = fig
     from openskistats.plot_runs import (
         RunLatitudeBearingHistogram,
         plot_bearing_by_latitude_bin,

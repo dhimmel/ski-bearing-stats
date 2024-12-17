@@ -29,7 +29,6 @@ jobs:
     - name: Install R Dependencies
       uses: r-lib/actions/setup-renv@v2
       with:
-        cache-version: 1
         working-directory: website/skirollytelling/
     - name: install fonts
       run: sudo apt-get install --yes --quiet fonts-dejavu-core fonts-noto-cjk

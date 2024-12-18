@@ -49,7 +49,7 @@ to create an amazing interactive visualization of the world and all its ski trai
 @cr-openskimap
 
 :::{#cr-openskimap}
-![](../images/openskimap.png)
+![](https://github.com/user-attachments/assets/77bce463-d4df-40f2-9966-6da2b1676739)
 :::
 
 Thousands of OpenStreetMap contributors have worked for decades to annotate ski areas and their trails.<br><br>

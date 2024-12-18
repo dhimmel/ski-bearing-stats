@@ -49,13 +49,18 @@ jobs:
       # https://github.com/actions/runner/issues/1483
       if: toJSON(inputs.refresh_cache) || steps.cache-openskimap.outputs.cache-hit != 'true'
       run: uv run openskistats download
-    - name: Analysis
+    - name: Python Analysis
       run: |
         uv run openskistats analyze
         uv run openskistats validate
         uv run openskistats visualize
-        uv run quarto render website
       shell: bash
+    - name: R Analysis
+      run: Rscript data.R
+      with:
+        working-directory: website/skirollytelling/
+    - name: Quarto Render
+      run: quarto render website
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4
       with:

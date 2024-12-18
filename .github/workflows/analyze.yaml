@@ -22,6 +22,22 @@ jobs:
     - uses: astral-sh/setup-uv@v3
     - run: uv sync
     - uses: quarto-dev/quarto-actions/setup@v2
+    - name: install quarto extensions
+      working-directory: ./website/skirolly/
+      run: quarto add --no-prompt https://github.com/qmd-lab/closeread/archive/e3645070dd668004056ae508d2d25d05baca5ad1.zip
+    - name: Install R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: '4.4.0'
+    - name: Install R Dependencies
+      uses: r-lib/actions/setup-renv@v2
+      with:
+        working-directory: website/skirolly/
+    - name: Make skirolly plots
+      working-directory: website/skirolly/
+      run: |
+        Rscript 01.data.R
+        Rscript 02.plot.R
     - name: install fonts
       run: sudo apt-get install --yes --quiet fonts-dejavu-core fonts-noto-cjk
     # GitHub will remove any cache entries that have not been accessed in over 7 days
@@ -38,13 +54,18 @@ jobs:
       # https://github.com/actions/runner/issues/1483
       if: toJSON(inputs.refresh_cache) || steps.cache-openskimap.outputs.cache-hit != 'true'
       run: uv run openskistats download
-    - name: Analysis
+    - name: Python Analysis
       run: |
         uv run openskistats analyze
         uv run openskistats validate
         uv run openskistats visualize
-        uv run quarto render website
       shell: bash
+    - name: R Analysis
+      run: Rscript data.R
+      with:
+        working-directory: website/skirolly/
+    - name: Quarto Render
+      run: quarto render website
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4
       with:

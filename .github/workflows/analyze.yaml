@@ -62,8 +62,7 @@ jobs:
       shell: bash
     - name: R Analysis
       run: Rscript data.R
-      with:
-        working-directory: website/skirolly/
+      working-directory: website/skirolly/
     - name: Quarto Render
       run: quarto render website
     - name: Deploy

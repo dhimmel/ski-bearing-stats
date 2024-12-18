@@ -1,5 +1,5 @@
 ---
-title: "illuminating the patterns of the slopes"
+title: "The Patterns of the Slopes"
 format: 
   closeread-html:
     mainfont: Quicksand
@@ -14,20 +14,8 @@ format:
       narrative-text-color-sidebar: "#e2e2e2"
       section-background-color: "#002B36"
       narrative-overlay-max-width: "700px"
-knitr:
-  opts_chunk: 
-    out.width: "100%"
-    fig.width: 8
-    fig.height: 6
-    dev.args:
-      bg: transparent      
 title-block-banner: false
 ---
-
-```{r setup}
-#| message: false
-source("setup.R")
-```
 
 :::{.cr-section}
 Skiers and riders, you’ve all seen these trail maps—they're essential for navigating the mountain, finding the fastest lift, or planning your next epic run. @cr-southface
@@ -42,14 +30,13 @@ But have you ever wondered how common south-facing slopes are? In other words, d
 :::
 :::
 
-
 ::::{.cr-section layout="overlay-center"}
 We began our journey to answer this question by gathering data from [OpenSkiMap](https://openskimap.org/), which refines [OpenStreetMap](https://www.openstreetmap.org/) 
 to create an amazing interactive visualization of the world and all its ski trails. 
 @cr-openskimap
 
 :::{#cr-openskimap}
-![](https://github.com/user-attachments/assets/77bce463-d4df-40f2-9966-6da2b1676739)
+![](https://github-production-user-asset-6210df.s3.amazonaws.com/1679452/396745694-77bce463-d4df-40f2-9966-6da2b1676739.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241218%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241218T150000Z&X-Amz-Expires=300&X-Amz-Signature=6919c8b7c1c274ff9315d898136bf3cd1bacb5343660b5b55959d973f91bedd5&X-Amz-SignedHeaders=host)
 :::
 
 Thousands of OpenStreetMap contributors have worked for decades to annotate ski areas and their trails.<br><br>
@@ -78,16 +65,7 @@ These are the two signature sides of the Skiway, <span style="color: #FF8C42;">*
 
 
 :::{#cr-dots-overlay}
-```{r dots-overlay}
-dart |>
-  ggplot() +
-  aes(x = longitude, y = latitude, color = winslow) +
-  scale_color_manual(values = c("#FF8C42", "#36B37E"), guide = "none") +
-  ggpubr::background_image(dartmouth_img) +
-  geom_point(size = 0.5) +
-  coord_dartmouth +
-  bg_transparent()
-```
+![](../images/dots_overlay.png)
 :::
 
 On powder days, from <span style="color: #36B37E;">Winslow</span>, you can ski across the road
@@ -95,28 +73,11 @@ and glide right to the bottom of <span style="color: #FF8C42;">Holt's</span> Led
 [@cr-dots-only]
 
 :::{#cr-dots-only}
-```{r dots-only}
-dart |>
-  ggplot() +
-  aes(x = longitude, y = latitude, color = winslow) +
-  scale_color_manual(values = c("#FF8C42", "#36B37E"), guide = "none") +
-  geom_point(size = 0.5) +
-  coord_dartmouth +
-  bg_transparent()
-```
+![](../images/dots_only.png)
 :::
 
 :::{#cr-segments}
-```{r segments}
-ggplot(dartmouth_segs) +
-  geom_segment(
-    color = "#f07178",
-    aes(x = x, y = y, xend = xend, yend = yend),
-    arrow = arrow(type = "closed", length = unit(0.1, "cm"))
-  ) +
-  coord_dartmouth +
-  bg_transparent()
-```
+![](../images/segments_plot.png)
 :::
 
 :::{focus-on="cr-segments"}
@@ -139,9 +100,7 @@ Similar to how [wind roses](https://en.wikipedia.org/wiki/Wind_rose) chart wind 
 
 
 :::{#cr-dartmouth-rose}
-```{r dartmouth-rose, dev="png", dev.args=list(bg="transparent")}
-plot_rose(dartmouth, "", labels = c("N", "E", "S", "W"))
-```
+![](../images/dartmouth_rose.png)
 :::
 
 Each *spoke* of the circular chart represents a compass direction, with its length proportional to the <span style="color: #FFC857;">**total length**</span> and <span style="color: #36B37E;">**vertical drop**</span> of trail segments in that direction.<br><br>
@@ -150,56 +109,22 @@ Highlighted is the <span style="color: #f07178;">**Northwest by West**</span> sp
 
 
 :::{#cr-rose-nwbw}
-```{r rose-nwbw}
-dartmouth |>
-  mutate(color = if_else((row_number()) != 28, "#004B59", "#f07178")) |> 
-  plot_rose("", labels = c("N", "E", "S", "W"), highlight = TRUE) +
-  geom_text(x = 300, y = 470, label = "NWbW", color = "#EBEBEB", size = 4)
-```
+![](../images/rose_nwbw.png)
 :::
 
 :::{focus-on="cr-rose-nwbw"}
 ... to which these particular segments contribute.
-```{r segments-highlight}
-dartmouth_segs |>
-  mutate(nwbw = group == 28) |>
-  ggplot() +
-  aes(x = x, y = y, xend = xend, yend = yend, color = nwbw) +
-  geom_segment(arrow = arrow(type = "open", length = unit(0.1, "cm"))) +
-  scale_color_manual(values = c("#004B59", "#f07178"), guide = "none") +
-  coord_dartmouth +
-  bg_transparent() +
-  theme(
-    panel.grid = element_blank(),
-  ) 
-```
+![](../images/segments_highlight_nwbw.png)
 :::
 
 :::{focus-on="cr-rose-nne"}
 And here's the <span style="color: #f07178;">**North North East**</span> spoke.<br><br>
 While these NNE segments may seem small, their verticals contribute to a significantly larger spoke in the rose compared to others.
-```{r segments-highlight-nne}
-dartmouth_segs |>
-  mutate(nne = group == 3) |>
-  ggplot() +
-  aes(x = x, y = y, xend = xend, yend = yend, color = nne) +
-  geom_segment(arrow = arrow(type = "open", length = unit(0.1, "cm"))) +
-  scale_color_manual(values = c("#004B59", "#f07178"), guide = "none") +
-  coord_dartmouth +
-  bg_transparent() +
-  theme(
-    panel.grid = element_blank(),
-  )
-```
+![](../images/segments_highlight_nne.png)
 :::
 
 :::{#cr-rose-nne}
-```{r rose-nne}
-dartmouth |>
-  mutate(color = if_else((row_number()) != 3, "#004B59", "#f07178")) |>
-  plot_rose("", labels = c("N", "E", "S", "W"), highlight = TRUE) +
-  geom_text(x = 22, y = 750, label = "NNE", color = "#EBEBEB", size = 4)
-```
+![](../images/rose_nne.png)
 :::
 
 :::{focus-on="cr-rose-nne" scale-by="0.001"}
@@ -218,54 +143,44 @@ Do most of them look north-facing to you?
 [@cr-all-roses]
 
 :::{#cr-all-roses}
-```{r all-roses}
-cowplot::plot_grid(
-  plotlist = purrr::map2(
-    bearings_ls,
-    names(bearings_ls),
-    plot_rose,
-    size_x = 7,
-    size_title = 9,
-    type = "all"
-  )
-)
-```
+![](../images/all_roses.png)
 :::
 
 Our analysis of the slopes of *all* ski areas across the globe revealed a clear <span style="color: #36B37E;">poleward</span> and slight <span style="color: #FFC857;">eastward</span> bias.<br><br>
 In other words, the majority of slopes in the <span style="color: #36B37E;">northern</span> hemisphere oriented toward the <span style="color: #36B37E;">north</span> and <span style="color: #FFC857;">east</span>,
 while those in the <span style="color: #36B37E;">southern</span> hemisphere are oriented toward the <span style="color: #36B37E;">south</span> and <span style="color: #FFC857;">east</span>.
-@cr-hemisphere
+[@cr-hemisphere]{scale-by="0.8"}
 
 This trend likely reflects the desire to maximize <span style="color: #36B37E;">snow retention</span> and minimize <span style="color: #FFC857;">sun exposure</span>, ensuring better skiing conditions and longer seasons.
-@cr-hemisphere
+[@cr-hemisphere]{scale-by="0.8"}
 
 :::{#cr-hemisphere}
-```{r hemisphere}
-#| fig-width: 12
-north <- hemi |> 
-  filter(num_bins == n_groups, hemisphere == "north") |> 
-  plot_rose("Northern hemisphere", labels = c("N", "E", "S", "W"))
-
-south <- hemi |> 
-  filter(num_bins == n_groups, hemisphere == "south") |> 
-  plot_rose("Southern hemisphere", labels = c("N", "E", "S", "W"))
-
-cowplot::plot_grid(north, south, ncol = 2)
-```
+![](../images/hemisphere.png)
 :::
 
 ::::
 
 
-:::{.cr-section layout="overlay-center"}
+
 In addition to trail bearings, we have published data on other key metrics of a ski area like <span style="color: #FFC857;">**total verts**</span>, <span style="color: #36B37E;">**number of lifts**</span>, and <span style="color: #FF8C42;"> **peak elevations**</span> for ski areas across the world.
 @cr-table
 
-Curious to learn more? 
-Head on over to [OpenSkiStats.org](https://openskistats.org/) to explore detailed statistics for ski areas worldwide.
+In the table below, you can search for your favorite ski area and explore all of its summary statistics.
+@cr-table
 
-:::{#cr-table}
-![](../images/table.png)
+<div style="font-family: 'Source Sans 3'; font-size: 70%;">
+::: {.column-screen}
+```{python}
+#| echo: false
+#| output: asis
+from openskistats.display import embed_reactable_html, get_ski_area_reactable
+
+embed_reactable_html()
+get_ski_area_reactable()
+```
 :::
-:::
+</div>
+
+<br>
+Want the inside scoop?
+Read our [manuscript](/manuscript) to explore the approach we took and dive deeper into our findings.

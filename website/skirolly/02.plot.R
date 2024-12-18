@@ -1,6 +1,7 @@
 library(arrow)
 library(dplyr)
 library(ggplot2)
+library(yaml)
 
 x1 <- -72.095
 y1 <- 43.7775

@@ -1,7 +1,9 @@
 set.seed(1618)
+data_dir <- "../../data"
+img_data_dir <- "../images/data"
 
 ## dartmouth_runs -----------------------------------------------------------
-runs <- arrow::read_parquet("data/runs.parquet")
+runs <- arrow::read_parquet(file.path(data_dir, "runs.parquet"))
 dartmouth <- runs |>
   tidyr::unnest(ski_area_ids) |>
   dplyr::filter(ski_area_ids == "74e0060a96e0399ace1b1e5ef5af1e5197a19752") |>
@@ -9,7 +11,7 @@ dartmouth <- runs |>
 dart <- dartmouth |>
   dplyr::mutate(run_coordinates_clean = purrr::map(run_coordinates_clean, ~ dplyr::select(.x, -segment_hash))) |>
   tidyr::unnest(run_coordinates_clean)
-arrow::write_parquet(dart, "data/dartmouth_runs.parquet")
+arrow::write_parquet(dart, file.path(img_data_dir, "dartmouth_runs.parquet"))
 
 ## ----dartmouth_segs---------------------------------------------------------
 n_groups <- 32 # number of spokes
@@ -41,10 +43,10 @@ dartmouth_segs <- dart |>
   dplyr::relocate(xend, yend, state, scaled_dx, scaled_dy, dx, dy, tg, group) |>
   dplyr::filter(!is.na(xend)) # Remove rows where there is no "next" point
 
-arrow::write_parquet(dartmouth_segs, "data/dartmouth_segs.parquet")
+arrow::write_parquet(dartmouth_segs, file.path(img_data_dir, "dartmouth_segs.parquet"))
 
 ## ----bearings of 48 random ski areas + Dartmouth Skiway--------------------
-ski_area_metrics <- arrow::read_parquet("data/ski_area_metrics.parquet")
+ski_area_metrics <- arrow::read_parquet(file.path(data_dir, "ski_area_metrics.parquet"))
 bearings_ls <- ski_area_metrics |>
   dplyr::filter(
     run_count >= 3, combined_vertical >= 50, ski_area_name != "",
@@ -61,10 +63,4 @@ bearings_ls <- ski_area_metrics |>
         color = dplyr::if_else(bin_index == 2, "#f07178", "#004B59"),
       )
   )
-saveRDS(bearings_ls, "data/bearings_48_ls.rds")
-
-## ----hemispheres-----------------------------------------------------------
-arrow::read_parquet("data/hemisphere_roses.parquet") |>
-  tidyr::unnest(bearings) |> 
-  arrow::write_parquet("data/hemisphere_roses_unnest.parquet")
-
+saveRDS(bearings_ls, file.path(img_data_dir, "bearings_48_ls.rds"))

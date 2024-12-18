@@ -867,16 +867,6 @@
       ],
       "Hash": "4fd8900853b746af55b81fda99da7695"
     },
-    "nanoparquet": {
-      "Package": "nanoparquet",
-      "Version": "0.3.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "a2a0a0dc4cd6bd52d501c619c77cc321"
-    },
     "nlme": {
       "Package": "nlme",
       "Version": "3.1-164",

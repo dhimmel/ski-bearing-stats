@@ -1,4 +1,4 @@
-library(nanoparquet)
+library(arrow)
 library(dplyr)
 library(ggplot2)
 
@@ -13,7 +13,8 @@ data_dir <- "../images/data"
 dartmouth_img <- png::readPNG("../images/dartmouth.png", native = TRUE)
 bearings_ls <- readRDS(file.path(data_dir, "bearings_48_ls.rds"))
 dartmouth_segs <- read_parquet(file.path(data_dir, "dartmouth_segs.parquet"))
-hemi <- read_parquet(file.path(data_dir, "hemisphere_roses_unnest.parquet"))
+hemi <- read_parquet(file.path(data_dir, "hemisphere_roses.parquet")) |>
+  tidyr::unnest(bearings) 
 
 dart <- read_parquet(file.path(data_dir, "dartmouth_runs.parquet")) |>
   group_by(run_id) |>

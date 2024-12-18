@@ -26,8 +26,8 @@ jobs:
     - name: Install R Dependencies
       uses: r-lib/actions/setup-renv@v2
       with:
-        working-directory: website/skirollytelling/
+        working-directory: website/skirolly/
     - name: Test R
       run: Rscript -e "packageVersion('arrow')"
       with:
-        working-directory: website/skirollytelling/
+        working-directory: website/skirolly/

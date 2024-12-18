@@ -23,7 +23,7 @@ jobs:
     - run: uv sync
     - uses: quarto-dev/quarto-actions/setup@v2
     - name: install quarto extensions
-      working-directory: ./website/skirollytelling/
+      working-directory: ./website/skirolly/
       run: quarto add --no-prompt https://github.com/qmd-lab/closeread/archive/e3645070dd668004056ae508d2d25d05baca5ad1.zip
     - name: Install R
       uses: r-lib/actions/setup-r@v2
@@ -32,7 +32,7 @@ jobs:
     - name: Install R Dependencies
       uses: r-lib/actions/setup-renv@v2
       with:
-        working-directory: website/skirollytelling/
+        working-directory: website/skirolly/
     - name: install fonts
       run: sudo apt-get install --yes --quiet fonts-dejavu-core fonts-noto-cjk
     # GitHub will remove any cache entries that have not been accessed in over 7 days
@@ -58,7 +58,7 @@ jobs:
     - name: R Analysis
       run: Rscript data.R
       with:
-        working-directory: website/skirollytelling/
+        working-directory: website/skirolly/
     - name: Quarto Render
       run: quarto render website
     - name: Deploy

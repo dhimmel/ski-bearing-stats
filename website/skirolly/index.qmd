@@ -36,7 +36,7 @@ to create an amazing interactive visualization of the world and all its ski trai
 @cr-openskimap
 
 :::{#cr-openskimap}
-![](https://github-production-user-asset-6210df.s3.amazonaws.com/1679452/396745694-77bce463-d4df-40f2-9966-6da2b1676739.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241218%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241218T150000Z&X-Amz-Expires=300&X-Amz-Signature=6919c8b7c1c274ff9315d898136bf3cd1bacb5343660b5b55959d973f91bedd5&X-Amz-SignedHeaders=host)
+![](https://github.com/dhimmel/openskistats/raw/assets/assets/openskimap.jpg)
 :::
 
 Thousands of OpenStreetMap contributors have worked for decades to annotate ski areas and their trails.<br><br>
@@ -161,26 +161,35 @@ This trend likely reflects the desire to maximize <span style="color: #36B37E;">
 ::::
 
 
-
+::::{.cr-section layout="overlay-center"}
 In addition to trail bearings, we have published data on other key metrics of a ski area like <span style="color: #FFC857;">**total verts**</span>, <span style="color: #36B37E;">**number of lifts**</span>, and <span style="color: #FF8C42;"> **peak elevations**</span> for ski areas across the world.
-@cr-table
-
+<br><br>
 In the table below, you can search for your favorite ski area and explore all of its summary statistics.
-@cr-table
+@cr-empty
 
-<div style="font-family: 'Source Sans 3'; font-size: 70%;">
+:::{#cr-empty}
+:::
+
+::::
+
+::::{style="font-family: 'Source Sans 3'; font-size: 65%; color: #002B36"}
 ::: {.column-screen}
 ```{python}
 #| echo: false
-#| output: asis
 from openskistats.display import embed_reactable_html, get_ski_area_reactable
 
 embed_reactable_html()
 get_ski_area_reactable()
 ```
 :::
-</div>
+::::
 
-<br>
+::::{.cr-section layout="overlay-center"}
 Want the inside scoop?
 Read our [manuscript](/manuscript) to explore the approach we took and dive deeper into our findings.
+@cr-empty
+
+:::{#cr-empty}
+:::
+
+::::

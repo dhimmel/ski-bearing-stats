@@ -29,5 +29,4 @@ jobs:
         working-directory: website/skirolly/
     - name: Test R
       run: Rscript -e "packageVersion('arrow')"
-      with:
-        working-directory: website/skirolly/
+      working-directory: website/skirolly/

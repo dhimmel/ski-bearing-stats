@@ -12,8 +12,8 @@ b <- y1 - m * x1
 data_dir <- "../images/data"
 img_dir <- "../images"
 dart_url <- "https://github.com/user-attachments/assets/636f8cd2-31a6-4bd8-8a9f-1cd662d6a295"
-download.file(dart_url, destfile = file.path(img_dir, "dartmouth.png"))
-dartmouth_img <- png::readPNG(file.path(img_dir, "dartmouth.png"), native = TRUE)
+# download.file(dart_url, destfile = file.path(img_dir, "dartmouth.png"))
+# dartmouth_img <- png::readPNG(file.path(img_dir, "dartmouth.png"), native = TRUE)
 bearings_ls <- readRDS(file.path(data_dir, "bearings_48_ls.rds"))
 dartmouth_segs <- read_parquet(file.path(data_dir, "dartmouth_segs.parquet"))
 hemi <- read_parquet(file.path(data_dir, "hemisphere_roses.parquet")) |>
@@ -25,12 +25,13 @@ dart <- read_parquet(file.path(data_dir, "dartmouth_runs.parquet")) |>
   arrange(index)
 
 n_groups <- 32 # number of spokes
-x_range <- c(-72.1128, -72.081)
-y_range <- c(43.7781, 43.7902)
+x_range <- c(-72.1124, -72.081)
+y_range <- c(43.7781, 43.790)
 length_x <- diff(x_range) # Length in x-direction
 length_y <- diff(y_range) # Length in y-direction
 
-desired_yx_ratio <- dim(dartmouth_img)[1] / dim(dartmouth_img)[2]
+# desired_yx_ratio <- dim(dartmouth_img)[1] / dim(dartmouth_img)[2]
+desired_yx_ratio <- 1429 / 2768
 ratio <- (length_x / length_y) * desired_yx_ratio
 coord_dartmouth <- coord_fixed(
   xlim = x_range,
@@ -95,19 +96,29 @@ dartmouth <- bearings_ls[["Dartmouth Skiway"]]
 
 ## Plots ----
 
-dots_overlay <- dart |>
+dots_only <- dart |>
   ggplot() +
   aes(x = longitude, y = latitude, color = winslow) +
   scale_color_manual(values = c("#FF8C42", "#36B37E"), guide = "none") +
-  ggpubr::background_image(dartmouth_img) +
   geom_point(size = 0.5) +
   coord_dartmouth +
-  bg_transparent()
+  bg_transparent() +
+  theme(
+    panel.border = element_blank(),
+  )
 
+fig_height <- 3.75
+fig_width <- fig_height*865/452
+dots_overlay <- ggimage::ggbackground(
+  dots_only + theme(panel.grid = element_blank()), 
+  dart_url
+)
 ggsave(
   file.path(img_dir, "dots_overlay.png"), 
   dots_overlay,
-  width = 8, height = 6, dpi = 300
+  width = fig_width,
+  height = fig_height,
+  dpi = 300
 )
 
 dots_only <- dart |>
@@ -121,7 +132,7 @@ dots_only <- dart |>
 ggsave(
   file.path(img_dir, "dots_only.png"), 
   dots_only,
-  width = 8, height = 6, dpi = 300
+  width = fig_width, height = fig_height, dpi = 300
 )
 
 segments_plot <- ggplot(dartmouth_segs) +
@@ -136,14 +147,14 @@ segments_plot <- ggplot(dartmouth_segs) +
 ggsave(
   file.path(img_dir, "segments_plot.png"), 
   segments_plot,
-  width = 8, height = 6, dpi = 300
+  width = fig_width, height = fig_height, dpi = 300
 )
 
 dartmouth_rose <- plot_rose(dartmouth, "", labels = c("N", "E", "S", "W"))
 ggsave(
   file.path(img_dir, "dartmouth_rose.png"), 
   dartmouth_rose,
-  width = 8, height = 6, dpi = 300
+  width = fig_width, height = fig_height, dpi = 300
 )
 
 rose_nwbw <- dartmouth |>
@@ -154,7 +165,7 @@ rose_nwbw <- dartmouth |>
 ggsave(
   file.path(img_dir, "rose_nwbw.png"), 
   rose_nwbw,
-  width = 8, height = 6, dpi = 300
+  width = fig_width, height = fig_height, dpi = 300
 )
 
 segments_highlight_nwbw <- dartmouth_segs |>
@@ -172,7 +183,7 @@ segments_highlight_nwbw <- dartmouth_segs |>
 ggsave(
   file.path(img_dir, "segments_highlight_nwbw.png"), 
   segments_highlight_nwbw,
-  width = 8, height = 6, dpi = 300
+  width = fig_width, height = fig_height, dpi = 300
 )
 
 segments_highlight_nne <- dartmouth_segs |>
@@ -190,7 +201,7 @@ segments_highlight_nne <- dartmouth_segs |>
 ggsave(
   file.path(img_dir, "segments_highlight_nne.png"), 
   segments_highlight_nne,
-  width = 8, height = 6, dpi = 300
+  width = fig_width, height = fig_height, dpi = 300
 )
 
 
@@ -202,7 +213,7 @@ rose_nne <- dartmouth |>
 ggsave(
   file.path(img_dir, "rose_nne.png"), 
   rose_nne,
-  width = 8, height = 6, dpi = 300
+  width = fig_width, height = fig_height, dpi = 300
 )
 
 all_roses <- cowplot::plot_grid(

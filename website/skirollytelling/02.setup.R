@@ -10,9 +10,10 @@ m <- (y2 - y1) / (x2 - x1)
 b <- y1 - m * x1
 
 data_dir <- "../images/data"
+img_dir <- "../images"
 dart_url <- "https://github.com/user-attachments/assets/636f8cd2-31a6-4bd8-8a9f-1cd662d6a295"
-download.file(dart_url, destfile = "../images/dartmouth.png")
-dartmouth_img <- png::readPNG("../images/dartmouth.png", native = TRUE)
+download.file(dart_url, destfile = file.path(img_dir, "dartmouth.png"))
+dartmouth_img <- png::readPNG(file.path(img_dir, "dartmouth.png"), native = TRUE)
 bearings_ls <- readRDS(file.path(data_dir, "bearings_48_ls.rds"))
 dartmouth_segs <- read_parquet(file.path(data_dir, "dartmouth_segs.parquet"))
 hemi <- read_parquet(file.path(data_dir, "hemisphere_roses.parquet")) |>

@@ -36,7 +36,7 @@ to create an amazing interactive visualization of the world and all its ski trai
 @cr-openskimap
 
 :::{#cr-openskimap}
-![](https://github.com/dhimmel/openskistats/raw/assets/assets/openskimap.jpg)
+![](https://github.com/dhimmel/openskistats/raw/assets/assets/openskimap.jpg){style="border-radius: 0%;"}
 :::
 
 Thousands of OpenStreetMap contributors have worked for decades to annotate ski areas and their trails.<br><br>
@@ -176,6 +176,7 @@ In the table below, you can search for your favorite ski area and explore all of
 ::: {.column-screen}
 ```{python}
 #| echo: false
+#| output: asis
 from openskistats.display import embed_reactable_html, get_ski_area_reactable
 
 embed_reactable_html()

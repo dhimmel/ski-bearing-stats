@@ -209,7 +209,7 @@ ggsave(
 rose_nne <- dartmouth |>
   mutate(color = if_else((row_number()) != 3, "#004B59", "#f07178")) |>
   plot_rose("", labels = c("N", "E", "S", "W"), highlight = TRUE) +
-  geom_text(x = 22, y = 29, label = "NNE", color = "#f07178", size = 4)
+  geom_text(x = 22, y = 29, label = "NNE", color = "#f07178", size = 5)
 
 ggsave(
   file.path(img_dir, "rose_nne.png"), 

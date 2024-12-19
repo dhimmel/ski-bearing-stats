@@ -4,3 +4,7 @@
 body {
   font-family: 'Quicksand', sans-serif;
 }
+
+.img-fluid {
+  border-radius: 24px;
+}

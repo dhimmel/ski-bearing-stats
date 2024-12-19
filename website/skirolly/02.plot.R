@@ -12,7 +12,7 @@ b <- y1 - m * x1
 
 data_dir <- "../images/data"
 img_dir <- "../images"
-dart_url <- "https://github.com/user-attachments/assets/636f8cd2-31a6-4bd8-8a9f-1cd662d6a295"
+dart_url <- "https://github.com/user-attachments/assets/1a02ca26-7034-4d87-bc0c-01f6bed997f7"
 # download.file(dart_url, destfile = file.path(img_dir, "dartmouth.png"))
 # dartmouth_img <- png::readPNG(file.path(img_dir, "dartmouth.png"), native = TRUE)
 bearings_ls <- readRDS(file.path(data_dir, "bearings_48_ls.rds"))
@@ -24,21 +24,6 @@ dart <- read_parquet(file.path(data_dir, "dartmouth_runs.parquet")) |>
   group_by(run_id) |>
   mutate(winslow = (m * longitude) + b < latitude) |>
   arrange(index)
-
-n_groups <- 32 # number of spokes
-x_range <- c(-72.1124, -72.081)
-y_range <- c(43.7781, 43.790)
-length_x <- diff(x_range) # Length in x-direction
-length_y <- diff(y_range) # Length in y-direction
-
-# desired_yx_ratio <- dim(dartmouth_img)[1] / dim(dartmouth_img)[2]
-desired_yx_ratio <- 1429 / 2768
-ratio <- (length_x / length_y) * desired_yx_ratio
-coord_dartmouth <- coord_fixed(
-  xlim = x_range,
-  ylim = y_range,
-  ratio = ratio
-)
 
 colors <- c("#f07178", "#004B59", "#FFC857", "#36B37E", "#FF8C42", "#F4F1E9", "#8A9393", "#2A2D34")
 
@@ -96,9 +81,26 @@ dartmouth <- bearings_ls[["Dartmouth Skiway"]]
 # killington <- bearings_ls[["Killington Resort"]]
 
 
+n_groups <- 32 # number of spokes
+x_range <- c(-72.1065, -72.08635)
+y_range <- c(43.77828, 43.7899)
+length_x <- diff(x_range) # Length in x-direction
+length_y <- diff(y_range) # Length in y-direction
+
 ## Plots ----
 fig_height <- 3.75
-fig_width <- fig_height*865/452
+fig_width <- fig_height*703/503#865/452
+
+# desired_yx_ratio <- dim(dartmouth_img)[1] / dim(dartmouth_img)[2]
+# desired_yx_ratio <- 1399/2356
+# desired_yx_ratio <- 1429 / 2768
+desired_yx_ratio <- 1420/1897
+ratio <- (length_x / length_y) * desired_yx_ratio
+coord_dartmouth <- coord_fixed(
+  xlim = x_range,
+  ylim = y_range,
+  ratio = ratio
+)
 
 dots_only <- dart |>
   ggplot() +
@@ -115,7 +117,6 @@ dots_overlay <- ggimage::ggbackground(
   dots_only + theme(panel.grid = element_blank()),
   dart_url
 )
-
 
 ggsave(
   file.path(img_dir, "dots_overlay.png"), 
@@ -155,18 +156,18 @@ dartmouth_rose <- plot_rose(dartmouth, "", labels = c("N", "E", "S", "W"))
 ggsave(
   file.path(img_dir, "dartmouth_rose.png"), 
   dartmouth_rose,
-  width = fig_width, height = fig_height, dpi = 300
+  width = 5, height = 5, dpi = 300
 )
 
 rose_nwbw <- dartmouth |>
   mutate(color = if_else((row_number()) != 28, "#004B59", "#f07178")) |> 
   plot_rose("", labels = c("N", "E", "S", "W"), highlight = TRUE) +
-  geom_text(x = 298, y = 26.3, label = "NWbW", color = "#f07178", size = 5)
+  geom_text(x = 298, y = 26.3, label = "NWbW", color = "#f07178", size = 6)
 rose_nwbw
 ggsave(
   file.path(img_dir, "rose_nwbw.png"), 
   rose_nwbw,
-  width = fig_width, height = fig_height, dpi = 300
+  width = 5, height = 5, dpi = 300
 )
 
 segments_highlight_nwbw <- dartmouth_segs |>
@@ -209,12 +210,12 @@ ggsave(
 rose_nne <- dartmouth |>
   mutate(color = if_else((row_number()) != 3, "#004B59", "#f07178")) |>
   plot_rose("", labels = c("N", "E", "S", "W"), highlight = TRUE) +
-  geom_text(x = 22, y = 29, label = "NNE", color = "#f07178", size = 5)
+  geom_text(x = 22, y = 29, label = "NNE", color = "#f07178", size = 6)
 
 ggsave(
   file.path(img_dir, "rose_nne.png"), 
   rose_nne,
-  width = fig_width, height = fig_height, dpi = 300
+  width = 5, height = 5, dpi = 300
 )
 
 all_roses <- cowplot::plot_grid(

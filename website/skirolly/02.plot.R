@@ -231,7 +231,7 @@ all_roses <- cowplot::plot_grid(
 ggsave(
   file.path(img_dir, "all_roses.png"), 
   all_roses,
-  width = 8, height = 6, dpi = 300
+  width = 8, height = 6, dpi = 600
 )
 
 north <- hemi |> 

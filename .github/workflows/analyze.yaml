@@ -65,7 +65,7 @@ jobs:
         Rscript 01.data.R
         Rscript 02.plot.R
     - name: Quarto Render
-      run: quarto render website
+      run: uv run quarto render website
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4
       with:

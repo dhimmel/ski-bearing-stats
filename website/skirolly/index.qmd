@@ -45,7 +45,7 @@ In this New Hampshire/Vermont region, ...
 
 
 ... you can see the iconic Killington and its neighbor Pico. 
-[@cr-openskimap]{scale-by="3" pan-to="97%, -50%"}
+[@cr-openskimap]{scale-by="3" pan-to="97%, -57%"}
 
 Here is a local favorite, Whaleback Mountain.
 [@cr-openskimap]{scale-by="3" pan-to="-90%, -85%"}

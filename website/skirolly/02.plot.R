@@ -68,6 +68,7 @@ plot_rose <- function(dat, ski_area_name, size_title = 24, size_x = 20, highligh
     labs(title = ski_area_name) +
     bg_transparent() +
     theme(
+      panel.grid = element_line(color = "grey60"),
       axis.text.x = element_text(size = size_x, color = "#EBEBEB"),
       plot.title = element_text(hjust = 0.5, size = size_title, color = "#EBEBEB")
     )
@@ -96,6 +97,8 @@ dartmouth <- bearings_ls[["Dartmouth Skiway"]]
 
 
 ## Plots ----
+fig_height <- 3.75
+fig_width <- fig_height*865/452
 
 dots_only <- dart |>
   ggplot() +
@@ -108,12 +111,12 @@ dots_only <- dart |>
     panel.border = element_blank(),
   )
 
-fig_height <- 3.75
-fig_width <- fig_height*865/452
 dots_overlay <- ggimage::ggbackground(
-  dots_only + theme(panel.grid = element_blank()), 
+  dots_only + theme(panel.grid = element_blank()),
   dart_url
 )
+
+
 ggsave(
   file.path(img_dir, "dots_overlay.png"), 
   dots_overlay,
@@ -122,17 +125,14 @@ ggsave(
   dpi = 300
 )
 
-dots_only <- dart |>
-  ggplot() +
-  aes(x = longitude, y = latitude, color = winslow) +
-  scale_color_manual(values = c("#FF8C42", "#36B37E"), guide = "none") +
-  geom_point(size = 0.5) +
-  coord_dartmouth +
-  bg_transparent()
-
+align_dots <- function(p){
+  ggplot(data.frame(x = 0:1, y = 0:1), aes(x = x, y = y)) + 
+  ggimage::geom_subview(subview = p, width = Inf, height = Inf, x = 0.5, y = 0.5) +
+  ggimage::theme_nothing() 
+}
 ggsave(
   file.path(img_dir, "dots_only.png"), 
-  dots_only,
+  align_dots(dots_only),
   width = fig_width, height = fig_height, dpi = 300
 )
 
@@ -147,7 +147,7 @@ segments_plot <- ggplot(dartmouth_segs) +
 
 ggsave(
   file.path(img_dir, "segments_plot.png"), 
-  segments_plot,
+  align_dots(segments_plot),
   width = fig_width, height = fig_height, dpi = 300
 )
 
@@ -161,8 +161,8 @@ ggsave(
 rose_nwbw <- dartmouth |>
   mutate(color = if_else((row_number()) != 28, "#004B59", "#f07178")) |> 
   plot_rose("", labels = c("N", "E", "S", "W"), highlight = TRUE) +
-  geom_text(x = 300, y = 470, label = "NWbW", color = "#EBEBEB", size = 4)
-
+  geom_text(x = 298, y = 26.3, label = "NWbW", color = "#f07178", size = 5)
+rose_nwbw
 ggsave(
   file.path(img_dir, "rose_nwbw.png"), 
   rose_nwbw,
@@ -209,7 +209,7 @@ ggsave(
 rose_nne <- dartmouth |>
   mutate(color = if_else((row_number()) != 3, "#004B59", "#f07178")) |>
   plot_rose("", labels = c("N", "E", "S", "W"), highlight = TRUE) +
-  geom_text(x = 22, y = 750, label = "NNE", color = "#EBEBEB", size = 4)
+  geom_text(x = 22, y = 29, label = "NNE", color = "#f07178", size = 4)
 
 ggsave(
   file.path(img_dir, "rose_nne.png"), 

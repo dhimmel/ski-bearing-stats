@@ -172,7 +172,7 @@ In the table below, you can search for your favorite ski area and explore all of
 
 ::::
 
-::::{style="font-family: 'Source Sans 3'; font-size: 65%; color: #002B36"}
+::::{style="font-family: 'Source Sans 3'; font-size: 45%; color: #002B36"}
 ::: {.column-screen}
 ```{python}
 #| echo: false

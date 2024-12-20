@@ -1,0 +1,11 @@
+name: Setup Python
+description: Common steps for installing python and project dependencies
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - uses: astral-sh/setup-uv@v3
+    - run: uv sync --extra=dev
+      shell: bash

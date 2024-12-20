@@ -339,6 +339,9 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
     for grouping_col, groups_pl in grouping_col_to_stats.items():
         name = f"{grouping_col}_roses"
         logging.info(f"{name}: plotting ski roses by {grouping_col}")
+        groups_pl.write_parquet(
+            file=get_images_data_directory().joinpath(f"{name}.parquet")
+        )
         groups_pl = groups_pl.filter(
             pl.col("combined_vertical") >= min_combined_vertical
         )
@@ -347,9 +350,6 @@ def ski_rose_the_world(min_combined_vertical: int = 10_000) -> pl.DataFrame:
                 f"Skipping {grouping_col} plot which returns no groups with combined_vertical >= {min_combined_vertical:,} m."
             )
             continue
-        groups_pl.write_parquet(
-            file=get_images_data_directory().joinpath(f"{name}.parquet")
-        )
         fig = subplot_orientations(
             groups_pl=groups_pl,
             grouping_col=grouping_col,
